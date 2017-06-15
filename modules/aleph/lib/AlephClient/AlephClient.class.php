@@ -113,9 +113,6 @@ class AlephClient {
    *    Array with user information and 'success'-key with true or false.
    */
   public function authenticate($bor_id, $verification, $library = 'ICE53', $sub_library = 'BBAAA') {
-    $is_blocked = FALSE;
-    $block_messages = array();
-
     $return = array('success' => FALSE);
 
     try {
