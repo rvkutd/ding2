@@ -132,9 +132,39 @@ class AlephClient {
         'pass' => $verification,
       );
 
-      if ($res) {
+      // Check if the user is blocked.
+      $block_codes = array(
+        'z305-delinq-1' => 'z305-delinq-n-1',
+        'z305-delinq-2' => 'z305-delinq-n-2',
+        'z305-delinq-3' => 'z305-delinq-n-3'
+      );
+
+      foreach ($block_codes as $block_code => $block_code_message) {
+        if ($results = $res->getElementsByTagName($block_code)) {
+          foreach ($results as $result) {
+            $block_code_messages = $res->getElementsByTagName($block_code_message);
+            foreach ($block_code_messages as $block_code_message) {
+              $block_code_message = $block_code_message->nodeValue;
+            }
+            if ($result->nodeValue !== '00') {
+              $is_blocked = TRUE;
+              $block_messages[$block_code] = $block_code_message;
+            }
+          }
+        }
+      }
+
+      if ($res && !$is_blocked) {
         $return['success'] = TRUE;
       }
+
+      else {
+        $return['success'] = FALSE;
+        foreach ($block_messages as $block_code => $block_code_message) {
+          drupal_set_message(t($block_code_message), 'error');
+        }
+      }
+
     }
     catch (Exception $e) {
       watchdog('aleph', 'Authentication error for user @user: “@message”', array(
