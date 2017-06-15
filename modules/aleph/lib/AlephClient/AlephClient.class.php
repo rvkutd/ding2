@@ -22,12 +22,6 @@ class AlephClient {
   private $client;
 
   /**
-   * @var $library_id
-   * The Aleph library ID.
-   */
-  private $library_id = 'ICE53';
-
-  /**
    * Constructor, checking if we have a sensible value for $base_url.
    *
    * @param string $base_url
@@ -62,7 +56,6 @@ class AlephClient {
   private function request($method, $operation, $params, $check_status = TRUE) {
     $query = array(
       'op' => $operation,
-      'library' => $this->library_id
     );
 
     $options = array(
@@ -108,31 +101,40 @@ class AlephClient {
    *    The user ID (z303-id).
    *
    * @param string $verification
-   *    The password.
+   *    The user pin-code/verification code.
+   *
+   * @param string $library
+   *    The global library.
+   *
+   * @param string $sub_library
+   *    The sub-library.
    *
    * @return array $return
    *    Array with user information and 'success'-key with true or false.
    */
-  public function authenticate($bor_id, $verification) {
-    $return = array(
-      'success' => FALSE,
-    );
+  public function authenticate($bor_id, $verification, $library = 'ICE53', $sub_library = 'BBAAA') {
+    $is_blocked = FALSE;
+    $block_messages = array();
+
+    $return = array('success' => FALSE);
 
     try {
       $res = $this->request('GET', 'bor-auth', array(
         'bor_id' => $bor_id,
-        'verification' => $verification
+        'verification' => $verification,
+        'library' => $library,
+        'sub_library' => $sub_library,
       ));
-
-      if ($res) {
-        $return['success'] = TRUE;
-      }
 
       // Set creds.
       $return['creds'] = array(
         'name' => $bor_id,
         'pass' => $verification,
       );
+
+      if ($res) {
+        $return['success'] = TRUE;
+      }
     }
     catch (Exception $e) {
       watchdog('aleph', 'Authentication error for user @user: “@message”', array(
