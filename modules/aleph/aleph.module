@@ -69,7 +69,7 @@ function aleph_client() {
   static $client;
   if (!isset($client)) {
     try {
-      $client = new AlephClient(variable_get('aleph_base_url', ''));
+      $client = new AlephClient(variable_get('aleph_base_url', 'http://snorri.lb.is/X'));
     }
     catch (Exception $e) {
       watchdog('aleph', 'Constructor error: “@message”', array('@message' => $e->getMessage(), WATCHDOG_ERROR));
