@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Implements the Aleph user consent interface.
