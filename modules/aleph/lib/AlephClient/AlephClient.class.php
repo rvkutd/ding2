@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Provides a client for the Axiell Aleph library information webservice.
@@ -8,16 +9,21 @@ require __DIR__ . '../../../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
+/**
+ * Implements the AlephClient class.
+ */
 class AlephClient {
   /**
-   * @var $base_url
    * The base server URL to run the requests against.
+   *
+   * @var baseUrl
    */
-  private $base_url;
+  private $baseUrl;
 
   /**
-   * @var $client
    * The GuzzleHttp Client.
+   *
+   * @var client
    */
   private $client;
 
@@ -31,8 +37,8 @@ class AlephClient {
    */
   public function __construct($base_url) {
     if (stripos($base_url, 'http') === 0 && filter_var($base_url, FILTER_VALIDATE_URL, FILTER_FLAG_SCHEME_REQUIRED)) {
-      $this->base_url = $base_url;
-      $this->client = new GuzzleHttp\Client();
+      $this->baseUrl = $base_url;
+      $this->client = new Client();
     }
     else {
       // TODO: Use a specialised exception for this.
@@ -53,18 +59,18 @@ class AlephClient {
    * @return DOMDocument
    *    A DOMDocument object with the response.
    */
-  private function request($method, $operation, $params, $check_status = TRUE) {
+  private function request($method, $operation, array $params, $check_status = TRUE) {
     $query = array(
       'op' => $operation,
     );
 
     $options = array(
       'query' => array_merge($query, $params),
-      'allow_redirects' => FALSE
+      'allow_redirects' => FALSE,
     );
 
     // Send the request.
-    $response = $this->client->request($method, $this->base_url, $options);
+    $response = $this->client->request($method, $this->baseUrl, $options);
 
     // Status from Aleph is OK.
     if ($response->getStatusCode() == 200) {
@@ -99,17 +105,14 @@ class AlephClient {
    *
    * @param string $bor_id
    *    The user ID (z303-id).
-   *
    * @param string $verification
    *    The user pin-code/verification code.
-   *
    * @param string $library
    *    The global library.
-   *
    * @param string $sub_library
    *    The sub-library.
    *
-   * @return array $return
+   * @return array
    *    Array with user information and 'success'-key with true or false.
    */
   public function authenticate($bor_id, $verification, $library = 'ICE53', $sub_library = 'BBAAA') {
@@ -133,7 +136,7 @@ class AlephClient {
       $block_codes = array(
         'z305-delinq-1' => 'z305-delinq-n-1',
         'z305-delinq-2' => 'z305-delinq-n-2',
-        'z305-delinq-3' => 'z305-delinq-n-3'
+        'z305-delinq-3' => 'z305-delinq-n-3',
       );
 
       foreach ($block_codes as $block_code => $block_code_message) {
@@ -158,34 +161,52 @@ class AlephClient {
       else {
         $return['success'] = FALSE;
         foreach ($block_messages as $block_code => $block_code_message) {
-          drupal_set_message(t($block_code_message), 'error');
+          drupal_set_message($block_code_message, 'error');
         }
       }
-
     }
     catch (Exception $e) {
       watchdog('aleph', 'Authentication error for user @user: “@message”', array(
-        '@user' => $bor_id, '@message' => $e->getMessage()
+        '@user' => $bor_id,
+        '@message' => $e->getMessage(),
       ), WATCHDOG_ERROR);
     }
-
     return $return;
   }
+
 }
 
 /**
- * Define exceptions for different error conditions inside the Aleph client.
+ * AlephClientInvalidURLError exception.
  */
-class AlephClientInvalidURLError extends Exception { }
+class AlephClientInvalidURLError extends Exception {}
 
-class AlephClientHTTPError extends Exception { }
+/**
+ * AlephClientHTTPError exception.
+ */
+class AlephClientHTTPError extends Exception {}
 
-class AlephClientCommunicationError extends Exception { }
+/**
+ * AlephClientCommunicationError exception.
+ */
+class AlephClientCommunicationError extends Exception {}
 
-class AlephClientInvalidPatronError extends Exception { }
+/**
+ * AlephClientInvalidPatronError exception.
+ */
+class AlephClientInvalidPatronError extends Exception {}
 
-class AlephClientUserAlreadyExistsError extends Exception { }
+/**
+ * AlephClientUserAlreadyExistsError exception.
+ */
+class AlephClientUserAlreadyExistsError extends Exception {}
 
-class AlephClientBorrCardNotFound extends Exception { }
+/**
+ * AlephClientBorrCardNotFound exception.
+ */
+class AlephClientBorrCardNotFound extends Exception {}
 
-class AlephClientReservationNotFound extends Exception { }
+/**
+ * AlephClientReservationNotFound exception.
+ */
+class AlephClientReservationNotFound extends Exception {}
