@@ -119,7 +119,7 @@ class AlephClient {
     $return = array('success' => FALSE);
 
     try {
-      $res = $this->request('GET', 'bor-auth', array(
+      $response = $this->request('GET', 'bor-auth', array(
         'bor_id' => $bor_id,
         'verification' => $verification,
         'library' => $library,
@@ -139,13 +139,18 @@ class AlephClient {
         'z305-delinq-3' => 'z305-delinq-n-3',
       );
 
+      // Loop through denlinq-1, denlinq-2, denlinq-3.
       foreach ($block_codes as $block_code => $block_code_message) {
-        if ($results = $res->getElementsByTagName($block_code)) {
+        if ($results = $response->getElementsByTagName($block_code)) {
           foreach ($results as $result) {
-            $block_code_messages = $res->getElementsByTagName($block_code_message);
+            // Extract error message.
+            $block_code_messages = $response->getElementsByTagName($block_code_message);
+
             foreach ($block_code_messages as $block_code_message) {
               $block_code_message = $block_code_message->nodeValue;
             }
+
+            // Anything other than 00 is blocked.
             if ($result->nodeValue !== '00') {
               $is_blocked = TRUE;
               $block_messages[$block_code] = $block_code_message;
@@ -154,7 +159,7 @@ class AlephClient {
         }
       }
 
-      if ($res && !$is_blocked) {
+      if ($response && !$is_blocked) {
         $return['success'] = TRUE;
       }
 
