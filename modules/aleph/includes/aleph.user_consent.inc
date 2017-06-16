@@ -7,10 +7,16 @@
  * than 30 days the user category is changed to reflect the new status. If the
  * permission is revoked then the user category is changed back to the
  * original.
+ *
+ * This is implemented because Ding needs it; otherwise login becomes funky.
+ * Iceland doesn't need user consent.
  */
 
 /**
  * Retrieve an array of user consent options.
+ *
+ * This is implemented because Ding needs it; otherwise login becomes funky.
+ * Iceland doesn't need user consent.
  *
  * @return array
  *   An array of consent options, containing a title and a description of the
@@ -29,6 +35,9 @@ function aleph_user_consent_info() {
 /**
  * Update the user consent.
  *
+ * This is implemented because Ding needs it; otherwise login becomes funky.
+ * Iceland doesn't need user consent.
+ *
  * @param object $account
  *   User account.
  * @param string $consent
@@ -43,6 +52,9 @@ function aleph_user_consent_add($account, $consent) {
 
 /**
  * Delete the users consent.
+ *
+ * This is implemented because Ding needs it; otherwise login becomes funky.
+ * Iceland doesn't need user consent.
  *
  * @param object $account
  *   User account.
@@ -59,6 +71,9 @@ function aleph_user_consent_remove($account, $consent) {
 /**
  * Retrieve any consent record which the user has saved.
  *
+ * This is implemented because Ding needs it; otherwise login becomes funky.
+ * Iceland doesn't need user consent.
+ *
  * @param object $account
  *   The user account.
  *
@@ -71,6 +86,9 @@ function aleph_user_consent_get_consent($account) {
 
 /**
  * Get the category which matches the current when changing.
+ *
+ * This is implemented because Ding needs it; otherwise login becomes funky.
+ * Iceland doesn't need user consent.
  *
  * @param string $category
  *   Category.
