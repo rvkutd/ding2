@@ -2,10 +2,10 @@
 
 /**
  * @file
- * Provides a client for the Axiell Aleph library information webservice.
+ * Provides a client for the Aleph library information webservice.
  */
 
-require __DIR__ . '../../../vendor/autoload.php';
+require __DIR__ . '/../../vendor/autoload.php';
 
 use GuzzleHttp\Client;
 
@@ -16,21 +16,21 @@ class AlephClient {
   /**
    * The base server URL to run the requests against.
    *
-   * @var baseUrl
+   * @var string
    */
   private $baseUrl;
 
   /**
    * The GuzzleHttp Client.
    *
-   * @var client
+   * @var GuzzleHttp\Client
    */
   private $client;
 
   /**
    * The returned DOMDocument object from the request.
    *
-   * @var dom
+   * @var \DOMDocument
    */
   private $dom;
 
@@ -58,6 +58,8 @@ class AlephClient {
    *
    * @param string $method
    *    The query method (GET, POST, etc.).
+   * @param string $operation
+   *    The operation to run in Aleph.
    * @param array $params
    *    Query string parameters in the form of key => value.
    * @param bool $check_status
@@ -65,6 +67,9 @@ class AlephClient {
    *
    * @return DOMDocument
    *    A DOMDocument object with the response.
+   *
+   * @throws AlephClientCommunicationError
+   * @throws AlmaClientHTTPError
    */
   public function request($method, $operation, array $params, $check_status = TRUE) {
     $query = array(
@@ -85,13 +90,14 @@ class AlephClient {
       $dom->loadXML($response->getBody());
 
       // Check for errors from Aleph and throw error exception.
+      $error_message = NULL;
       $error_nodes = $dom->getElementsByTagName('error');
 
       if (!empty($error_nodes[0])) {
         $error_message = $error_nodes[0]->nodeValue;
       }
 
-      if (!$check_status || !empty($error_message)) {
+      if (!$check_status || !is_null($error_message)) {
         throw new AlephClientCommunicationError('Status is not okay: ' . $error_message);
       }
 
@@ -103,7 +109,7 @@ class AlephClient {
 
     // Throw exception if the status from Aleph is not OK.
     else {
-      throw new AlmaClientHTTPError('Request error: ' . $request->code . $request->error);
+      throw new AlmaClientHTTPError('Request error: ' . $response->code . $response->error);
     }
   }
 
@@ -133,7 +139,7 @@ class AlephClient {
         'sub_library' => $sub_library,
       ));
 
-      // Set creds.
+      // Set credentials.
       $return['creds'] = array(
         'name' => $bor_id,
         'pass' => $verification,
@@ -142,29 +148,22 @@ class AlephClient {
       // Check if the user is blocked for each sub-library.
       $is_blocked = FALSE;
 
-      $block_codes = array(
+      $sub_libraries = array(
+        // Element name of the status-code => message for the status.
+        // Local record (Z305). Aleph can hold three block codes.
         'z305-delinq-1' => 'z305-delinq-n-1',
         'z305-delinq-2' => 'z305-delinq-n-2',
         'z305-delinq-3' => 'z305-delinq-n-3',
       );
 
-      // Loop through sub-libraries.
-      foreach ($block_codes as $block_code => $block_code_message) {
-        if ($results = $response->getElementsByTagName($block_code)) {
-          foreach ($results as $result) {
-            // Extract error message.
-            $block_code_messages = $response->getElementsByTagName($block_code_message);
+      foreach ($sub_libraries as $block_code => $message) {
+        $values = $this->get(array($block_code, $message));
 
-            foreach ($block_code_messages as $block_code_message) {
-              $block_code_message = $block_code_message->nodeValue;
-            }
-
-            // Anything other than 00 is blocked.
-            if ($result->nodeValue !== '00') {
-              $is_blocked = TRUE;
-              $block_messages[$block_code] = $block_code_message;
-            }
-          }
+        // If block code is not 00, the user is blocked.
+        if ($values[$block_code] !== '00') {
+          $is_blocked = TRUE;
+          // Display the reason why from Aleph.
+          drupal_set_message($values[$message], 'error');
         }
       }
 
@@ -174,9 +173,6 @@ class AlephClient {
 
       else {
         $return['success'] = FALSE;
-        foreach ($block_messages as $block_code => $block_code_message) {
-          drupal_set_message($block_code_message, 'error');
-        }
       }
     }
     catch (Exception $e) {
@@ -206,6 +202,7 @@ class AlephClient {
       // Extract each value from all the tags.
       if ($results = $this->dom->getElementsByTagName($tag)) {
         foreach ($results as $result) {
+          // If there's multiple matches, the last one is used.
           $tag_values[$tag] = $result->nodeValue;
         }
       }
