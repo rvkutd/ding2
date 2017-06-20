@@ -28,6 +28,13 @@ class AlephClient {
   private $client;
 
   /**
+   * The returned DOMDocument object from the request.
+   *
+   * @var dom
+   */
+  private $dom;
+
+  /**
    * Constructor, checking if we have a sensible value for $base_url.
    *
    * @param string $base_url
@@ -59,7 +66,7 @@ class AlephClient {
    * @return DOMDocument
    *    A DOMDocument object with the response.
    */
-  private function request($method, $operation, array $params, $check_status = TRUE) {
+  public function request($method, $operation, array $params, $check_status = TRUE) {
     $query = array(
       'op' => $operation,
     );
@@ -90,7 +97,7 @@ class AlephClient {
 
       // If there's no errors, return the dom.
       else {
-        return $dom;
+        return $this->dom = $dom;
       }
     }
 
@@ -179,6 +186,31 @@ class AlephClient {
       ), WATCHDOG_ERROR);
     }
     return $return;
+  }
+
+  /**
+   * Get dom elements by tag name.
+   *
+   * @param array $tags
+   *    The tags for the values you want to have returned.
+   *
+   * @return array
+   *    Array with the tag as key and the value as value or an empty array.
+   */
+  public function get($tags) {
+    // Array to store the returned key/value pairs.
+    $tag_values = array();
+
+    // Loop through each provided tag.
+    foreach ($tags as $tag) {
+      // Extract each value from all the tags.
+      if ($results = $this->dom->getElementsByTagName($tag)) {
+        foreach ($results as $result) {
+          $tag_values[$tag] = $result->nodeValue;
+        }
+      }
+    }
+    return $tag_values;
   }
 
 }
