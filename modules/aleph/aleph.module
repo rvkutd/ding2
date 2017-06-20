@@ -8,6 +8,13 @@
 include_once 'aleph.features.inc';
 
 /**
+ * Implements hook_xautoload().
+ */
+function aleph_xautoload($adapter) {
+  $adapter->absolute()->addPsr4('Aleph\\', drupal_get_path('module', 'aleph') . '/src');
+}
+
+/**
  * Implements hook_ding_provider().
  */
 function aleph_ding_provider() {

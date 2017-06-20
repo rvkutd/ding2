@@ -20,4 +20,4 @@ features[profile2_type][] = provider_aleph
 files[] = aleph.module
 files[] = includes/aleph.user.inc
 files[] = includes/aleph.user_consent.inc
-files[] = lib/AlephClient/AlephClient.class.php
+files[] = src/AlephClient.php

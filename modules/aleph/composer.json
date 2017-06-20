@@ -1,4 +1,9 @@
 {
+    "autoload": {
+        "psr-4": {
+            "Aleph\\": "src/"
+        }
+    },
     "require": {
         "guzzlehttp/guzzle": "^6.2"
     }
