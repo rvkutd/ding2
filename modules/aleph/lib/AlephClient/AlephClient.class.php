@@ -132,14 +132,16 @@ class AlephClient {
         'pass' => $verification,
       );
 
-      // Check if the user is blocked.
+      // Check if the user is blocked for each sub-library.
+      $is_blocked = FALSE;
+
       $block_codes = array(
         'z305-delinq-1' => 'z305-delinq-n-1',
         'z305-delinq-2' => 'z305-delinq-n-2',
         'z305-delinq-3' => 'z305-delinq-n-3',
       );
 
-      // Loop through denlinq-1, denlinq-2, denlinq-3.
+      // Loop through sub-libraries.
       foreach ($block_codes as $block_code => $block_code_message) {
         if ($results = $response->getElementsByTagName($block_code)) {
           foreach ($results as $result) {
