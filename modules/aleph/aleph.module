@@ -5,14 +5,9 @@
  * Code for the Aleph feature.
  */
 
-include_once 'aleph.features.inc';
+use Drupal\aleph\Aleph\AlephClient;
 
-/**
- * Implements hook_xautoload().
- */
-function aleph_xautoload($adapter) {
-  $adapter->absolute()->addPsr4('Aleph\\', drupal_get_path('module', 'aleph') . '/src');
-}
+include_once 'aleph.features.inc';
 
 /**
  * Implements hook_ding_provider().
