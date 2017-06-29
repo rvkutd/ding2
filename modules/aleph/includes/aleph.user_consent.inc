@@ -10,7 +10,7 @@
  * original.
  *
  * This is implemented because Ding needs it; otherwise login becomes funky.
- * Iceland doesn't need user consent.
+ * Iceland does not need the user consent.
  */
 
 /**
@@ -29,7 +29,7 @@ function aleph_user_consent_info() {
  * Update the user consent.
  *
  * @param object $account
- *   User account.
+ *    User account.
  * @param string $consent
  *   Consent category.
  *
@@ -45,9 +45,9 @@ function aleph_user_consent_add($account, $consent) {
  * Delete the users consent.
  *
  * @param object $account
- *   User account.
+ *    User account.
  * @param string $consent
- *   Consent category.
+ *    Consent category.
  *
  * @return bool
  *   TRUE or FALSE depending on the success of the request
@@ -61,7 +61,7 @@ function aleph_user_consent_remove($account, $consent) {
  * Retrieve any consent record which the user has saved.
  *
  * @param object $account
- *   The user account.
+ *    The user account.
  *
  * @return array
  *   An array of consent arrays sorted by the date they were accepted.
@@ -75,9 +75,9 @@ function aleph_user_consent_get_consent($account) {
  * Get the category which matches the current when changing.
  *
  * @param string $category
- *   Category.
+ *    Category.
  *
- * @return string
+ * @return array
  *   Category name.
  */
 function aleph_user_consent_get_category_change($category) {
