@@ -6,8 +6,10 @@
  */
 
 use Drupal\aleph\Aleph\AlephClient;
+use Drupal\aleph\Aleph\Handler\AlephUserHandler;
 
 include_once 'aleph.features.inc';
+require __DIR__ . '/vendor/autoload.php';
 
 /**
  * Implements hook_ding_provider().
@@ -80,4 +82,20 @@ function aleph_client() {
     }
   }
   return $client;
+}
+
+/**
+ * Return an instance of the AlephPatron.
+ *
+ * @param string $bor_id
+ *    The Aleph patron ID.
+ * @param string $verification
+ *    The Aleph patron pin.
+ *
+ * @return \AlephPatron
+ *    The Aleph Patron object.
+ */
+function aleph_get_patron($bor_id, $verification) {
+  $user_handler = new AlephUserHandler(aleph_client());
+  return $user_handler->getPatron($bor_id, $verification);
 }

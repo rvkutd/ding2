@@ -15,6 +15,8 @@ class AlephPatron extends AlephUserHandler {
 
   private $borId;
   private $verification;
+  private $authenticated;
+  private $response;
 
   /**
    * Constructor.
@@ -30,18 +32,44 @@ class AlephPatron extends AlephUserHandler {
     parent::__construct($client);
     $this->borId = $borId;
     $this->verification = $verification;
+    $this->response = $this->authenticate();
   }
 
   /**
-   * Check if the patron is authenticated.
+   * Aleph bor-auth (authentication) request.
    *
-   * @return bool
-   *    Returns TRUE if authentication succeeded.
+   * @param string|null $branch
+   *    The local branch. Hardcoded for now.
+   *
+   * @return \SimpleXMLElement|bool
+   *    The response in a SimpleXMLElement or FALSE if authentication failed.
+   */
+  public function authenticate($branch = 'BBAAA') {
+    $operation = array(
+      'bor_id' => $this->borId,
+      'verification' => $this->verification,
+      'library' => 'ICE53',
+    );
+
+    if ($branch) {
+      $operation['sub_library'] = $branch;
+    }
+
+    $response = $this->client->request('GET', 'bor-auth', $operation);
+
+    if (!empty($response)) {
+      $this->authenticated = TRUE;
+      return $response;
+    }
+
+    return FALSE;
+  }
+
+  /**
+   * Check if patron is authenticated.
    */
   public function isAuthenticated() {
-    if ($this->client->borAuth($this->borId, $this->verification)) {
-      return TRUE;
-    }
+    return (bool) $this->authenticated;
   }
 
   /**
@@ -63,8 +91,7 @@ class AlephPatron extends AlephUserHandler {
    *    The patron's name.
    */
   public function getName() {
-    $xml = $this->client->borAuth($this->borId, $this->verification);
-    return (string) $xml->xpath('z303/z303-name')[0];
+    return (string) $this->response->xpath('z303/z303-name')[0];
   }
 
   /**
@@ -75,7 +102,6 @@ class AlephPatron extends AlephUserHandler {
    *    Each array contains an array with a code and a message.
    */
   public function getBlockCodes() {
-    $xml = $this->client->borAuth($this->borId, $this->verification);
     $block_codes = array();
 
     $codes = array(
@@ -86,8 +112,8 @@ class AlephPatron extends AlephUserHandler {
 
     foreach ($codes as $code => $message) {
       $block_codes[$code] = array(
-        'code' => (string) $xml->xpath('z305/' . $code)[0],
-        'message' => (string) $xml->xpath('z305/' . $message)[0],
+        'code' => (string) $this->response->xpath('z305/' . $code)[0],
+        'message' => (string) $this->response->xpath('z305/' . $message)[0],
       );
     }
 

@@ -11,13 +11,6 @@ use Drupal\aleph\Aleph\AlephClient;
 class AlephUserHandler extends AlephHandlerBase {
 
   /**
-   * The Aleph client.
-   *
-   * @var \Drupal\aleph\Aleph\AlephClient
-   */
-  protected $client;
-
-  /**
    * AlephUserHandler constructor.
    *
    * @param \Drupal\aleph\Aleph\AlephClient $client
@@ -25,7 +18,6 @@ class AlephUserHandler extends AlephHandlerBase {
    */
   public function __construct(AlephClient $client) {
     parent::__construct($client);
-    $this->client = $client;
   }
 
   /**

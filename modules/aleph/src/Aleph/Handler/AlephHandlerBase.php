@@ -16,7 +16,7 @@ abstract class AlephHandlerBase {
    *
    * @var AlephClient
    */
-  private $client;
+  protected $client;
 
   /**
    * AlephHandlerBase constructor.
