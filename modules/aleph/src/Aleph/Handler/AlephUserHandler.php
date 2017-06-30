@@ -2,7 +2,7 @@
 
 namespace Drupal\aleph\Aleph\Handler;
 
-use AlephPatron;
+use Drupal\aleph\Aleph\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
 
 /**
