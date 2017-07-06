@@ -1,12 +1,11 @@
 <?php
 
-namespace Drupal\aleph\Aleph;
-
 /**
  * @file
  * Provides the AlephPatron.
  */
 
+use Drupal\aleph\Aleph\AlephClient;
 use Drupal\aleph\Aleph\Handler\AlephUserHandler;
 
 /**
@@ -18,6 +17,7 @@ class AlephPatron extends AlephUserHandler {
   private $verification;
   private $authenticated;
   private $response;
+  private $operation = array();
 
   /**
    * Constructor.
@@ -39,33 +39,31 @@ class AlephPatron extends AlephUserHandler {
   /**
    * Aleph bor-auth (authentication) request.
    *
-   * @param string|null $branch
-   *    The local branch. Hardcoded for now.
+   * @param string $branch
+   *   The branch name to authenticate against.
    *
-   * @return \SimpleXMLElement|bool
+   * @return \SimpleXMLElement|false
    *    The response in a SimpleXMLElement or FALSE if authentication failed.
    */
   public function authenticate($branch = 'BBAAA') {
-    $operation = array(
-      'bor_id' => $this->borId,
-      'verification' => $this->verification,
-      'library' => 'ICE53',
-    );
+    $this->operation['bor_id'] = $this->borId;
+    $this->operation['verification'] = $this->verification;
+    $this->operation['library'] = 'ICE53';
+    $this->operation['sub_library'] = $branch;
 
-    if ($branch) {
-      $operation['sub_library'] = $branch;
+    $response = $this->client->request('GET', 'bor-auth', $this->operation);
+
+    if (!empty($response)) {
+      $this->authenticated = TRUE;
+      return $response;
     }
 
-    $response = $this->client->request('GET', 'bor-auth', $operation);
-
-    if (!empty($response->xpath('error'))) {
-      $this->authenticated = FALSE;
-      return FALSE;
-    }
-
+<<<<<<< Updated upstream
+    return FALSE;
+=======
     $this->authenticated = TRUE;
     return $response;
-
+>>>>>>> Stashed changes
   }
 
   /**
@@ -121,6 +119,22 @@ class AlephPatron extends AlephUserHandler {
     }
 
     return $block_codes;
+  }
+
+  /**
+   * Returns the patron's loans.
+   *
+   * @return \Drupal\aleph\Aleph\AlephMaterial[]
+   *    Array with AlephMaterials.
+   */
+  public function getLoans() {
+    $request = $this->client->request('GET', 'bor-info', $this->operation);
+    $response = $request->xpath('item-l');
+    $loans = array();
+    foreach ($response as $id => $material) {
+      $loans[$id] = new AlephMaterial($this->client, $material);
+    }
+    return $loans;
   }
 
 }

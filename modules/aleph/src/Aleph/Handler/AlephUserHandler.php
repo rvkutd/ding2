@@ -7,6 +7,8 @@ use Drupal\aleph\Aleph\AlephClient;
 
 /**
  * Class AlephUserHandler.
+ *
+ * @package Drupal\aleph\Aleph\Handler
  */
 class AlephUserHandler extends AlephHandlerBase {
 
