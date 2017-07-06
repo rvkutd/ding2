@@ -20,6 +20,7 @@ features[profile2_type][] = provider_aleph
 files[] = aleph.module
 files[] = includes/aleph.user.inc
 files[] = includes/aleph.user_consent.inc
+files[] = includes/aleph.loan.inc
 files[] = src/Aleph/AlephClient.php
 files[] = src/Aleph/AlephPatron.php
 files[] = src/Aleph/Handler/AlephHandlerBase.php

@@ -9,6 +9,7 @@ use Drupal\aleph\Aleph\AlephClient;
 use Drupal\aleph\Aleph\Handler\AlephUserHandler;
 
 include_once 'aleph.features.inc';
+include_once 'includes/aleph.loan.inc';
 require __DIR__ . '/vendor/autoload.php';
 
 /**
@@ -26,6 +27,10 @@ function aleph_ding_provider() {
       'user' => array(
         'prefix' => 'user',
         'file' => 'includes/aleph.user.inc',
+      ),
+      'loan' => array(
+        'prefix' => 'loan',
+        'file' => 'includes/aleph.loan.inc',
       ),
     ),
   );
