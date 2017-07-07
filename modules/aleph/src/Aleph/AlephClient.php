@@ -71,15 +71,6 @@ class AlephClient {
     // Status from Aleph is OK.
     if ($response->getStatusCode() == 200) {
       $xml = new \SimpleXMLElement($response->getBody());
-
-      // Check for errors from Aleph and throw error exception.
-      $error_message = $xml->xpath('error');
-
-      if (!empty($error_message)) {
-        throw new \RuntimeException('Status is not okay: ' . $error_message[0]);
-      }
-
-      // If there's no errors, return the SimpleXMLElement.
       return $xml;
     }
 

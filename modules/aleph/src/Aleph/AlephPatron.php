@@ -1,11 +1,12 @@
 <?php
 
+namespace Drupal\aleph\Aleph;
+
 /**
  * @file
  * Provides the AlephPatron.
  */
 
-use Drupal\aleph\Aleph\AlephClient;
 use Drupal\aleph\Aleph\Handler\AlephUserHandler;
 
 /**
@@ -57,12 +58,14 @@ class AlephPatron extends AlephUserHandler {
 
     $response = $this->client->request('GET', 'bor-auth', $operation);
 
-    if (!empty($response)) {
-      $this->authenticated = TRUE;
-      return $response;
+    if (!empty($response->xpath('error'))) {
+      $this->authenticated = FALSE;
+      return FALSE;
     }
 
-    return FALSE;
+    $this->authenticated = TRUE;
+    return $response;
+
   }
 
   /**
