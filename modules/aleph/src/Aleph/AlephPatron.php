@@ -1,69 +1,32 @@
 <?php
 
+namespace Drupal\aleph\Aleph;
+
 /**
  * @file
  * Provides the AlephPatron.
  */
 
-use Drupal\aleph\Aleph\AlephClient;
-use Drupal\aleph\Aleph\Handler\AlephUserHandler;
+use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
 /**
  * Class AlephPatron.
  */
-class AlephPatron extends AlephUserHandler {
+class AlephPatron extends AlephPatronHandler {
 
   private $borId;
   private $verification;
   private $authenticated;
-  private $response;
-  private $operation = array();
+  private $name;
 
   /**
    * Constructor.
    *
    * @param \Drupal\aleph\Aleph\AlephClient $client
    *    The Aleph Client.
-   * @param string $borId
-   *    Aleph borrower ID.
-   * @param string $verification
-   *    Aleph borrower pin.
    */
-  public function __construct(AlephClient $client, $borId, $verification) {
+  public function __construct(AlephClient $client) {
     parent::__construct($client);
-    $this->borId = $borId;
-    $this->verification = $verification;
-    $this->response = $this->authenticate();
-  }
-
-  /**
-   * Aleph bor-auth (authentication) request.
-   *
-   * @param string $branch
-   *   The branch name to authenticate against.
-   *
-   * @return \SimpleXMLElement|false
-   *    The response in a SimpleXMLElement or FALSE if authentication failed.
-   */
-  public function authenticate($branch = 'BBAAA') {
-    $this->operation['bor_id'] = $this->borId;
-    $this->operation['verification'] = $this->verification;
-    $this->operation['library'] = 'ICE53';
-    $this->operation['sub_library'] = $branch;
-
-    $response = $this->client->request('GET', 'bor-auth', $this->operation);
-
-    if (!empty($response)) {
-      $this->authenticated = TRUE;
-      return $response;
-    }
-
-<<<<<<< Updated upstream
-    return FALSE;
-=======
-    $this->authenticated = TRUE;
-    return $response;
->>>>>>> Stashed changes
   }
 
   /**
@@ -71,6 +34,16 @@ class AlephPatron extends AlephUserHandler {
    */
   public function isAuthenticated() {
     return (bool) $this->authenticated;
+  }
+
+  /**
+   * Set user authentication state.
+   *
+   * @param bool $authenticated
+   *    If the user is authenticated.
+   */
+  public function setAuthenticated($authenticated) {
+    $this->authenticated = $authenticated;
   }
 
   /**
@@ -92,7 +65,17 @@ class AlephPatron extends AlephUserHandler {
    *    The patron's name.
    */
   public function getName() {
-    return (string) $this->response->xpath('z303/z303-name')[0];
+    return $this->name;
+  }
+
+  /**
+   * Set the patron's name.
+   *
+   * @param string $name
+   *    The patron's name.
+   */
+  public function setName($name) {
+    $this->name = $name;
   }
 
   /**
@@ -105,17 +88,15 @@ class AlephPatron extends AlephUserHandler {
   public function getBlockCodes() {
     $block_codes = array();
 
-    $codes = array(
-      'z305-delinq-1' => 'z305-delinq-n-1',
-      'z305-delinq-2' => 'z305-delinq-n-2',
-      'z305-delinq-3' => 'z305-delinq-n-3',
-    );
+    $codes = array('z305-delinq-1', 'z305-delinq-2', 'z305-delinq-3');
 
-    foreach ($codes as $code => $message) {
-      $block_codes[$code] = array(
-        'code' => (string) $this->response->xpath('z305/' . $code)[0],
-        'message' => (string) $this->response->xpath('z305/' . $message)[0],
-      );
+    foreach ($codes as $code) {
+      $response = $this->client->authenticate($this->getId(), $this->getVerification());
+      if (empty($response->xpath('error'))) {
+        $block_codes[$code] = array(
+          'code' => (string) $response->xpath('z305/' . $code)[0],
+        );
+      }
     }
 
     return $block_codes;
@@ -128,13 +109,56 @@ class AlephPatron extends AlephUserHandler {
    *    Array with AlephMaterials.
    */
   public function getLoans() {
-    $request = $this->client->request('GET', 'bor-info', $this->operation);
+    $request = $this->client->request('GET', 'bor-info', array(
+      'bor_id' => $this->getId(),
+      'verification' => $this->getVerification(),
+    ));
     $response = $request->xpath('item-l');
     $loans = array();
     foreach ($response as $id => $material) {
       $loans[$id] = new AlephMaterial($this->client, $material);
     }
     return $loans;
+  }
+
+  /**
+   * Returns the patron's ID.
+   *
+   * @return string
+   *    The bor_id.
+   */
+  public function getId() {
+    return $this->borId;
+  }
+
+  /**
+   * Set the patron's ID.
+   *
+   * @param string $bor_id
+   *    The patron's ID.
+   */
+  public function setId($bor_id) {
+    $this->borId = $bor_id;
+  }
+
+  /**
+   * Get the verification code.
+   *
+   * @return string
+   *    The pin/verification code.
+   */
+  public function getVerification() {
+    return $this->verification;
+  }
+
+  /**
+   * Set verification for patron.
+   *
+   * @param string $verification
+   *    The patron's pin code.
+   */
+  public function setVerification($verification) {
+    $this->verification = $verification;
   }
 
 }

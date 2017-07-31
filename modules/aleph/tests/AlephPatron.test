@@ -7,7 +7,7 @@
 
 use Drupal\ding_test\DingUnitTestBase;
 use Drupal\aleph\Aleph\AlephClient;
-use Drupal\aleph\Aleph\Handler\AlephUserHandler;
+use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
 /**
  * Class AlephPatronUnitTest.
@@ -15,7 +15,7 @@ use Drupal\aleph\Aleph\Handler\AlephUserHandler;
 class AlephPatronUnitTest extends DingUnitTestBase {
 
   private $client;
-  private $userHandler;
+  private $patronHandler;
 
   /**
    * Returns the unit test description.
@@ -38,14 +38,14 @@ class AlephPatronUnitTest extends DingUnitTestBase {
   public function setUp() {
     parent::setUp();
     $this->client = new AlephClient('http://snorri.lb.is/X');
-    $this->userHandler = new AlephUserHandler($this->client);
+    $this->patronHandler = new AlephPatronHandler($this->client);
   }
 
   /**
    * Test a valid login.
    */
   public function testValidLogin() {
-    $patron = $this->userHandler->getPatron('4004006985', 'test1');
+    $patron = $this->patronHandler->getPatron('4004006985', 'test1');
     $this->assertTrue($patron->isAuthenticated());
   }
 
@@ -53,7 +53,7 @@ class AlephPatronUnitTest extends DingUnitTestBase {
    * Test an invalid login.
    */
   public function testInvalidLogin() {
-    $patron = $this->userHandler->getPatron('4004006985', 'invalid-pin');
+    $patron = $this->patronHandler->getPatron('4004006985', 'invalid-pin');
     $this->assertFalse($patron->isAuthenticated());
   }
 
@@ -61,7 +61,7 @@ class AlephPatronUnitTest extends DingUnitTestBase {
    * Test patron 3 should be blocked.
    */
   public function testBlockedPatron() {
-    $patron = $this->userHandler->getPatron('4004006987', 'test3');
+    $patron = $this->patronHandler->getPatron('4004006987', 'test3');
     $this->assertTrue($patron->isBlocked());
   }
 
@@ -69,7 +69,7 @@ class AlephPatronUnitTest extends DingUnitTestBase {
    * Test patron 1 should not blocked.
    */
   public function testNonBlockedPatron() {
-    $patron = $this->userHandler->getPatron('4004006985', 'test1');
+    $patron = $this->patronHandler->getPatron('4004006985', 'test1');
     $this->assertFalse($patron->isBlocked());
   }
 

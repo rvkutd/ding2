@@ -6,10 +6,9 @@
  */
 
 use Drupal\aleph\Aleph\AlephClient;
-use Drupal\aleph\Aleph\Handler\AlephUserHandler;
+use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
 include_once 'aleph.features.inc';
-include_once 'includes/aleph.loan.inc';
 require __DIR__ . '/vendor/autoload.php';
 
 /**
@@ -92,15 +91,23 @@ function aleph_client() {
 /**
  * Return an instance of the AlephPatron.
  *
+ * @param object $account
+ *    The global $account.
  * @param string $bor_id
- *    The Aleph patron ID.
+ *    The Aleph patron's ID.
  * @param string $verification
- *    The Aleph patron pin.
+ *    The Aleph patron's verification pin.
  *
- * @return \AlephPatron
+ * @return \Drupal\aleph\Aleph\AlephPatron
  *    The Aleph Patron object.
  */
-function aleph_get_patron($bor_id, $verification) {
-  $user_handler = new AlephUserHandler(aleph_client());
+function aleph_get_patron_by_global_account($account) {
+  $user_handler = new AlephPatronHandler(aleph_client());
+  $credentials = ding_user_get_creds($account);
+  return $user_handler->getPatron($credentials['name'], $credentials['pass']);
+}
+
+function aleph_get_patron_by_creds($bor_id, $verification) {
+  $user_handler = new AlephPatronHandler(aleph_client());
   return $user_handler->getPatron($bor_id, $verification);
 }

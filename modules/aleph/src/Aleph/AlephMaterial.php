@@ -12,8 +12,11 @@ use Drupal\aleph\Aleph\Handler\AlephMaterialHandler;
  */
 class AlephMaterial extends AlephMaterialHandler {
 
-  private $material;
   private $loans;
+  private $title;
+  private $loanDate;
+  private $id;
+  private $dueDate;
 
   /**
    * AlephMaterial constructor.
@@ -27,7 +30,10 @@ class AlephMaterial extends AlephMaterialHandler {
    */
   public function __construct(AlephClient $client, \SimpleXMLElement $material) {
     parent::__construct($client);
-    $this->material = $material;
+    $this->title = (string) $material->z13->{'z13-title'};
+    $this->loanDate = (string) $material->z36->{'z36-loan-date'};
+    $this->id = (string) $material->z30->{'z30-doc-number'};
+    $this->dueDate = (string) $material->z36->{'z36-due-date'};
   }
 
   /**
@@ -37,7 +43,7 @@ class AlephMaterial extends AlephMaterialHandler {
    *    The material title.
    */
   public function getTitle() {
-    return (string) $this->material->z13->{'z13-title'};
+    return $this->title;
   }
 
   /**
@@ -47,8 +53,7 @@ class AlephMaterial extends AlephMaterialHandler {
    *   The formatted date.
    */
   public function getLoanDate() {
-    $loan_date = (string) $this->material->z36->{'z36-loan-date'};
-    return DateTime::createFromFormat('d/m/Y', $loan_date)->format('Y-m-d');
+    return DateTime::createFromFormat('d/m/Y', $this->loanDate)->format('Y-m-d');
   }
 
   /**
@@ -58,7 +63,7 @@ class AlephMaterial extends AlephMaterialHandler {
    *    The material ID.
    */
   public function getId() {
-    return (string) $this->material->z30->{'z30-doc-number'};;
+    return $this->id;
   }
 
   /**
@@ -68,8 +73,7 @@ class AlephMaterial extends AlephMaterialHandler {
    *    The due date.
    */
   public function getDueDate() {
-    $due_date = (string) $this->material->z36->{'z36-due-date'};
-    return DateTime::createFromFormat('d/m/Y', $due_date)->format('Y-m-d');
+    return DateTime::createFromFormat('d/m/Y', $this->dueDate)->format('Y-m-d');
   }
 
   /**

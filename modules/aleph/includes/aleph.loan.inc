@@ -19,8 +19,7 @@ use Drupal\aleph\Aleph\AlephPatron;
 function aleph_loan_list($account) {
   // Get creds is outside cache function as it may throw exception if the user
   // is not longer logged in.
-  $credentials = ding_user_get_creds($account);
-  $patron = new AlephPatron(aleph_client(), $credentials['name'], $credentials['pass']);
+  $patron = aleph_get_patron_by_global_account($account);
   $loans = $patron->getLoans();
 
   $result = array();
