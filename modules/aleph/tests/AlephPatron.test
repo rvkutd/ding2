@@ -38,39 +38,42 @@ class AlephPatronUnitTest extends DingUnitTestBase {
   public function setUp() {
     parent::setUp();
     $this->client = new AlephClient('http://snorri.lb.is/X');
-    $this->patronHandler = new AlephPatronHandler($this->client);
   }
 
   /**
    * Test a valid login.
    */
   public function testValidLogin() {
-    $patron = $this->patronHandler->getPatron('4004006985', 'test1');
-    $this->assertTrue($patron->isAuthenticated());
+    $patron_handler = new AlephPatronHandler($this->client);
+    $result = $patron_handler->authenticate('4004006985', 'test1');
+    $this->assertTrue($result->isAuthenticated());
   }
 
   /**
    * Test an invalid login.
    */
   public function testInvalidLogin() {
-    $patron = $this->patronHandler->getPatron('4004006985', 'invalid-pin');
-    $this->assertFalse($patron->isAuthenticated());
+    $patron_handler = new AlephPatronHandler($this->client);
+    $result = $patron_handler->authenticate('4004006985', 'invalid-pin');
+    $this->assertFalse($result->isAuthenticated());
   }
 
   /**
    * Test patron 3 should be blocked.
    */
   public function testBlockedPatron() {
-    $patron = $this->patronHandler->getPatron('4004006987', 'test3');
-    $this->assertTrue($patron->isBlocked());
+    $patron_handler = new AlephPatronHandler($this->client);
+    $result = $patron_handler->authenticate('4004006987', 'test3');
+    $this->assertTrue($result->isBlocked());
   }
 
   /**
    * Test patron 1 should not blocked.
    */
   public function testNonBlockedPatron() {
-    $patron = $this->patronHandler->getPatron('4004006985', 'test1');
-    $this->assertFalse($patron->isBlocked());
+    $patron_handler = new AlephPatronHandler($this->client);
+    $result = $patron_handler->authenticate('4004006985', 'test1');
+    $this->assertFalse($result->isBlocked());
   }
 
 }
