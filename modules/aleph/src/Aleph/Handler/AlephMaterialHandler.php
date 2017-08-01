@@ -3,7 +3,6 @@
 namespace Drupal\aleph\Aleph\Handler;
 
 use Drupal\aleph\Aleph\AlephClient;
-use Drupal\aleph\Aleph\AlephPatron;
 
 /**
  * Class AlephMaterialHandler.

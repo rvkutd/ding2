@@ -98,9 +98,9 @@ function aleph_client() {
  *    The Aleph Patron object.
  */
 function aleph_get_patron_by_global_account($account) {
-  $user_handler = new AlephPatronHandler(aleph_client());
+  $patron_handler = new AlephPatronHandler(aleph_client());
   $credentials = ding_user_get_creds($account);
-  return $user_handler->getPatron($credentials['name'], $credentials['pass']);
+  return $patron_handler->authenticate($credentials['name'], $credentials['pass'])->getPatron();
 }
 
 /**
@@ -111,10 +111,10 @@ function aleph_get_patron_by_global_account($account) {
  * @param string $verification
  *    The Aleph patron's verification pin.
  *
- * @return \Drupal\aleph\Aleph\AlephPatron
+ * @return \Drupal\aleph\Aleph\AlephPatron|\Drupal\aleph\Aleph\AuthenticationResult
  *    The Aleph Patron object.
  */
 function aleph_get_patron_by_creds($bor_id, $verification) {
-  $user_handler = new AlephPatronHandler(aleph_client());
-  return $user_handler->getPatron($bor_id, $verification);
+  $patron_handler = new AlephPatronHandler(aleph_client());
+  return $patron_handler->authenticate($bor_id, $verification)->getPatron();
 }

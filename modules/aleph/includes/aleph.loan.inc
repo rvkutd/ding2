@@ -5,8 +5,6 @@
  * Handles user loans.
  */
 
-use Drupal\aleph\Aleph\AlephPatron;
-
 /**
  * Implements provider loan, list.
  *
@@ -20,7 +18,7 @@ function aleph_loan_list($account) {
   // Get creds is outside cache function as it may throw exception if the user
   // is not longer logged in.
   $patron = aleph_get_patron_by_global_account($account);
-  $loans = $patron->getLoans();
+  $loans = $patron->getLoans($patron);
 
   $result = array();
 
