@@ -44,43 +44,37 @@ class AlephPatronHandler extends AlephHandlerBase {
     $response = $this->client->authenticate($bor_id, $verification);
     $result = new AuthenticationResult($this->client, $bor_id, $verification);
     if ($result->isAuthenticated()) {
-      $patron = new AlephPatron($this->client);
+      $patron = new AlephPatron();
       $patron->setId($bor_id);
       $patron->setVerification($verification);
       $patron->setName((string) $response->xpath('z303/z303-name')[0]);
       $result->setPatron($patron);
-      $this->patron = $patron;
+      $this->setPatron($patron);
     }
     return $result;
   }
 
   /**
-   * Returns the patron's loans.
-   *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
-   *    The Aleph patron.
-   *
-   * @return \Drupal\aleph\Aleph\AlephMaterial[]
-   *    Array with AlephMaterials.
+   * Get patron's loans.
    */
-  public function getLoans(AlephPatron $patron) {
-    $request = $this->client->request('GET', 'bor-info', array(
-      'bor_id' => $patron->getId(),
-      'verification' => $patron->getVerification(),
-    ));
-    $response = $request->xpath('item-l');
-    $loans = array();
-    foreach ($response as $id => $material) {
-      $loans[$id] = new AlephMaterial($this->client, $material);
-    }
+  public function getLoans() {
+    $material = new AlephMaterial();
+    $loans = $material::loansFromBorInfo($this->client->borInfo($this->patron));
     return $loans;
   }
 
   /**
-   * Return the authenticated Aleph Patron.
+   * Set the Aleph patron object.
    *
-   * @return AlephPatron
-   *    The authenticated Aleph patron.
+   * @param AlephPatron $patron
+   *    The Aleph patron.
+   */
+  public function setPatron(AlephPatron $patron) {
+    $this->patron = $patron;
+  }
+
+  /**
+   * Get the Aleph patron object.
    */
   public function getPatron() {
     return $this->patron;

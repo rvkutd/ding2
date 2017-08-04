@@ -7,12 +7,10 @@ namespace Drupal\aleph\Aleph;
  * Provides the AlephPatron.
  */
 
-use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
-
 /**
  * Class AlephPatron.
  */
-class AlephPatron extends AlephPatronHandler {
+class AlephPatron {
 
   private $borId;
   private $verification;

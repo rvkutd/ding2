@@ -100,7 +100,7 @@ class AuthenticationResult {
    * Return client error message.
    *
    * @return string|false
-   *    The client error message.
+   *    The client error message or FALSE if no errors.
    */
   public function getClientError() {
     $response = $this->client->authenticate($this->borId, $this->verification);
@@ -109,4 +109,5 @@ class AuthenticationResult {
     }
     return FALSE;
   }
+
 }

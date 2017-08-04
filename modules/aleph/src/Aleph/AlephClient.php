@@ -100,4 +100,22 @@ class AlephClient {
     return $response;
   }
 
+  /**
+   * Get information about the patron.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *    The Aleph Patron.
+   *
+   * @return \SimpleXMLElement
+   *    The response from Aleph.
+   */
+  public function borInfo(AlephPatron $patron) {
+    $response = $this->request('GET', 'bor-info', array(
+      'bor_id' => $patron->getId(),
+      'verification' => $patron->getVerification(),
+    ));
+
+    return $response;
+  }
+
 }

@@ -27,4 +27,5 @@ class AlephMaterialHandler extends AlephHandlerBase {
   protected function getIdentity() {
     return 'AlephMaterialHandler';
   }
+
 }

@@ -5,6 +5,8 @@
  * Handles user loans.
  */
 
+use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
+
 /**
  * Implements provider loan, list.
  *
@@ -18,9 +20,11 @@ function aleph_loan_list($account) {
   // Get creds is outside cache function as it may throw exception if the user
   // is not longer logged in.
   $patron = aleph_get_patron_by_global_account($account);
-  $loans = $patron->getLoans($patron);
+  $patron_handler = new AlephPatronHandler(aleph_client());
+  $patron_handler->setPatron($patron);
+  $loans = $patron_handler->getLoans();
 
-  $result = array();
+  $results = array();
 
   foreach ($loans as $loan) {
     $loan_data = array(
@@ -32,8 +36,8 @@ function aleph_loan_list($account) {
       'renewable' => $loan->isRenewable(),
     );
 
-    $result[] = new DingProviderLoan($loan->getId(), $loan_data);
+    $results[] = new DingProviderLoan($loan->getId(), $loan_data);
   }
 
-  return $result;
+  return $results;
 }
