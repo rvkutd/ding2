@@ -25,4 +25,5 @@ files[] = src/Aleph/AlephClient.php
 files[] = src/Aleph/AlephPatron.php
 files[] = src/Aleph/Handler/AlephHandlerBase.php
 files[] = src/Aleph/Handler/AlephUserHandler.php
-files[] = tests/AlephPatron.test
+files[] = tests/AlephPatronIntegration.test
+files[] = tests/AlephMaterialUnit.test

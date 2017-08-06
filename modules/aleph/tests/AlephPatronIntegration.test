@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Contains the Aleph Patron specific unit tests.
+ * Contains the Aleph Patron specific integration tests.
  */
 
 use Drupal\ding_test\DingUnitTestBase;
@@ -10,24 +10,23 @@ use Drupal\aleph\Aleph\AlephClient;
 use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
 /**
- * Class AlephPatronUnitTest.
+ * Class AlephPatronIntegrationTest.
  */
-class AlephPatronUnitTest extends DingUnitTestBase {
+class AlephPatronIntegrationTest extends DingUnitTestBase {
 
   private $client;
-  private $patronHandler;
 
   /**
-   * Returns the unit test description.
+   * Returns the integration test description.
    *
    * @return array
-   *    The unit test description.
+   *    The integration test description.
    */
   public static function getInfo() {
     return array(
       'name' => 'Aleph Patron',
-      'description' => 'Unit-test that tests the Aleph Patron.',
-      'group' => 'Ding! - Aleph unit tests',
+      'description' => 'Aleph Patron integration tests.',
+      'group' => 'Ding! - Aleph integration tests',
       'dependencies' => array('ding_test'),
     );
   }
