@@ -7,15 +7,18 @@ use DateTime;
 /**
  * Class AlephMaterial.
  *
+ * This entity describes a material from Aleph which can be anything from a
+ * book, an e-book, a CD, etc.
+ *
  * @package Drupal\aleph\Aleph
  */
 class AlephMaterial {
 
-  private $loans;
-  private $title;
-  private $loanDate;
-  private $id;
-  private $dueDate;
+  protected $loans;
+  protected $title;
+  protected $loanDate;
+  protected $id;
+  protected $dueDate;
 
   /**
    * Set the material title.

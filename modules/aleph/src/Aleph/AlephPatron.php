@@ -9,12 +9,15 @@ namespace Drupal\aleph\Aleph;
 
 /**
  * Class AlephPatron.
+ *
+ * This entity describes the Aleph patron and provides basic information about
+ * the patron.
  */
 class AlephPatron {
 
-  private $borId;
-  private $verification;
-  private $name;
+  protected $borId;
+  protected $name;
+  protected $verification;
 
   /**
    * Return the patron's name.

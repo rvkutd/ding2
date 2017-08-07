@@ -10,13 +10,14 @@ use Drupal\aleph\Aleph\AuthenticationResult;
 /**
  * Class AlephPatronHandler.
  *
- * @property bool authenticated
+ * Handles authentication, getting loans, etc. for a patron.
+ *
  * @package Drupal\aleph\Aleph\Handler
  */
 class AlephPatronHandler extends AlephHandlerBase {
 
   protected $client;
-  private $patron;
+  protected $patron;
 
   /**
    * AlephPatronHandler constructor.

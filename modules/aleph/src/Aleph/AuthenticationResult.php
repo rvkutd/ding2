@@ -5,14 +5,17 @@ namespace Drupal\aleph\Aleph;
 /**
  * Class AuthenticationResult.
  *
+ * Provides an object with the patron and methods to check if the patron is
+ * authenticated or blocked.
+ *
  * @package Drupal\aleph\Aleph
  */
 class AuthenticationResult {
 
-  private $borId;
-  private $verification;
-  private $client;
-  private $patron;
+  protected $borId;
+  protected $client;
+  protected $patron;
+  protected $verification;
 
   /**
    * AuthenticationResult constructor.
@@ -26,8 +29,8 @@ class AuthenticationResult {
    */
   public function __construct(AlephClient $client, $bor_id, $verification) {
     $this->borId = $bor_id;
-    $this->verification = $verification;
     $this->client = $client;
+    $this->verification = $verification;
   }
 
   /**
@@ -54,6 +57,9 @@ class AuthenticationResult {
 
   /**
    * Return users block codes and messages.
+   *
+   * A block-code from Aleph consists of two characters and a note.
+   * They can define different reasons for denied privileges (loan, hold, etc.).
    *
    * @return array
    *    Array with an array for each identifier (z303-delinq-1).
