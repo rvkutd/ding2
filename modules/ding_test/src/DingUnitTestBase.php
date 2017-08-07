@@ -19,6 +19,9 @@ class DingUnitTestBase extends DrupalUnitTestCase {
    */
   protected $prophet;
 
+  /**
+   * {@inheritdoc}
+   */
   public function setUp() {
     // We depend on xautoload, so it has already been loaded by core as we have
     // a dependency on it.

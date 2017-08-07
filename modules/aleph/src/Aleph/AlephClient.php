@@ -48,20 +48,22 @@ class AlephClient {
    * @param string $operation
    *    The operation to run in Aleph.
    * @param array $params
-   *    Query string parameters in the form of key => value.
+   *    The extra query parameters to send.
+   * @param string $branch
+   *    The branch to do the request against.
    *
    * @return \SimpleXMLElement
    *    A SimpleXMLElement object.
    *
    * @throws \RuntimeException
    */
-  public function request($method, $operation, array $params) {
-    $query = array(
-      'op' => $operation,
-    );
-
+  public function request($method, $operation, array $params = array(), $branch = 'BBAAA') {
     $options = array(
-      'query' => array_merge($query, $params),
+      'query' => array(
+        'op' => $operation,
+        'library' => 'ICE53',
+        'sub_library' => $branch,
+      ) + $params,
       'allow_redirects' => FALSE,
     );
 
@@ -76,6 +78,44 @@ class AlephClient {
 
     // Throw exception if the status from Aleph is not OK.
     throw new \RuntimeException('Request error: ' . $response->code . $response->error);
+  }
+
+  /**
+   * Authenticate the patron.
+   *
+   * @param string $bor_id
+   *    Patron ID.
+   * @param string $verification
+   *    Patron PIN.
+   *
+   * @return \SimpleXMLElement
+   *    The authentication response from Aleph or error message.
+   */
+  public function authenticate($bor_id, $verification) {
+    $response = $this->request('GET', 'bor-auth', array(
+      'bor_id' => $bor_id,
+      'verification' => $verification,
+    ));
+
+    return $response;
+  }
+
+  /**
+   * Get information about the patron.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *    The Aleph Patron.
+   *
+   * @return \SimpleXMLElement
+   *    The response from Aleph.
+   */
+  public function borInfo(AlephPatron $patron) {
+    $response = $this->request('GET', 'bor-info', array(
+      'bor_id' => $patron->getId(),
+      'verification' => $patron->getVerification(),
+    ));
+
+    return $response;
   }
 
 }
