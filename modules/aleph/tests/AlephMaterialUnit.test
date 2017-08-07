@@ -32,7 +32,7 @@ class AlephMaterialUnitTest extends DingUnitTestBase {
    * Parent sets up auto loading and our test-dependencies.
    */
   public function setUp() {
-    parent::setUp();
+    parent::setUp(['aleph']);
   }
 
   /**
