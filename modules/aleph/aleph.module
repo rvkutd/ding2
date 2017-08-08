@@ -69,6 +69,12 @@ function aleph_settings_form() {
 
 /**
  * Return a fully instantiated AlephClient instance.
+ *
+ * @param string $type
+ *    Use Aleph X-service or Aleph REST API.
+ *
+ * @return \Drupal\aleph\Aleph\AlephClient|null
+ *    The Aleph client.
  */
 function aleph_client() {
   // This is basically a singleton. We also wait until right before
@@ -78,7 +84,7 @@ function aleph_client() {
   static $client;
   if (!isset($client)) {
     try {
-      $client = new AlephClient(variable_get('aleph_base_url', ''));
+      $client = new AlephClient(variable_get('aleph_base_url', ''), variable_get('aleph_base_url_rest', ''));
     }
     catch (Exception $e) {
       watchdog('aleph', 'Constructor error: “@message”', array('@message' => $e->getMessage(), WATCHDOG_ERROR));
