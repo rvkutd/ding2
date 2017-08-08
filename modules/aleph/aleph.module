@@ -31,6 +31,14 @@ function aleph_ding_provider() {
         'prefix' => 'loan',
         'file' => 'includes/aleph.loan.inc',
       ),
+      'reservation' => array(
+        'prefix' => 'reservation',
+        'file' => 'includes/aleph.reservation.inc',
+      ),
+      'debt' => array(
+        'prefix' => 'debt',
+        'file' => 'includes/aleph.debt.inc',
+      ),
     ),
   );
 }
