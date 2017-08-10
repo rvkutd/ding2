@@ -18,14 +18,16 @@ class AlephClient {
    *
    * @var string
    */
-  private $baseUrl;
+  protected $baseUrl;
+
+  protected $baseUrlRest;
 
   /**
    * The GuzzleHttp Client.
    *
    * @var \GuzzleHttp\Client
    */
-  private $client;
+  protected $client;
 
   /**
    * Constructor, checking if we have a sensible value for $base_url.
@@ -35,8 +37,9 @@ class AlephClient {
    *
    * @throws \Exception
    */
-  public function __construct($base_url) {
+  public function __construct($base_url, $base_url_rest) {
     $this->baseUrl = $base_url;
+    $this->baseUrlRest = $base_url_rest;
     $this->client = new Client();
   }
 
@@ -70,6 +73,31 @@ class AlephClient {
     // Send the request.
     $response = $this->client->request($method, $this->baseUrl, $options);
 
+    // Status from Aleph is OK.
+    if ($response->getStatusCode() == 200) {
+      $xml = new \SimpleXMLElement($response->getBody());
+      return $xml;
+    }
+
+    // Throw exception if the status from Aleph is not OK.
+    throw new \RuntimeException('Request error: ' . $response->code . $response->error);
+  }
+
+  /**
+   * Send a request via the REST service.
+   *
+   * @param string $method
+   *    The method to use, like post, get, put, etc.
+   * @param string $url
+   *    The URL the send the request to.
+   * @param array $options
+   *    The options to send via GuzzleHttp.
+   *
+   * @return \SimpleXMLElement
+   *    The returned XML from Aleph.
+   */
+  public function requestRest($method, $url, array $options) {
+    $response = $this->client->request($method, $this->baseUrlRest . '/' . $url, $options);
     // Status from Aleph is OK.
     if ($response->getStatusCode() == 200) {
       $xml = new \SimpleXMLElement($response->getBody());
@@ -116,6 +144,27 @@ class AlephClient {
     ));
 
     return $response;
+  }
+
+  /**
+   * Change the patrons pin code.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *    The Aleph patron.
+   * @param string $new_pin
+   *    The new pin code.
+   */
+  public function changePin(AlephPatron $patron, $new_pin) {
+    $options = array();
+
+    $xml = new \SimpleXMLElement('<get-pat-pswd></get-pat-pswd>');
+    $password_parameters = $xml->addChild('password_parameters');
+    $password_parameters->addChild('old-password', $patron->getVerification());
+    $password_parameters->addChild('new-password', $new_pin);
+
+    $options['body'] = 'post_xml=' . $xml->asXML();
+
+    $this->requestRest('POST', 'patron/' . $patron->getId() . '/patronInformation/password', $options);
   }
 
 }

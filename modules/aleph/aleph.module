@@ -31,6 +31,14 @@ function aleph_ding_provider() {
         'prefix' => 'loan',
         'file' => 'includes/aleph.loan.inc',
       ),
+      'reservation' => array(
+        'prefix' => 'reservation',
+        'file' => 'includes/aleph.reservation.inc',
+      ),
+      'debt' => array(
+        'prefix' => 'debt',
+        'file' => 'includes/aleph.debt.inc',
+      ),
     ),
   );
 }
@@ -57,6 +65,14 @@ function aleph_settings_form() {
     '#default_value' => variable_get('aleph_base_url', ''),
   );
 
+  $form['aleph']['aleph_base_url_rest'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Aleph REST base URL'),
+    '#description' => t('Base URL for Aleph REST service.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('aleph_base_url_rest', ''),
+  );
+
   $form['aleph']['aleph_enable_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable logging'),
@@ -69,6 +85,12 @@ function aleph_settings_form() {
 
 /**
  * Return a fully instantiated AlephClient instance.
+ *
+ * @param string $type
+ *    Use Aleph X-service or Aleph REST API.
+ *
+ * @return \Drupal\aleph\Aleph\AlephClient|null
+ *    The Aleph client.
  */
 function aleph_client() {
   // This is basically a singleton. We also wait until right before
@@ -78,7 +100,7 @@ function aleph_client() {
   static $client;
   if (!isset($client)) {
     try {
-      $client = new AlephClient(variable_get('aleph_base_url', ''));
+      $client = new AlephClient(variable_get('aleph_base_url', ''), variable_get('aleph_base_url_rest', ''));
     }
     catch (Exception $e) {
       watchdog('aleph', 'Constructor error: “@message”', array('@message' => $e->getMessage(), WATCHDOG_ERROR));
@@ -91,15 +113,12 @@ function aleph_client() {
 /**
  * Return an instance of the AlephPatron by account.
  *
- * @param object $account
- *    The global $account.
- *
  * @return \Drupal\aleph\Aleph\AlephPatron
  *    The Aleph Patron object.
  */
-function aleph_get_patron_by_global_account($account) {
+function aleph_get_patron_by_global_account() {
   $patron_handler = new AlephPatronHandler(aleph_client());
-  $credentials = ding_user_get_creds($account);
+  $credentials = ding_user_get_creds();
   return $patron_handler->authenticate($credentials['name'], $credentials['pass'])->getPatron();
 }
 

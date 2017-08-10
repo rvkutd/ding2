@@ -65,6 +65,16 @@ class AlephPatronHandler extends AlephHandlerBase {
   }
 
   /**
+   * Change patron's pin code.
+   *
+   * @param string $pin
+   *    The new pin code.
+   */
+  public function setPin($pin) {
+    $this->client->changePin($this->getPatron(), $pin);
+  }
+
+  /**
    * Set the Aleph patron object.
    *
    * @param AlephPatron $patron
