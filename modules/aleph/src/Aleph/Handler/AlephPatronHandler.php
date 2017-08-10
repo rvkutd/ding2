@@ -92,6 +92,16 @@ class AlephPatronHandler extends AlephHandlerBase {
   }
 
   /**
+   * Get patron debts.
+   *
+   * @return \SimpleXMLElement
+   *    The response from Aleph with debts + material info.
+   */
+  public function getDebts() {
+    return $this->client->getDebts($this->getPatron());
+  }
+
+  /**
    * {@inheritdoc}
    */
   protected function getIdentity() {

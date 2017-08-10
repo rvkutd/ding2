@@ -167,4 +167,17 @@ class AlephClient {
     $this->requestRest('POST', 'patron/' . $patron->getId() . '/patronInformation/password', $options);
   }
 
+  /**
+   * Get patrons debts.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *    The Aleph patron to get debts from.
+   *
+   * @return \SimpleXMLElement
+   *    The SimpleXMLElement response from Aleph.
+   */
+  public function getDebts(AlephPatron $patron) {
+    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/cash?view=full', array());
+  }
+
 }

@@ -86,9 +86,6 @@ function aleph_settings_form() {
 /**
  * Return a fully instantiated AlephClient instance.
  *
- * @param string $type
- *    Use Aleph X-service or Aleph REST API.
- *
  * @return \Drupal\aleph\Aleph\AlephClient|null
  *    The Aleph client.
  */
