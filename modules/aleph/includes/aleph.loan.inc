@@ -10,16 +10,13 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 /**
  * Implements provider loan, list.
  *
- * @param object $account
- *   User to fetch list for.
- *
  * @return array
  *   Loan information.
  */
-function aleph_loan_list($account) {
+function aleph_loan_list() {
   // Get creds is outside cache function as it may throw exception if the user
   // is not longer logged in.
-  $patron = aleph_get_patron_by_global_account($account);
+  $patron = aleph_get_patron_by_global_account();
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
   $loans = $patron_handler->getLoans();

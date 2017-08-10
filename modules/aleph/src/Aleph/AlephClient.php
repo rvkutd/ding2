@@ -86,16 +86,17 @@ class AlephClient {
   /**
    * Send a request via the REST service.
    *
-   * @param string $url
-   *    The URL the send the request to.
    * @param string $method
    *    The method to use, like post, get, put, etc.
+   * @param string $url
+   *    The URL the send the request to.
    * @param array $options
    *    The options to send via GuzzleHttp.
    *
    * @return \SimpleXMLElement
+   *    The returned XML from Aleph.
    */
-  public function requestRest($url, $method, array $options) {
+  public function requestRest($method, $url, array $options) {
     $response = $this->client->request($method, $this->baseUrlRest . '/' . $url, $options);
     // Status from Aleph is OK.
     if ($response->getStatusCode() == 200) {
@@ -152,8 +153,6 @@ class AlephClient {
    *    The Aleph patron.
    * @param string $new_pin
    *    The new pin code.
-   *
-   * @return \SimpleXMLElement
    */
   public function changePin(AlephPatron $patron, $new_pin) {
     $options = array();
@@ -163,9 +162,9 @@ class AlephClient {
     $password_parameters->addChild('old-password', $patron->getVerification());
     $password_parameters->addChild('new-password', $new_pin);
 
-    $options['body'] = $xml->asXML();
+    $options['body'] = 'post_xml=' . $xml->asXML();
 
-    return $this->requestRest('patron/' . $patron->getId() . '/patronInformation/password', 'POST', $options);
+    $this->requestRest('POST', 'patron/' . $patron->getId() . '/patronInformation/password', $options);
   }
 
 }

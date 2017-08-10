@@ -65,6 +65,14 @@ function aleph_settings_form() {
     '#default_value' => variable_get('aleph_base_url', ''),
   );
 
+  $form['aleph']['aleph_base_url_rest'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Aleph REST base URL'),
+    '#description' => t('Base URL for Aleph REST service.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('aleph_base_url_rest', ''),
+  );
+
   $form['aleph']['aleph_enable_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable logging'),
@@ -105,15 +113,12 @@ function aleph_client() {
 /**
  * Return an instance of the AlephPatron by account.
  *
- * @param object $account
- *    The global $account.
- *
  * @return \Drupal\aleph\Aleph\AlephPatron
  *    The Aleph Patron object.
  */
-function aleph_get_patron_by_global_account($account) {
+function aleph_get_patron_by_global_account() {
   $patron_handler = new AlephPatronHandler(aleph_client());
-  $credentials = ding_user_get_creds($account);
+  $credentials = ding_user_get_creds();
   return $patron_handler->authenticate($credentials['name'], $credentials['pass'])->getPatron();
 }
 

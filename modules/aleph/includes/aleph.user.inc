@@ -49,16 +49,16 @@ function aleph_user_authenticate($uid, $pass) {
 /**
  * Update pin code at Aleph.
  *
- * @param object $account
- *   User account object or the user provider profile2.
+ * @param object $user
+ *    The Drupal global user object.
  * @param string $new_pincode
  *   The users new pin-code.
  *
  * @return array
- *   Updated credential array.
+ *    Updated credential.
  */
-function aleph_user_update_pincode($account, $new_pincode) {
-  $creds = ding_user_get_creds($account);
+function aleph_user_update_pincode($user, $new_pincode) {
+  $creds = ding_user_get_creds($user);
   $result = array();
 
   // Change the users pin code.
