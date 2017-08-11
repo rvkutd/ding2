@@ -29,22 +29,11 @@ abstract class AlephHandlerBase {
   }
 
   /**
-   * Implements logging.
-   *
-   * @param string $identity
-   *    The identity/class name.
-   * @param string $message
-   *    The message to log.
-   */
-  public function log($identity, $message) {
-    $this->log($this->getIdentity(), $message);
-  }
-
-  /**
    * Gets the identity.
    *
    * @return string
    *    The identity.
    */
   abstract protected function getIdentity();
+
 }

@@ -2,6 +2,7 @@
 
 namespace Drupal\aleph\Aleph\Handler;
 
+use Drupal\aleph\Aleph\AlephDebt;
 use Drupal\aleph\Aleph\AlephMaterial;
 use Drupal\aleph\Aleph\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
@@ -94,11 +95,13 @@ class AlephPatronHandler extends AlephHandlerBase {
   /**
    * Get patron debts.
    *
-   * @return \SimpleXMLElement
-   *    The response from Aleph with debts + material info.
+   * @return array
+   *    Array of AlephDebt objects.
    */
   public function getDebts() {
-    return $this->client->getDebts($this->getPatron());
+    $xml = $this->client->getDebts($this->getPatron());
+    $debts = new AlephDebt();
+    return $debts::debtsFromCashApi($xml);
   }
 
   /**

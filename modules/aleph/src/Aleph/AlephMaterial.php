@@ -111,7 +111,6 @@ class AlephMaterial {
     if ($this->loans <= 2) {
       return TRUE;
     }
-    return FALSE;
   }
 
   /**
@@ -123,11 +122,11 @@ class AlephMaterial {
    * @return array
    *    Array with AlephMaterials.
    */
-  static public function loansFromBorInfo(\SimpleXMLElement $xml) {
+  public static function loansFromBorInfo(\SimpleXMLElement $xml) {
     $items = $xml->xpath('item-l');
     $loans = array();
     foreach ($items as $item) {
-      $material = new AlephMaterial();
+      $material = new self();
       $material->setTitle((string) $item->z13->{'z13-title'}[0]);
       $material->setId((string) $item->z30->{'z30-doc-number'}[0]);
       $material->setDueDate((string) $item->z36->{'z36-due-date'}[0]);
