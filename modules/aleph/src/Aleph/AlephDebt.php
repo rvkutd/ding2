@@ -163,9 +163,7 @@ class AlephDebt {
       }
 
       // Set the debt material.
-      $debt->setDebtMaterial(AlephDebtMaterial::createDebtMaterial(
-        (string) $debt_xml->xpath('z13/z13-title')[0])
-      );
+      $debt->setDebtMaterial(AlephDebtMaterial::createDebtMaterial($debt_xml));
 
       // Add the debt to the debts array.
       $debts[] = $debt;
