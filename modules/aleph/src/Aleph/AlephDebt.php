@@ -2,8 +2,6 @@
 
 namespace Drupal\aleph\Aleph;
 
-use Drupal\aleph\Aleph\AlephDebtMaterial;
-
 /**
  * Class AlephDebt.
  *
@@ -32,7 +30,7 @@ class AlephDebt {
    * Get the debt type.
    *
    * @return string
-   *    The type of debt.
+   *    The type of debt (example: 'Late return').
    */
   public function getType() {
     return $this->type;
@@ -72,7 +70,7 @@ class AlephDebt {
    * Get the debt sum.
    *
    * @return string
-   *    The patron's debt sum.
+   *    The patron's debt sum (example: (700.00)).
    */
   public function getSum() {
     return str_replace(array('(', ')'), '', $this->sum);
@@ -92,7 +90,7 @@ class AlephDebt {
    * Get the cash transaction date.
    *
    * @return string
-   *    The cash transaction date.
+   *    The cash transaction date (format: 20170630).
    */
   public function getDate() {
     return $this->date;
@@ -111,7 +109,7 @@ class AlephDebt {
   /**
    * Get the debt related material.
    *
-   * @return AlephDebtMaterial
+   * @return \Drupal\aleph\Aleph\AlephDebtMaterial
    *    The material which is the reason for the debt.
    */
   public function getDebtMaterial() {
@@ -124,7 +122,7 @@ class AlephDebt {
    * @param \SimpleXMLElement $xml
    *    The SimpleXMLElement from the Aleph Cash API.
    *
-   * @return array
+   * @return \Drupal\aleph\Aleph\AlephDebt[]
    *    Array with debts.
    */
   public static function debtsFromCashApi(\SimpleXMLElement $xml) {

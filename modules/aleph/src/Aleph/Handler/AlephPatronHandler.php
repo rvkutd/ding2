@@ -95,7 +95,7 @@ class AlephPatronHandler extends AlephHandlerBase {
   /**
    * Get patron debts.
    *
-   * @return array
+   * @return \Drupal\aleph\Aleph\AlephDebt[]
    *    Array of AlephDebt objects.
    */
   public function getDebts() {
