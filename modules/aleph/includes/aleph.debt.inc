@@ -5,7 +5,6 @@
  * Handles debt with Aleph.
  */
 
-use Drupal\aleph\Aleph\AlephDebt;
 use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
 /**
@@ -16,7 +15,6 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
  */
 function aleph_debt_list() {
   $result = array();
-  $debts = array();
 
   $patron = aleph_get_patron_by_global_account();
   $patron_handler = new AlephPatronHandler(aleph_client());
@@ -36,9 +34,7 @@ function aleph_debt_list() {
       'date' => $debt->getDate(),
       'display_name' => $debt->getDebtMaterial()->getTitle(),
       'amount' => $debt->getSum(),
-      // The only thing we can do here is set it to zero, as the original
-      // amount isn't available.
-      'amount_paid' => 0,
+      'amount_paid' => $debt->isPaid() ? $debt->getSum() : 0,
       'invoice_number' => NULL,
       'type' => $debt->getType(),
     );

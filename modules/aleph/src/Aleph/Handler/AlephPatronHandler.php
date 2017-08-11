@@ -61,8 +61,7 @@ class AlephPatronHandler extends AlephHandlerBase {
    */
   public function getLoans() {
     $material = new AlephMaterial();
-    $loans = $material::loansFromBorInfo($this->client->borInfo($this->patron));
-    return $loans;
+    return $material::loansFromBorInfo($this->client->borInfo($this->patron));
   }
 
   /**

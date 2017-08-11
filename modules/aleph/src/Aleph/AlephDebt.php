@@ -15,6 +15,7 @@ class AlephDebt {
   protected $sum;
   protected $date;
   protected $debtMaterial;
+  protected $paid;
 
   /**
    * Set the debt type.
@@ -71,6 +72,7 @@ class AlephDebt {
    *
    * @return string
    *    The patron's debt sum (example: (700.00)).
+   *    For some reason Aleph adds parentheses which we remove.
    */
   public function getSum() {
     return str_replace(array('(', ')'), '', $this->sum);
@@ -90,7 +92,7 @@ class AlephDebt {
    * Get the cash transaction date.
    *
    * @return string
-   *    The cash transaction date (format: 20170630).
+   *    The cash transaction date (format: YYYYMMDD).
    */
   public function getDate() {
     return $this->date;
@@ -117,6 +119,26 @@ class AlephDebt {
   }
 
   /**
+   * Set if paid or not.
+   *
+   * @param bool $value
+   *    True if paid and false otherwise.
+   */
+  public function setPaid($value) {
+    $this->paid = $value;
+  }
+
+  /**
+   * Return if debt is paid.
+   *
+   * @return bool
+   *    True if paid and false otherwise.
+   */
+  public function isPaid() {
+    return $this->paid;
+  }
+
+  /**
    * Returns the patron's debts from SimpleXMLElement.
    *
    * @param \SimpleXMLElement $xml
@@ -134,11 +156,21 @@ class AlephDebt {
       $debt->setDescription((string) $debt_xml->xpath('z31/z31-description')[0]);
       $debt->setSum((string) $debt_xml->xpath('z31/z31-sum')[0]);
       $debt->setDate((string) $debt_xml->xpath('z31/z31-date')[0]);
+
+      // Check if the debt has been paid..
+      if ((string) $debt_xml['transferred'][0] === 'Y') {
+        $debt->setPaid(TRUE);
+      }
+
+      // Set the debt material.
       $debt->setDebtMaterial(AlephDebtMaterial::createDebtMaterial(
         (string) $debt_xml->xpath('z13/z13-title')[0])
       );
+
+      // Add the debt to the debts array.
       $debts[] = $debt;
     }
+
     return $debts;
   }
 
