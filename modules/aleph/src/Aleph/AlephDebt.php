@@ -2,6 +2,8 @@
 
 namespace Drupal\aleph\Aleph;
 
+use DateTime;
+
 /**
  * Class AlephDebt.
  *
@@ -85,7 +87,7 @@ class AlephDebt {
    *    The cash transaction date.
    */
   public function setDate($date) {
-    $this->date = $date;
+    $this->date = DateTime::createFromFormat('Ymd', $date)->format('Y-m-d');
   }
 
   /**
