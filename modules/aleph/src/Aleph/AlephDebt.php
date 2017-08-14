@@ -81,7 +81,7 @@ class AlephDebt {
   }
 
   /**
-   * Set the cash transaction date.
+   * Set the cash transaction date in format Y-m-d.
    *
    * @param string $date
    *    The cash transaction date.
