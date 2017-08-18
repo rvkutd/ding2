@@ -1,5 +1,5 @@
 @startuml
-!pragma revision 1
+!pragma revision 2
 
 abstract class DingEntityBase
 abstract class DingEntityCollection extends DingEntityBase
