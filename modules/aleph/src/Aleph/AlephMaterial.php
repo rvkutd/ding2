@@ -47,7 +47,7 @@ class AlephMaterial {
    *   The formatted date.
    */
   public function getLoanDate() {
-    return DateTime::createFromFormat('d/m/Y', $this->loanDate)->format('Y-m-d');
+    return DateTime::createFromFormat('Ymd', $this->loanDate)->format('Y-m-d');
   }
 
   /**
@@ -87,7 +87,7 @@ class AlephMaterial {
    *    The due date.
    */
   public function getDueDate() {
-    return DateTime::createFromFormat('d/m/Y', $this->dueDate)->format('Y-m-d');
+    return DateTime::createFromFormat('Ymd', $this->dueDate)->format('Y-m-d');
   }
 
   /**
