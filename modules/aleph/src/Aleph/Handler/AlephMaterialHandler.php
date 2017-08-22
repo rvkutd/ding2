@@ -3,6 +3,7 @@
 namespace Drupal\aleph\Aleph\Handler;
 
 use Drupal\aleph\Aleph\AlephClient;
+use Drupal\aleph\Aleph\AlephMaterial;
 
 /**
  * Class AlephMaterialHandler.
@@ -19,6 +20,27 @@ class AlephMaterialHandler extends AlephHandlerBase {
    */
   public function __construct(AlephClient $client) {
     parent::__construct($client);
+  }
+
+  /**
+   * Get holdings from Aleph Material.
+   *
+   * @param \Drupal\aleph\Aleph\AlephMaterial $material
+   *    The Aleph Material.
+   *
+   * @return \Drupal\aleph\Aleph\AlephMaterial[]
+   *    Array with Aleph Materials.
+   *
+   * @throws \RuntimeException
+   */
+  public function getHoldings(AlephMaterial $material) {
+    $items = array();
+    $aleph_items = $this->client->getItems($material)->xpath('items/item');
+    foreach ($aleph_items as $aleph_item) {
+      $material = new AlephMaterial();
+      $items[] = $material::materialFromItem($aleph_item);
+    }
+    return $items;
   }
 
   /**
