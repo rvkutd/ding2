@@ -16,7 +16,7 @@ use Drupal\aleph\Aleph\Handler\AlephMaterialHandler;
  * @return array
  *   Availability info.
  */
-function aleph_availability_items($provider_ids) {
+function aleph_availability_items(array $provider_ids) {
   $items = array();
   $material_handler = new AlephMaterialHandler(aleph_client());
 
@@ -46,7 +46,7 @@ function aleph_availability_items($provider_ids) {
  * @return array
  *   Holdings info.
  */
-function aleph_availability_holdings($provider_ids) {
+function aleph_availability_holdings(array $provider_ids) {
   $data = array();
   $results = array();
   $sub_libraries = array();
@@ -78,7 +78,8 @@ function aleph_availability_holdings($provider_ids) {
       else {
         $sub_libraries[$item->getSubLibraryCode()] = array(
           'placement' => array($item->getSubLibrary(), $item->getCollection()),
-          'reference_count' => 0, // Not available in Aleph.
+          // Reference count not available in Aleph.
+          'reference_count' => 0,
           'available' => $item->isAvailable(),
           'reservable' => $item->isReservable(),
           'total_count' => 1,
@@ -102,11 +103,12 @@ function aleph_availability_holdings($provider_ids) {
         'show_reservation_button' => $available_count > 0,
         'total_count' => count($items),
         'reserved_count' => $reserved_count,
-        'deferred_period' => FALSE, // Not available in Aleph.
-        'issues' => array(), // Not available in Aleph.
-        'is_periodical' => FALSE, // Not available in Aleph.
         'is_internet' => $item->getIsInternet(),
         'holdings' => $sub_libraries,
+        // Deferred_period, issues and is_periodical is not available in Aleph.
+        'deferred_period' => FALSE,
+        'issues' => array(),
+        'is_periodical' => FALSE,
       );
     }
 
