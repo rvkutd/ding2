@@ -74,9 +74,8 @@ class AlephClient {
     $response = $this->client->request($method, $this->baseUrl, $options);
 
     // Status from Aleph is OK.
-    if ($response->getStatusCode() == 200) {
-      $xml = new \SimpleXMLElement($response->getBody());
-      return $xml;
+    if ($response->getStatusCode() === 200) {
+      return new \SimpleXMLElement($response->getBody());
     }
 
     // Throw exception if the status from Aleph is not OK.
@@ -95,13 +94,14 @@ class AlephClient {
    *
    * @return \SimpleXMLElement
    *    The returned XML from Aleph.
+   *
+   * @throws \RuntimeException
    */
-  public function requestRest($method, $url, array $options) {
+  public function requestRest($method, $url, array $options = array()) {
     $response = $this->client->request($method, $this->baseUrlRest . '/' . $url, $options);
     // Status from Aleph is OK.
-    if ($response->getStatusCode() == 200) {
-      $xml = new \SimpleXMLElement($response->getBody());
-      return $xml;
+    if ($response->getStatusCode() === 200) {
+      return new \SimpleXMLElement($response->getBody());
     }
 
     // Throw exception if the status from Aleph is not OK.
@@ -118,6 +118,8 @@ class AlephClient {
    *
    * @return \SimpleXMLElement
    *    The authentication response from Aleph or error message.
+   *
+   * @throws \RuntimeException
    */
   public function authenticate($bor_id, $verification) {
     $response = $this->request('GET', 'bor-auth', array(
@@ -136,6 +138,8 @@ class AlephClient {
    *
    * @return \SimpleXMLElement
    *    The response from Aleph.
+   *
+   * @throws \RuntimeException
    */
   public function borInfo(AlephPatron $patron) {
     $response = $this->request('GET', 'bor-info', array(
@@ -153,6 +157,8 @@ class AlephClient {
    *    The Aleph patron.
    * @param string $new_pin
    *    The new pin code.
+   *
+   * @throws \RuntimeException
    */
   public function changePin(AlephPatron $patron, $new_pin) {
     $options = array();
@@ -175,9 +181,23 @@ class AlephClient {
    *
    * @return \SimpleXMLElement
    *    The SimpleXMLElement response from Aleph.
+   *
+   * @throws \RuntimeException
    */
   public function getDebts(AlephPatron $patron) {
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/cash?view=full', array());
+    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/cash?view=full');
   }
 
+  /**
+   * @param \Drupal\aleph\Aleph\AlephMaterial $material
+   *    The Aleph material to get items from.
+   *
+   * @return \SimpleXMLElement
+   *    The SimpleXMLElement response from Aleph.
+   *
+   * @throws \RuntimeException
+   */
+  public function getItems(AlephMaterial $material) {
+    return $this->requestRest('get', 'record/' . 'ICE01' . $material->getId() . '/items?view=full');
+  }
 }
