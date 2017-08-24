@@ -11,7 +11,7 @@ use Drupal\aleph\Aleph\Handler\AlephMaterialHandler;
  * Implements provider availability, items.
  *
  * @param array $provider_ids
- *   Array of ting object ids (faust).
+ *   Array of ting object ids.
  *
  * @return array
  *   Availability info.
@@ -41,7 +41,7 @@ function aleph_availability_items(array $provider_ids) {
  * Implements provider availability, holdings.
  *
  * @param array $provider_ids
- *   Array of ting object ids (faust).
+ *   Array of ting object ids.
  *
  * @return array
  *   Holdings info.

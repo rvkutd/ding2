@@ -155,6 +155,7 @@ class AlephMaterial {
    *
    * @return string
    *    The type of material (z30-material).
+   *    For example: 'MP3-Audio book', 'CD-Spoken', 'Book', etc.
    */
   public function getType() {
     return $this->type;
@@ -203,7 +204,7 @@ class AlephMaterial {
    * Set where the material is located at the library.
    *
    * @param string $collection
-   *    The placement of the material.
+   *    The physical placement of the material.
    */
   public function setCollection($collection) {
     $this->collection = $collection;
@@ -213,7 +214,7 @@ class AlephMaterial {
    * Returns where the material is at the library.
    *
    * @return string
-   *    The placement of the material.
+   *    The physical placement of the material.
    */
   public function getCollection() {
     return $this->collection;
@@ -254,6 +255,7 @@ class AlephMaterial {
    *
    * @return string
    *    The sub-library/branch code.
+   *    For example 'BBAAA', 'BBKAA', etc.
    */
   public function getSubLibraryCode() {
     return $this->subLibraryCode;
