@@ -70,7 +70,8 @@ function aleph_availability_holdings(array $provider_ids) {
     foreach ($items as $item) {
       // Count the total amount on sub-libraries and see if it's available or
       // reservable.
-      if (array_key_exists($item->getSubLibraryCode(), $sub_libraries)) {
+      if (array_key_exists($item->getSubLibraryCode(), $sub_libraries) &&
+          $item->getSubLibraryCode() !== NULL) {
         $sub_libraries[$item->getSubLibraryCode()]['total_count']++;
         $sub_libraries[$item->getSubLibraryCode()]['available'] = $item->isAvailable();
         $sub_libraries[$item->getSubLibraryCode()]['reservable'] = $item->isReservable();
