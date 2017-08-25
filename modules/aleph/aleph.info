@@ -19,6 +19,7 @@ dependencies[] = xautoload
 features[features_api][] = api:2
 features[profile2_type][] = provider_aleph
 files[] = aleph.module
+files[] = includes/aleph.availability.inc
 files[] = includes/aleph.debt.inc
 files[] = includes/aleph.loan.inc
 files[] = includes/aleph.reservation.inc

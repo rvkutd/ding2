@@ -19,6 +19,10 @@ function aleph_ding_provider() {
     'title' => 'Aleph provider',
     'settings' => 'aleph_settings_form',
     'provides' => array(
+      'availability' => array(
+        'prefix' => 'availability',
+        'file' => 'includes/aleph.availability.inc',
+      ),
       'user_consent' => array(
         'prefix' => 'user_consent',
         'file' => 'includes/aleph.user_consent.inc',
