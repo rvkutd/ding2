@@ -14,13 +14,23 @@ use GuzzleHttp\Client;
  */
 class AlephClient {
   /**
-   * The base server URL to run the requests against.
+   * The base URL for the X service.
    *
    * @var string
    */
   protected $baseUrl;
 
+  /**
+   * The base URL for the REST service.
+   * @var string
+   */
   protected $baseUrlRest;
+
+  /**
+   * The primary library, ICE01 for example.
+   * @var string
+   */
+  protected $mainLibrary;
 
   /**
    * The GuzzleHttp Client.
@@ -35,11 +45,16 @@ class AlephClient {
    * @param string $base_url
    *   The base url for the Aleph end-point.
    *
-   * @throws \Exception
+   * @param $base_url_rest
+   *    The base url for the Aleph REST end-point.
+   *
+   * @param $main_library
+   *    The main library. For example ICE01.
    */
-  public function __construct($base_url, $base_url_rest) {
+  public function __construct($base_url, $base_url_rest, $main_library) {
     $this->baseUrl = $base_url;
     $this->baseUrlRest = $base_url_rest;
+    $this->mainLibrary = $main_library;
     $this->client = new Client();
   }
 
@@ -198,6 +213,22 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function getItems(AlephMaterial $material) {
-    return $this->requestRest('get', 'record/' . 'ICE01' . $material->getId() . '/items?view=full');
+    return $this->requestRest('GET', 'record/' . $this->mainLibrary . $material->getId() . '/items?view=full');
   }
+
+  /**
+   * Get patron's loans.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *    The patron to get loans from.
+   *
+   * @return \SimpleXMLElement
+   *    The response from Aleph.
+   *
+   * * @throws \RuntimeException
+   */
+  public function getLoans(AlephPatron $patron) {
+    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans?view=full');
+  }
+
 }

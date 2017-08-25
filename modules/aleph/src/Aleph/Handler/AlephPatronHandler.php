@@ -58,10 +58,25 @@ class AlephPatronHandler extends AlephHandlerBase {
 
   /**
    * Get patron's loans.
+   *
+   * @var \SimpleXMLElement[] $loans
+   *
+   * @return \Drupal\aleph\Aleph\AlephMaterial[]
+   *
+   * @throws \RuntimeException
    */
   public function getLoans() {
-    $material = new AlephMaterial();
-    return $material::loansFromBorInfo($this->client->borInfo($this->patron));
+    $result = array();
+    $loans = $this->client->getLoans($this->getPatron())->xpath('loans/institution/loan');
+    foreach ($loans as $loan) {
+      $material = new AlephMaterial();
+      $material->setTitle((string) $loan->xpath('z13/z13-title')[0]);
+      $material->setId((string) $loan->xpath('z30/z30-doc-number')[0]);
+      $material->setDueDate((string) $loan->xpath('z36/z36-due-date')[0]);
+      $material->setLoanDate((string) $loan->xpath('z36/z36-loan-date')[0]);
+      $result[] = $material;
+    }
+    return $result;
   }
 
   /**
