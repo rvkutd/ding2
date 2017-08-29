@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Handles reservation with Aleph.
+ */
 
 use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
@@ -23,10 +27,9 @@ function aleph_reservation_options_submit() {
  * Provider list callback.
  *
  * @param object $account
- *   User to list reservations for.
- *
+ *    User to list reservations for.
  * @param string|null $requested_type
- *   Type of reservations to list. NULL for all.
+ *    Type of reservations to list. NULL for all.
  *
  * @return array|mixed
  */
