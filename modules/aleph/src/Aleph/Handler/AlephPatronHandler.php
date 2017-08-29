@@ -133,7 +133,7 @@ class AlephPatronHandler extends AlephHandlerBase {
     $reservations = array();
     $hold_requests = $this->client->getReservations($this->getPatron())->xpath('hold-requests/institution/hold-request');
     foreach ($hold_requests as $hold_request) {
-      if ($hold_request->xpath('z37/z37-request-type') === 'Hold Request') {
+      if ((string) $hold_request->xpath('z37/z37-request-type')[0] === 'Hold Request') {
         $reservation = new AlephReservation();
         $request = new AlephRequest();
         $material = new AlephMaterial();
