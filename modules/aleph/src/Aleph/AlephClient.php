@@ -44,6 +44,7 @@ class AlephClient {
    *
    * @param string $base_url
    *   The base url for the Aleph end-point.
+   * @throws \Exception
    *
    * @param $base_url_rest
    *    The base url for the Aleph REST end-point.
@@ -229,6 +230,20 @@ class AlephClient {
    */
   public function getLoans(AlephPatron $patron) {
     return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans?view=full');
+  }
+
+  /**
+   * Get a patron's reservations.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *
+   * @return \SimpleXMLElement
+   *    The response from Aleph.
+   *
+   * @throws \RuntimeException
+   */
+  public function getReservations(AlephPatron $patron) {
+    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full');
   }
 
 }
