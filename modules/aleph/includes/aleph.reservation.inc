@@ -31,7 +31,8 @@ function aleph_reservation_options_submit() {
  * @param string|null $requested_type
  *    Type of reservations to list. NULL for all.
  *
- * @return array
+ * @return \DingProviderReservation[]
+ *    Array of DingProviderReservations.
  */
 function aleph_reservation_list($account, $requested_type = NULL) {
   // Throw exception if we're not logged in.
