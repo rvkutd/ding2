@@ -6,6 +6,8 @@ use Drupal\aleph\Aleph\AlephDebt;
 use Drupal\aleph\Aleph\AlephMaterial;
 use Drupal\aleph\Aleph\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
+use Drupal\aleph\Aleph\AlephRequest;
+use Drupal\aleph\Aleph\AlephReservation;
 use Drupal\aleph\Aleph\AuthenticationResult;
 
 /**
@@ -25,10 +27,14 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @param \Drupal\aleph\Aleph\AlephClient $client
    *    The Aleph client.
+   *
+   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   *    The Aleph patron.
    */
-  public function __construct(AlephClient $client) {
+  public function __construct(AlephClient $client, AlephPatron $patron = NULL) {
     parent::__construct($client);
     $this->client = $client;
+    $this->patron = $patron;
   }
 
   /**
@@ -51,7 +57,6 @@ class AlephPatronHandler extends AlephHandlerBase {
       $patron->setVerification($verification);
       $patron->setName((string) $response->xpath('z303/z303-name')[0]);
       $result->setPatron($patron);
-      $this->setPatron($patron);
     }
     return $result;
   }
@@ -116,6 +121,42 @@ class AlephPatronHandler extends AlephHandlerBase {
     $xml = $this->client->getDebts($this->getPatron());
     $debts = new AlephDebt();
     return $debts::debtsFromCashApi($xml);
+  }
+
+  /**
+   * Get a patron's reservations.
+   *
+   * @return \Drupal\aleph\Aleph\AlephReservation[]
+   * @throws \RuntimeException
+   */
+  public function getReservations() {
+    $reservations = array();
+    $hold_requests = $this->client->getReservations($this->getPatron())->xpath('hold-requests/institution/hold-request');
+    foreach ($hold_requests as $hold_request) {
+      if ((string) $hold_request->xpath('z37/z37-request-type')[0] === 'Hold Request') {
+        $reservation = new AlephReservation();
+        $request = new AlephRequest();
+        $material = new AlephMaterial();
+
+        $request->setStatus((string) $hold_request->xpath('z37/z37-status')[0]);
+        $request->setPickupLocation((string) $hold_request->xpath('z37/z37-pickup-location')[0]);
+        $request->setOpenDate((string) $hold_request->xpath('z37/z37-open-date')[0]);
+        $request->setEndRequestDate((string) $hold_request->xpath('z37/z37-end-request-date')[0]);
+        $request->setDocNumber((string) $hold_request->xpath('z37/z37-doc-number')[0]);
+        $request->setHoldDate((string) $hold_request->xpath('z37/z37-hold-date')[0]);
+        $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);
+        $request->setSequence(ltrim((string) $hold_request->xpath('z37/z37-sequence')[0], 0));
+
+        $material->setTitle((string) $hold_request->xpath('z13/z13-title')[0]);
+        $material->setId((string) $hold_request->xpath('z13/z13-doc-number')[0]);
+
+        $reservation->setItem($material);
+        $reservation->setRequest($request);
+
+        $reservations[] = $reservation;
+      }
+    }
+    return $reservations;
   }
 
   /**
