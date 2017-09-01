@@ -5,12 +5,9 @@ namespace Drupal\aleph\Aleph;
 /**
  * Class AlephRequest.
  *
- * Entity with setters/getters for Z37 (REQUESTS) in Aleph.
+ * Entity with setters/getters for requests in Aleph.
  *
- * The Z37 contains requests information.
- * The Z37 record functions both for requests for
- * loaned items (waiting requests), and for requests for delivery of available
- * items.
+ * Contains requests information.
  *
  * https://www.obvsg.at/uploads/media/Z37.pdf
  *
@@ -19,7 +16,6 @@ namespace Drupal\aleph\Aleph;
 class AlephRequest {
 
   /**
-   * Z37-STATUS.
    * Hold request status.
    *
    * @var string
@@ -27,9 +23,7 @@ class AlephRequest {
   protected $status;
 
   /**
-   * Z37-ITEM-SEQUENCE.
    * Item sequence number.
-   *
    * The number is within one ADM number.
    *
    * @var string
@@ -37,9 +31,7 @@ class AlephRequest {
   protected $itemSequence;
 
   /**
-   * Z37-SEQUENCE.
    * Sequence number of a request.
-   *
    * Used to distinguish between multiple requests placed on the same item.
    *
    * @var string
@@ -47,7 +39,6 @@ class AlephRequest {
   protected $sequence;
 
   /**
-   * Z37-ID.
    * Patron’s ID.
    *
    * @var string
@@ -55,15 +46,13 @@ class AlephRequest {
   protected $id;
 
   /**
-   * Z37-PICKUP-LOCATION.
-   * User’s pickup sub-library.
+   * Patron’s pickup sub-library.
    *
    * @var string
    */
   protected $pickupLocation;
 
   /**
-   * Z37-FILTER-SUB-LIBRARY.
    * Sub-library code.
    *
    * @var string
@@ -72,8 +61,6 @@ class AlephRequest {
   protected $subLibraryCode;
 
   /**
-   * Z37-REQUEST-TYPE.
-   *
    * The type of request.
    * For example 'Hold Request'.
    *
@@ -82,8 +69,6 @@ class AlephRequest {
   protected $requestType;
 
   /**
-   * Z37-REQUEST-DATE.
-   *
    * The starting date of the period of time during which the patron is
    * interested in receiving the material.
    *
@@ -93,7 +78,6 @@ class AlephRequest {
   protected $requestDate;
 
   /**
-   * Z37-END-REQUEST-DATE.
    * Last date of interest for the hold request.
    *
    * @var string
@@ -102,7 +86,6 @@ class AlephRequest {
 
 
   /**
-   * Z37-OPEN-DATE.
    * Date the item was requested.
    *
    * @var string
@@ -111,7 +94,6 @@ class AlephRequest {
   protected $openDate;
 
   /**
-   * Z37-DOC-NUMBER.
    * System number of the administrative record associated to the request.
    *
    * @var string
@@ -119,7 +101,6 @@ class AlephRequest {
   protected $docNumber;
 
   /**
-   * Z37-HOLD-DATE.
    * The date on which a letter was sent to the patron informing him that the
    * requested material is ready to be picked up.
    * These requests have status "S".
@@ -129,7 +110,6 @@ class AlephRequest {
   protected $holdDate;
 
   /**
-   * Z37-REQUEST-NUMBER
    * The request number.
    *
    * @var string
@@ -137,56 +117,56 @@ class AlephRequest {
   protected $requestNumber;
 
   /**
-   * Set the Z37 status message.
+   * Set the status message.
    *
    * @param string $status
-   *    The Z37 status.
+   *    The status.
    */
   public function setStatus($status) {
     $this->status = $status;
   }
 
   /**
-   * Get the Z37 status message.
+   * Get the status message.
    *
    * @return string
-   *    The Z37 status.
+   *    The status.
    */
   public function getStatus() {
     return $this->status;
   }
 
   /**
-   * Set the Z37 item sequence number.
+   * Set the item sequence number.
    *
    * @param string $item_sequence
-   *    The Z37 item sequence number.
+   *    The item sequence number.
    */
   public function setItemSequence($item_sequence) {
     $this->itemSequence = $item_sequence;
   }
 
   /**
-   * Get the Z37 item sequence number.
+   * Get the item sequence number.
    *
    * @return string
-   *    The Z37 item sequence number.
+   *    The item sequence number.
    */
   public function getItemSequence() {
     return $this->itemSequence;
   }
 
   /**
-   * Set the Z37 sequence number.
+   * Set the sequence number.
    *
    * @param string $sequence
    */
   public function setSequence($sequence) {
-    $this->sequence = $sequence;
+    $this->sequence = ltrim($sequence, 0);
   }
 
   /**
-   * Get the Z37 sequence number.
+   * Get the sequence number.
    *
    * @return string
    */
@@ -195,7 +175,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 id.
+   * Set the id.
    *
    * @param string $id
    */
@@ -204,7 +184,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 id.
+   * Get the id.
    *
    * @return string
    */
@@ -213,7 +193,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 pickup location.
+   * Set the pickup location.
    *
    * @param string $pickup_location
    */
@@ -222,7 +202,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 pickup location.
+   * Get the pickup location.
    *
    * @return string
    */
@@ -231,7 +211,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 filter sub-library.
+   * Set the filter sub-library.
    *
    * @param $sub_library_code
    */
@@ -240,7 +220,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 filter sub-library.
+   * Get the filter sub-library.
    *
    * @return string
    */
@@ -249,7 +229,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 request type.
+   * Set the request type.
    *
    * @param $request_type
    */
@@ -258,7 +238,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 request type.
+   * Get the request type.
    *
    * @return string
    */
@@ -267,7 +247,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 request date.
+   * Set the request date.
    *
    * @param string $request_date
    */
@@ -276,7 +256,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 request date.
+   * Get the request date.
    *
    * @return string
    */
@@ -285,7 +265,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 end request date.
+   * Set the end request date.
    *
    * @param string $end_request_date
    */
@@ -294,7 +274,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 end request date.
+   * Get the end request date.
    *
    * @return string
    */
@@ -303,7 +283,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 open date.
+   * Set the open date.
    *
    * @param string $open_date
    */
@@ -312,7 +292,7 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 open date.
+   * Get the open date.
    *
    * @return string
    */
@@ -321,7 +301,7 @@ class AlephRequest {
   }
 
   /**
-   * Set the Z37 doc number.
+   * Set the doc number.
    *
    * @param string $doc_number
    */
@@ -330,20 +310,20 @@ class AlephRequest {
   }
 
   /**
-   * Get the Z37 doc number.
+   * Get the doc number.
    *
    * @return string
-   *    The Z37 doc number.
+   *    The doc number.
    */
   public function getDocNumber() {
     return $this->docNumber;
   }
 
   /**
-   * Set the Z37 hold date.
+   * Set the hold date.
    *
    * @param string $hold_date
-   *    The Z37 hold date.
+   *    The hold date.
    */
   public function setHoldDate($hold_date) {
     $this->holdDate = $hold_date;
@@ -351,27 +331,27 @@ class AlephRequest {
 
   /**
    * @return string
-   *    The Z37 hold date.
+   *    The hold date.
    */
   public function getHoldDate() {
     return $this->holdDate;
   }
 
   /**
-   * Set the Z37 request number.
+   * Set the request number.
    *
    * @param string $request_number
-   *    The Z37 request number.
+   *    The request number.
    */
   public function setRequestNumber($request_number) {
     $this->requestNumber = $request_number;
   }
 
   /**
-   * Get the Z37 request number.
+   * Get the request number.
    *
    * @return string
-   *    The Z37 request number.
+   *    The request number.
    */
   public function getRequestNumber() {
     return $this->requestNumber;
