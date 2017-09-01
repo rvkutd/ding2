@@ -31,7 +31,7 @@ function aleph_reservation_options_submit() {
  * @param string|null $requested_type
  *    Type of reservations to list. NULL for all.
  *
- * @return array|mixed
+ * @return array
  */
 function aleph_reservation_list($account, $requested_type = NULL) {
   // Throw exception if we're not logged in.
@@ -119,8 +119,12 @@ function aleph_reservation_reservation_deletion_enabled() {
  *
  * @return string
  *   The human name for the id or NULL if one do not exist.
+ *
+ * @todo Fetch branch ID's and their names.
  */
 function aleph_reservation_branch_name($branch_id) {
+  // $branch_id _CAN_ be the human readable name of the branch.
+  // Branch ID's are 5 characters, so if it's more, return it.
   if (strlen($branch_id) > 5) {
     return $branch_id;
   }

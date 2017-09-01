@@ -10,10 +10,7 @@ namespace Drupal\aleph\Aleph;
  * The Z37 contains requests information.
  * The Z37 record functions both for requests for
  * loaned items (waiting requests), and for requests for delivery of available
- * items. It is not necessarily expected that a library will convert requests
- * when installing the ALEPH system. In many cases, the library will inform
- * patrons that there is a system switchover, that outstanding requests are
- * not retained, and must be re-entered after switchover.
+ * items.
  *
  * https://www.obvsg.at/uploads/media/Z37.pdf
  *
@@ -24,15 +21,6 @@ class AlephRequest {
   /**
    * Z37-STATUS.
    * Hold request status.
-   *
-   * A = Active (newly opened, not yet processed).
-   *
-   * S = Hold Shelf - Request has been trapped, patron has been notified that
-   * the requested material is ready to be picked up.
-   *
-   * W = Waiting. System generated when the "print call slip" service
-   * (b- cir-12) was run, and the system detected that there was not an
-   * available copy
    *
    * @var string
    */
@@ -69,10 +57,6 @@ class AlephRequest {
   /**
    * Z37-PICKUP-LOCATION.
    * User’s pickup sub-library.
-   *
-   * The default is the user's home sub-library.
-   * If no home sub-library was defined for the user, the system uses the
-   * item’s sub-library.
    *
    * @var string
    */

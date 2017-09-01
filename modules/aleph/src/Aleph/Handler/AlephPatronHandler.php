@@ -138,7 +138,6 @@ class AlephPatronHandler extends AlephHandlerBase {
         $request = new AlephRequest();
         $material = new AlephMaterial();
 
-        // Create the request object.
         $request->setStatus((string) $hold_request->xpath('z37/z37-status')[0]);
         $request->setPickupLocation((string) $hold_request->xpath('z37/z37-pickup-location')[0]);
         $request->setOpenDate((string) $hold_request->xpath('z37/z37-open-date')[0]);
@@ -148,15 +147,12 @@ class AlephPatronHandler extends AlephHandlerBase {
         $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);
         $request->setSequence(ltrim((string) $hold_request->xpath('z37/z37-sequence')[0], 0));
 
-        // Create the material object.
         $material->setTitle((string) $hold_request->xpath('z13/z13-title')[0]);
         $material->setId((string) $hold_request->xpath('z13/z13-doc-number')[0]);
 
-        // Create the reservation object.
         $reservation->setItem($material);
         $reservation->setRequest($request);
 
-        // Add reservation object to array.
         $reservations[] = $reservation;
       }
     }
