@@ -2,6 +2,8 @@
 
 namespace Drupal\aleph\Aleph;
 
+use Drupal\aleph\Aleph\Entity\AlephPatron;
+
 /**
  * Class AuthenticationResult.
  *
@@ -85,7 +87,7 @@ class AuthenticationResult {
   /**
    * Set the patron.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The Patron.
    */
   public function setPatron(AlephPatron $patron) {

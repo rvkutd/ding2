@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\aleph\Aleph;
+namespace Drupal\aleph\Aleph\Entity;
 
 /**
  * @file

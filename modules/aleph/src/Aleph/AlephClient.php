@@ -7,6 +7,8 @@ namespace Drupal\aleph\Aleph;
  * Provides a client for the Aleph library information webservice.
  */
 
+use Drupal\aleph\Aleph\Entity\AlephMaterial;
+use Drupal\aleph\Aleph\Entity\AlephPatron;
 use GuzzleHttp\Client;
 
 /**
@@ -149,7 +151,7 @@ class AlephClient {
   /**
    * Get information about the patron.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The Aleph Patron.
    *
    * @return \SimpleXMLElement
@@ -169,7 +171,7 @@ class AlephClient {
   /**
    * Change the patrons pin code.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The Aleph patron.
    * @param string $new_pin
    *    The new pin code.
@@ -192,7 +194,7 @@ class AlephClient {
   /**
    * Get patrons debts.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The Aleph patron to get debts from.
    *
    * @return \SimpleXMLElement
@@ -205,13 +207,11 @@ class AlephClient {
   }
 
   /**
-   * @param \Drupal\aleph\Aleph\AlephMaterial $material
+   * @param \Drupal\aleph\Aleph\Entity\AlephMaterial $material
    *    The Aleph material to get items from.
    *
-   * @return \SimpleXMLElement
-   *    The SimpleXMLElement response from Aleph.
-   *
-   * @throws \RuntimeException
+   * @return \SimpleXMLElement The SimpleXMLElement response from Aleph.
+   * The SimpleXMLElement response from Aleph.
    */
   public function getItems(AlephMaterial $material) {
     return $this->requestRest('GET', 'record/' . $this->mainLibrary . $material->getId() . '/items?view=full');
@@ -220,7 +220,7 @@ class AlephClient {
   /**
    * Get patron's loans.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The patron to get loans from.
    *
    * @return \SimpleXMLElement
@@ -235,7 +235,7 @@ class AlephClient {
   /**
    * Get a patron's reservations.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *
    * @return \SimpleXMLElement
    *    The response from Aleph.

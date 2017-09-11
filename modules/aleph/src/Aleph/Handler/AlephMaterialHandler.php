@@ -3,7 +3,7 @@
 namespace Drupal\aleph\Aleph\Handler;
 
 use Drupal\aleph\Aleph\AlephClient;
-use Drupal\aleph\Aleph\AlephMaterial;
+use Drupal\aleph\Aleph\Entity\AlephMaterial;
 
 /**
  * Class AlephMaterialHandler.
@@ -25,10 +25,10 @@ class AlephMaterialHandler extends AlephHandlerBase {
   /**
    * Get holdings from Aleph Material.
    *
-   * @param \Drupal\aleph\Aleph\AlephMaterial $material
+   * @param \Drupal\aleph\Aleph\Entity\AlephMaterial $material
    *    The Aleph Material.
    *
-   * @return \Drupal\aleph\Aleph\AlephMaterial[]
+   * @return \Drupal\aleph\Aleph\Entity\AlephMaterial[]
    *    Array with Aleph Materials.
    *
    * @throws \RuntimeException

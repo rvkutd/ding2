@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\aleph\Aleph;
+namespace Drupal\aleph\Aleph\Entity;
 
 use DateTime;
 
@@ -146,7 +146,7 @@ class AlephDebt {
    * @param \SimpleXMLElement $xml
    *    The SimpleXMLElement from the Aleph Cash API.
    *
-   * @return \Drupal\aleph\Aleph\AlephDebt[]
+   * @return \Drupal\aleph\Aleph\Entity\AlephDebt[]
    *    Array with debts.
    */
   public static function debtsFromCashApi(\SimpleXMLElement $xml) {

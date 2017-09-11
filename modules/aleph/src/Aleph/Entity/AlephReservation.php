@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\aleph\Aleph;
+namespace Drupal\aleph\Aleph\Entity;
 
 /**
  * Class AlephReservation.
@@ -12,21 +12,21 @@ class AlephReservation {
   protected $request;
 
   /**
-   * @param \Drupal\aleph\Aleph\AlephMaterial $item
+   * @param \Drupal\aleph\Aleph\Entity\AlephMaterial $item
    */
   public function setItem(AlephMaterial $item) {
     $this->item = $item;
   }
 
   /**
-   * @return \Drupal\aleph\Aleph\AlephMaterial
+   * @return \Drupal\aleph\Aleph\Entity\AlephMaterial
    */
   public function getItem() {
     return $this->item;
   }
 
   /**
-   * @param \Drupal\aleph\Aleph\AlephRequest $request
+   * @param \Drupal\aleph\Aleph\Entity\AlephRequest $request
    */
   public function setRequest(AlephRequest $request) {
     $this->request = $request;
