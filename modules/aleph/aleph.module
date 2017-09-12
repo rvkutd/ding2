@@ -19,6 +19,10 @@ function aleph_ding_provider() {
     'title' => 'Aleph provider',
     'settings' => 'aleph_settings_form',
     'provides' => array(
+      'availability' => array(
+        'prefix' => 'availability',
+        'file' => 'includes/aleph.availability.inc',
+      ),
       'user_consent' => array(
         'prefix' => 'user_consent',
         'file' => 'includes/aleph.user_consent.inc',
@@ -73,6 +77,14 @@ function aleph_settings_form() {
     '#default_value' => variable_get('aleph_base_url_rest', ''),
   );
 
+  $form['aleph']['aleph_main_library'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Aleph Main Library'),
+    '#description' => t('The main library. ICE01 for example.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('aleph_main_library', ''),
+  );
+
   $form['aleph']['aleph_enable_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable logging'),
@@ -97,7 +109,11 @@ function aleph_client() {
   static $client;
   if (!isset($client)) {
     try {
-      $client = new AlephClient(variable_get('aleph_base_url', ''), variable_get('aleph_base_url_rest', ''));
+      $client = new AlephClient(
+        variable_get('aleph_base_url', ''),
+        variable_get('aleph_base_url_rest', ''),
+        variable_get('aleph_main_library', '')
+      );
     }
     catch (Exception $e) {
       watchdog('aleph', 'Constructor error: “@message”', array('@message' => $e->getMessage(), WATCHDOG_ERROR));

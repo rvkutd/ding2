@@ -14,11 +14,18 @@ use DateTime;
  */
 class AlephMaterial {
 
-  protected $loans;
-  protected $title;
-  protected $loanDate;
-  protected $id;
+  protected $available = FALSE;
+  protected $collection;
   protected $dueDate;
+  protected $id;
+  protected $isInternet;
+  protected $loanDate;
+  protected $loans;
+  protected $reservable = FALSE;
+  protected $subLibrary;
+  protected $subLibraryCode;
+  protected $title;
+  protected $type;
 
   /**
    * Set the material title.
@@ -47,7 +54,7 @@ class AlephMaterial {
    *   The formatted date.
    */
   public function getLoanDate() {
-    return DateTime::createFromFormat('d/m/Y', $this->loanDate)->format('Y-m-d');
+    return DateTime::createFromFormat('Ymd', $this->loanDate)->format('Y-m-d');
   }
 
   /**
@@ -87,7 +94,7 @@ class AlephMaterial {
    *    The due date.
    */
   public function getDueDate() {
-    return DateTime::createFromFormat('d/m/Y', $this->dueDate)->format('Y-m-d');
+    return DateTime::createFromFormat('Ymd', $this->dueDate)->format('Y-m-d');
   }
 
   /**
@@ -114,6 +121,147 @@ class AlephMaterial {
   }
 
   /**
+   * Checks if the material is available.
+   *
+   * @return bool
+   *    If the material is available.
+   */
+  public function isAvailable() {
+    return $this->available;
+  }
+
+  /**
+   * Checks if the material is reservable.
+   *
+   * @return bool
+   *    If the material is reservable.
+   */
+  public function isReservable() {
+    return $this->reservable;
+  }
+
+  /**
+   * Set the type of material.
+   *
+   * @param string $type
+   *    The type of material (z30-material).
+   */
+  public function setType($type) {
+    $this->type = $type;
+  }
+
+  /**
+   * Get the type of material.
+   *
+   * @return string
+   *    The type of material (z30-material).
+   *    For example: 'MP3-Audio book', 'CD-Spoken', 'Book', etc.
+   */
+  public function getType() {
+    return $this->type;
+  }
+
+  /**
+   * Set if the material is available.
+   *
+   * @param bool $available
+   *    If the material is available (status = on shelf).
+   */
+  public function setAvailable($available) {
+    $this->available = $available;
+  }
+
+  /**
+   * Get if the material is available.
+   *
+   * @return bool
+   *    If the material is available (status = on shelf).
+   */
+  public function getAvailable() {
+    return $this->available;
+  }
+
+  /**
+   * Set the material's sub-library/branch.
+   *
+   * @param string $sub_library
+   */
+  public function setSubLibrary($sub_library) {
+    $this->subLibrary = $sub_library;
+  }
+
+  /**
+   * Get the material sub-library/branch.
+   *
+   * @return string
+   *    The sub-library/branch.
+   */
+  public function getSubLibrary() {
+    return $this->subLibrary;
+  }
+
+  /**
+   * Set where the material is located at the library.
+   *
+   * @param string $collection
+   *    The physical placement of the material.
+   */
+  public function setCollection($collection) {
+    $this->collection = $collection;
+  }
+
+  /**
+   * Returns where the material is at the library.
+   *
+   * @return string
+   *    The physical placement of the material.
+   */
+  public function getCollection() {
+    return $this->collection;
+  }
+
+  /**
+   * Set if the material is internet-only (no z30).
+   *
+   * @param bool $is_internet
+   *    If the material is internet-only.
+   */
+  public function setIsInternet($is_internet) {
+    $this->isInternet = $is_internet;
+  }
+
+  /**
+   * If the material is internet-only (no z30).
+   *
+   * @return bool
+   *    If the material is internet-only (no z30).
+   */
+  public function getIsInternet() {
+    return $this->isInternet;
+  }
+
+  /**
+   * Set the sub-library/branch code.
+   *
+   * @param string $sub_library
+   *    The sub-library/branch code.
+   */
+  public function setSubLibraryCode($sub_library) {
+    $this->subLibraryCode = $sub_library;
+  }
+
+  /**
+   * Get the sub-library/branch code.
+   *
+   * @return string
+   *    The sub-library/branch code.
+   *    For example 'BBAAA', 'BBKAA', etc.
+   */
+  public function getSubLibraryCode() {
+    return $this->subLibraryCode;
+  }
+
+  /**
    * Returns the patron's loans from SimpleXMLElement.
    *
    * @param \SimpleXMLElement $xml
@@ -127,13 +275,38 @@ class AlephMaterial {
     $loans = array();
     foreach ($items as $item) {
       $material = new self();
-      $material->setTitle((string) $item->z13->{'z13-title'}[0]);
-      $material->setId((string) $item->z30->{'z30-doc-number'}[0]);
-      $material->setDueDate((string) $item->z36->{'z36-due-date'}[0]);
-      $material->setLoanDate((string) $item->z36->{'z36-loan-date'}[0]);
+      $material->setTitle((string) $item->xpath('z13/z13-title')[0]);
+      $material->setId((string) $item->xpath('z30/z30-doc-number')[0]);
+      $material->setDueDate((string) $item->xpath('z36/z36-due-date')[0]);
+      $material->setLoanDate((string) $item->xpath('z36/z36-loan-date')[0]);
       $loans[] = $material;
     }
     return $loans;
+  }
+
+  /**
+   * Create material from item.
+   *
+   * @param $item
+   *
+   * @return \Drupal\aleph\Aleph\AlephMaterial
+   */
+  public static function materialFromItem(\SimpleXMLElement $item) {
+    $material = new self();
+    $material->setId((string) $item->xpath('z13/z13-doc-number')[0]);
+    $material->setType((string) $item->xpath('z30/z30-material')[0]);
+    $material->setTitle((string) $item->xpath('z13/z13-title')[0]);
+    $material->setSubLibrary((string) $item->xpath('z30/z30-sub-library')[0]);
+    $material->setCollection((string) $item->xpath('z30/z30-collection')[0]);
+    $material->setSubLibraryCode((string) $item->xpath('z30-sub-library-code')[0]);
+    if ((string) $item->xpath('status')[0] === 'On Shelf') {
+      $material->setAvailable(TRUE);
+      $material->reservable = TRUE;
+    }
+    if ($item->xpath('z30') === FALSE) {
+      $material->setIsInternet(TRUE);
+    }
+    return $material;
   }
 
 }
