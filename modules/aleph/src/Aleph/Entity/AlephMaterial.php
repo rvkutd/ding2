@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\aleph\Aleph;
+namespace Drupal\aleph\Aleph\Entity;
 
 use DateTime;
 
@@ -289,7 +289,7 @@ class AlephMaterial {
    *
    * @param $item
    *
-   * @return \Drupal\aleph\Aleph\AlephMaterial
+   * @return \Drupal\aleph\Aleph\Entity\AlephMaterial
    */
   public static function materialFromItem(\SimpleXMLElement $item) {
     $material = new self();

@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\aleph\Aleph;
+namespace Drupal\aleph\Aleph\Entity;
 
 /**
  * Class AlephDebtMaterial.
@@ -56,7 +56,7 @@ class AlephDebtMaterial {
    * @param \SimpleXMLElement $xml
    *    The XML from Aleph.
    *
-   * @return \Drupal\aleph\Aleph\AlephDebtMaterial The Aleph debt material.
+   * @return \Drupal\aleph\Aleph\Entity\AlephDebtMaterial The Aleph debt material.
    * The Aleph debt material.
    */
   public static function createDebtMaterial(\SimpleXMLElement $xml) {

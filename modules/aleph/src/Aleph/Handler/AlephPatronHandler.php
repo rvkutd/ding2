@@ -2,12 +2,12 @@
 
 namespace Drupal\aleph\Aleph\Handler;
 
-use Drupal\aleph\Aleph\AlephDebt;
-use Drupal\aleph\Aleph\AlephMaterial;
-use Drupal\aleph\Aleph\AlephPatron;
+use Drupal\aleph\Aleph\Entity\AlephDebt;
+use Drupal\aleph\Aleph\Entity\AlephMaterial;
+use Drupal\aleph\Aleph\Entity\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
-use Drupal\aleph\Aleph\AlephRequest;
-use Drupal\aleph\Aleph\AlephReservation;
+use Drupal\aleph\Aleph\Entity\AlephRequest;
+use Drupal\aleph\Aleph\Entity\AlephReservation;
 use Drupal\aleph\Aleph\AuthenticationResult;
 
 /**
@@ -28,7 +28,7 @@ class AlephPatronHandler extends AlephHandlerBase {
    * @param \Drupal\aleph\Aleph\AlephClient $client
    *    The Aleph client.
    *
-   * @param \Drupal\aleph\Aleph\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The Aleph patron.
    */
   public function __construct(AlephClient $client, AlephPatron $patron = NULL) {
@@ -66,7 +66,7 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @var \SimpleXMLElement[] $loans
    *
-   * @return \Drupal\aleph\Aleph\AlephMaterial[]
+   * @return \Drupal\aleph\Aleph\Entity\AlephMaterial[]
    *
    * @throws \RuntimeException
    */
@@ -106,6 +106,8 @@ class AlephPatronHandler extends AlephHandlerBase {
 
   /**
    * Get the Aleph patron object.
+   *
+   * @return \Drupal\aleph\Aleph\Entity\AlephPatron
    */
   public function getPatron() {
     return $this->patron;
@@ -114,7 +116,7 @@ class AlephPatronHandler extends AlephHandlerBase {
   /**
    * Get patron debts.
    *
-   * @return \Drupal\aleph\Aleph\AlephDebt[]
+   * @return \Drupal\aleph\Aleph\Entity\AlephDebt[]
    *    Array of AlephDebt objects.
    */
   public function getDebts() {
@@ -126,7 +128,7 @@ class AlephPatronHandler extends AlephHandlerBase {
   /**
    * Get a patron's reservations.
    *
-   * @return \Drupal\aleph\Aleph\AlephReservation[]
+   * @return \Drupal\aleph\Aleph\Entity\AlephReservation[]
    * @throws \RuntimeException
    */
   public function getReservations() {
