@@ -120,8 +120,6 @@ function aleph_reservation_reservation_deletion_enabled() {
  *
  * @return string
  *   The human name for the id or NULL if one do not exist.
- *
- * @todo Fetch branch ID's and their names.
  */
 function aleph_reservation_branch_name($branch_id) {
   // $branch_id _CAN_ be the human readable name of the branch.
@@ -130,9 +128,7 @@ function aleph_reservation_branch_name($branch_id) {
     return $branch_id;
   }
 
-  $branches = array(
-    'BBAAA' => 'Borgarbókasafnið Grófinni',
-  );
+  $branches = aleph_get_branches();
 
   if (isset($branches[$branch_id])) {
     return $branches[$branch_id];
