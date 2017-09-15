@@ -137,6 +137,21 @@ function aleph_reservation_branch_name($branch_id) {
   return NULL;
 }
 
+/**
+ * Provider pickup_branches callback.
+ *
+ * @param $account
+ *    The Drupal account object.
+ *
+ * @return array
+ *    The branches as key and name.
+ */
+function aleph_reservation_pickup_branches($account) {
+  // Throw exception if we're not logged in.
+  ding_user_get_creds($account);
+  return aleph_get_branches();
+}
+
 function aleph_reservation_get_reservations() {
   return NULL;
 }
