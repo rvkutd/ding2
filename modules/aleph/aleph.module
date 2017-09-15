@@ -12,6 +12,24 @@ include_once 'aleph.features.inc';
 require __DIR__ . '/vendor/autoload.php';
 
 /**
+ * Return array with branch keys and names.
+ *
+ * @return array
+ *    Branch key => Branch name
+ */
+function aleph_get_branches() {
+  return array(
+    'BBAAA' => 'Borgarbókasafnið Grófinni',
+    'BBFAA' => 'Borgarbókasafnið Spönginni',
+    'BBKAA' => 'Borgarbókasafnið Kringlunni',
+    'BBSAA' => 'Borgarbókasafnið Sólheimum',
+    'BBGAA' => 'Borgarbókasafnið Gerðubergi',
+    'BBRAA' => 'Borgarbókasafnið Árbæ',
+    'BBNAA' => 'Borgarbókasafnið Norðlingaholti',
+  );
+}
+
+/**
  * Implements hook_ding_provider().
  */
 function aleph_ding_provider() {
