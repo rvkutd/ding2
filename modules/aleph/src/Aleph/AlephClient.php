@@ -223,12 +223,16 @@ class AlephClient {
    * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The patron to get loans from.
    *
-   * @return \SimpleXMLElement
-   *    The response from Aleph.
+   * @param $loan_id
+   *    The loan ID to get specific loan.
    *
-   * * @throws \RuntimeException
+   * @return \SimpleXMLElement The response from Aleph.
+   * The response from Aleph.
    */
-  public function getLoans(AlephPatron $patron) {
+  public function getLoans(AlephPatron $patron, $loan_id = FALSE) {
+    if ($loan_id) {
+      return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans/' . $loan_id);
+    }
     return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans?view=full');
   }
 
@@ -244,6 +248,33 @@ class AlephClient {
    */
   public function getReservations(AlephPatron $patron) {
     return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full');
+  }
+
+  /**
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
+   * @param array $ids
+   *
+   * @return \SimpleXMLElement
+   */
+  public function renewLoans(AlephPatron $patron, array $ids) {
+    $options = array();
+
+    $xml = new \SimpleXMLElement('<get-pat-loan></get-pat-loan>');
+
+    foreach ($ids as $id) {
+      $loan = $xml->addChild('loan');
+      $loan->addAttribute('renew', 'Y');
+      $z36 = $loan->addChild('z36');
+      $z36->addChild('z36-doc-number', $id);
+    }
+
+    $options['body'] = 'post_xml=' . $xml->asXML();
+
+    return $this->requestRest(
+      'POST',
+      'patron/' . $patron->getId() . '/circulationActions/loans',
+      $options
+    );
   }
 
 }
