@@ -38,3 +38,34 @@ function aleph_loan_list() {
 
   return $results;
 }
+
+/**
+ * Implements provider loan, renew.
+ *
+ * @param object $account
+ *   User to renew loan for.
+ * @param $loans
+ *
+ * @return array Result of revewals.
+ * Result of revewals.
+ * @internal param array $loan Loan ids to renew.*   Loan ids to renew.
+ *
+ */
+function aleph_loan_renew($account = NULL, $loans) {
+  $patron = aleph_get_patron_by_global_account();
+  $patron_handler = new AlephPatronHandler(aleph_client());
+  $patron_handler->setPatron($patron);
+  $returnedLoans = $patron_handler->renewLoans($loans);
+  $result = array();
+
+  foreach ($returnedLoans as $id => $returnedLoan) {
+    if ($returnedLoan->isRenewed()) {
+      $result[$id] = DingProviderLoan::STATUS_RENEWED;
+    }
+    else {
+      $result[$id] = DingProviderLoan::STATUS_NOT_RENEWED;
+    }
+  }
+
+  return $result;
+}
