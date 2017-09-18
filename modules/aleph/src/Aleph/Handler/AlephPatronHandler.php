@@ -3,6 +3,7 @@
 namespace Drupal\aleph\Aleph\Handler;
 
 use Drupal\aleph\Aleph\Entity\AlephDebt;
+use Drupal\aleph\Aleph\Entity\AlephLoan;
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
@@ -159,6 +160,29 @@ class AlephPatronHandler extends AlephHandlerBase {
       }
     }
     return $reservations;
+  }
+
+  /**
+   * @param $ids
+   * @return AlephLoan[]
+   */
+  public function renewLoans($ids) {
+    $response = $this->client->renewLoans($this->getPatron(), $ids);
+    $renewed_loans = array();
+    $loans = $response->xpath('renewals/institution/loan');
+
+    foreach ($loans as $loan) {
+      $renewed_loan = new AlephLoan();
+      $renewed_loan->setLoanId((string) $loan['id'][0]);
+      $renewed_loan->setStatusCode((string) $loan->xpath('status-code')[0]);
+      $loan_details = $this->client->getLoans($this->getPatron(), $loan['id']);
+      $renewed_loan->setDocNumber((string) $loan_details->xpath('loan/z36/z36-doc-number')[0]);
+      if (in_array($renewed_loan->getDocNumber(), $ids, TRUE)) {
+        $renewed_loans[$renewed_loan->getDocNumber()] = $renewed_loan;
+      }
+    }
+
+    return $renewed_loans;
   }
 
   /**
