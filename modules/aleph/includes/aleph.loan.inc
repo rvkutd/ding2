@@ -43,12 +43,12 @@ function aleph_loan_list() {
  * Implements provider loan, renew.
  *
  * @param object $account
- *   User to renew loan for.
- * @param $loans
+ *    User to renew loan for.
+ * @param $loan_ids
+ *    The loan IDs.
  *
- * @return array Result of revewals.
- * Result of revewals.
- * @internal param array $loan Loan ids to renew.*   Loan ids to renew.
+ * @return array Result of renewals.
+ *    Result of renewals.
  *
  */
 function aleph_loan_renew($account = NULL, $loans) {

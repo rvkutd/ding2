@@ -48,6 +48,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @return \Drupal\aleph\Aleph\AuthenticationResult
    *    The authenticated Aleph patron.
+   *
+   * @throws \RuntimeException
    */
   public function authenticate($bor_id, $verification) {
     $response = $this->client->authenticate($bor_id, $verification);
@@ -90,6 +92,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @param string $pin
    *    The new pin code.
+   *
+   * @throws \RuntimeException
    */
   public function setPin($pin) {
     $this->client->changePin($this->getPatron(), $pin);
@@ -119,6 +123,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @return \Drupal\aleph\Aleph\Entity\AlephDebt[]
    *    Array of AlephDebt objects.
+   *
+   * @throws \RuntimeException
    */
   public function getDebts() {
     $xml = $this->client->getDebts($this->getPatron());
@@ -164,7 +170,9 @@ class AlephPatronHandler extends AlephHandlerBase {
 
   /**
    * @param $ids
+   *
    * @return AlephLoan[]
+   * @throws \RuntimeException
    */
   public function renewLoans($ids) {
     $response = $this->client->renewLoans($this->getPatron(), $ids);

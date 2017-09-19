@@ -211,7 +211,9 @@ class AlephClient {
    *    The Aleph material to get items from.
    *
    * @return \SimpleXMLElement The SimpleXMLElement response from Aleph.
-   * The SimpleXMLElement response from Aleph.
+   *    The SimpleXMLElement response from Aleph.
+   *
+   * @throws \RuntimeException
    */
   public function getItems(AlephMaterial $material) {
     return $this->requestRest('GET', 'record/' . $this->mainLibrary . $material->getId() . '/items?view=full');
@@ -227,7 +229,9 @@ class AlephClient {
    *    The loan ID to get specific loan.
    *
    * @return \SimpleXMLElement The response from Aleph.
-   * The response from Aleph.
+   *    The response from Aleph.
+   *
+   * @throws \RuntimeException
    */
   public function getLoans(AlephPatron $patron, $loan_id = FALSE) {
     if ($loan_id) {
@@ -255,6 +259,8 @@ class AlephClient {
    * @param array $ids
    *
    * @return \SimpleXMLElement
+   *
+   * @throws \RuntimeException
    */
   public function renewLoans(AlephPatron $patron, array $ids) {
     $options = array();
