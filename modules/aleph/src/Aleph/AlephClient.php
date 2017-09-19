@@ -301,7 +301,7 @@ class AlephClient {
 
     return $this->requestRest(
       'POST',
-      'patron/' . $patron->getId() . '/circulationActions/loans?institution=' . $this->mainLibrary,
+      'patron/' . $patron->getId() . '/circulationActions/loans',
       $options
     );
   }
