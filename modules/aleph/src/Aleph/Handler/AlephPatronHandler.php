@@ -20,7 +20,6 @@ use Drupal\aleph\Aleph\AuthenticationResult;
  */
 class AlephPatronHandler extends AlephHandlerBase {
 
-  protected $client;
   protected $patron;
 
   /**
@@ -183,7 +182,8 @@ class AlephPatronHandler extends AlephHandlerBase {
       $renewed_loan = new AlephLoan();
       $renewed_loan->setLoanId((string) $loan['id'][0]);
       $renewed_loan->setStatusCode((string) $loan->xpath('status-code')[0]);
-      $loan_details = $this->client->getLoans($this->getPatron(), $loan['id']);
+      $loan_details = $this->client->getLoans($this->getPatron(),
+        (string) $loan['id'][0]);
       $renewed_loan->setDocNumber((string) $loan_details->xpath('loan/z36/z36-doc-number')[0]);
       if (in_array($renewed_loan->getDocNumber(), $ids, TRUE)) {
         $renewed_loans[$renewed_loan->getDocNumber()] = $renewed_loan;
