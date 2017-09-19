@@ -51,11 +51,11 @@ function aleph_loan_list() {
  *    Result of renewals.
  *
  */
-function aleph_loan_renew($account = NULL, $loans) {
+function aleph_loan_renew($account = NULL, $loan_ids) {
   $patron = aleph_get_patron_by_global_account();
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
-  $returnedLoans = $patron_handler->renewLoans($loans);
+  $returnedLoans = $patron_handler->renewLoans($loan_ids);
   $result = array();
 
   foreach ($returnedLoans as $id => $returnedLoan) {
