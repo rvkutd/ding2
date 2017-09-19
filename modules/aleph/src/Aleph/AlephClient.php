@@ -116,7 +116,10 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function requestRest($method, $url, array $options = array()) {
-    $response = $this->client->request($method, $this->baseUrlRest . '/' . $url, $options);
+    $response = $this->client->request(
+      $method, $this->baseUrlRest . '/' . $url,
+      $options
+    );
     // Status from Aleph is OK.
     if ($response->getStatusCode() === 200) {
       return new \SimpleXMLElement($response->getBody());
@@ -188,7 +191,11 @@ class AlephClient {
 
     $options['body'] = 'post_xml=' . $xml->asXML();
 
-    $this->requestRest('POST', 'patron/' . $patron->getId() . '/patronInformation/password', $options);
+    $this->requestRest(
+      'POST',
+      'patron/' . $patron->getId() . '/patronInformation/password',
+      $options
+    );
   }
 
   /**
@@ -203,7 +210,10 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function getDebts(AlephPatron $patron) {
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/cash?view=full');
+    return $this->requestRest(
+      'GET',
+      'patron/' . $patron->getId() . '/circulationActions/cash?view=full'
+    );
   }
 
   /**
@@ -216,7 +226,10 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function getItems(AlephMaterial $material) {
-    return $this->requestRest('GET', 'record/' . $this->mainLibrary . $material->getId() . '/items?view=full');
+    return $this->requestRest(
+      'GET',
+      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full'
+    );
   }
 
   /**
@@ -235,9 +248,16 @@ class AlephClient {
    */
   public function getLoans(AlephPatron $patron, $loan_id = FALSE) {
     if ($loan_id) {
-      return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans/' . $loan_id);
+      return $this->requestRest(
+        'GET',
+        'patron/' . $patron->getId() . '/circulationActions/loans/' . $loan_id
+      );
     }
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans?view=full');
+
+    return $this->requestRest(
+      'GET',
+      'patron/' . $patron->getId() . '/circulationActions/loans?view=full'
+    );
   }
 
   /**
@@ -251,7 +271,10 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function getReservations(AlephPatron $patron) {
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full');
+    return $this->requestRest(
+      'GET',
+      'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full'
+    );
   }
 
   /**
@@ -278,7 +301,7 @@ class AlephClient {
 
     return $this->requestRest(
       'POST',
-      'patron/' . $patron->getId() . '/circulationActions/loans',
+      'patron/' . $patron->getId() . '/circulationActions/loans?institution=' . $this->mainLibrary,
       $options
     );
   }
