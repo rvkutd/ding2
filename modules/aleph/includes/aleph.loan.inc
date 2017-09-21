@@ -43,16 +43,16 @@ function aleph_loan_list() {
  * Implements provider loan, renew.
  *
  * @param object $account
- *    User to renew loan for.
- * @param $loan_ids
+ *    Drupal user object to renew loan for.
+ *
+ * @param array $loan_ids
  *    The loan IDs.
  *
  * @return array Result of renewals.
  *    Result of renewals.
- *
  */
-function aleph_loan_renew($account = NULL, $loan_ids) {
-  $patron = aleph_get_patron_by_global_account();
+function aleph_loan_renew($account, array $loan_ids) {
+  $patron = aleph_get_patron_by_global_account($account);
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
   $returnedLoans = $patron_handler->renewLoans($loan_ids);
