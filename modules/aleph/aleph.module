@@ -145,7 +145,7 @@ function aleph_client() {
  * Return an instance of the AlephPatron by account.
  *
  * @param object $account
- *    The global Drupal user object.
+ *    A Drupal account object.
  *
  * @return \Drupal\aleph\Aleph\Entity\AlephPatron
  *    The Aleph Patron object.

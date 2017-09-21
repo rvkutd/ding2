@@ -13,8 +13,23 @@ namespace Drupal\aleph\Aleph\Entity;
  */
 
 class AlephLoan {
+
+  /**
+   * The ID of the loan.
+   * @var string
+   */
   protected $loanId;
+
+  /**
+   * The loan status code. "Y" or "N" (yes/no).
+   * @var string
+   */
   protected $statusCode;
+
+  /**
+   * System number of the administrative record associated to the loan.
+   * @var string
+   */
   protected $docNumber;
 
   /**
