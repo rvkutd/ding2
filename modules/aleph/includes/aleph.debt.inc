@@ -16,7 +16,7 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 function aleph_debt_list() {
   $result = array();
 
-  $patron = aleph_get_patron_by_global_account();
+  $patron = aleph_get_patron_by_account();
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
 

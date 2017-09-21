@@ -16,7 +16,7 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 function aleph_loan_list() {
   // Get creds is outside cache function as it may throw exception if the user
   // is not longer logged in.
-  $patron = aleph_get_patron_by_global_account();
+  $patron = aleph_get_patron_by_account();
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
   $loans = $patron_handler->getLoans();
@@ -51,7 +51,7 @@ function aleph_loan_list() {
  *    Result of renewals.
  */
 function aleph_loan_renew($account, array $loan_ids) {
-  $patron = aleph_get_patron_by_global_account($account);
+  $patron = aleph_get_patron_by_account($account);
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
   $returned_loans = $patron_handler->renewLoans($loan_ids);

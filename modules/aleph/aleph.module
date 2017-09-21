@@ -150,24 +150,8 @@ function aleph_client() {
  * @return \Drupal\aleph\Aleph\Entity\AlephPatron
  *    The Aleph Patron object.
  */
-function aleph_get_patron_by_global_account($account = NULL) {
+function aleph_get_patron_by_account($account = NULL) {
   $patron_handler = new AlephPatronHandler(aleph_client());
   $credentials = ding_user_get_creds($account);
   return $patron_handler->authenticate($credentials['name'], $credentials['pass'])->getPatron();
-}
-
-/**
- * Return an instance of the AlephPatron by credentials.
- *
- * @param string $bor_id
- *    The Aleph patron's ID.
- * @param string $verification
- *    The Aleph patron's verification pin.
- *
- * @return \Drupal\aleph\Aleph\Entity\AlephPatron
- *    The Aleph Patron object.
- */
-function aleph_get_patron_by_creds($bor_id, $verification) {
-  $patron_handler = new AlephPatronHandler(aleph_client());
-  return $patron_handler->authenticate($bor_id, $verification)->getPatron();
 }
