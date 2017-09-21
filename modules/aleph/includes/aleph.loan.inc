@@ -44,7 +44,6 @@ function aleph_loan_list() {
  *
  * @param object $account
  *    Drupal user object to renew loan for.
- *
  * @param array $loan_ids
  *    The loan IDs.
  *
@@ -55,11 +54,11 @@ function aleph_loan_renew($account, array $loan_ids) {
   $patron = aleph_get_patron_by_global_account($account);
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
-  $returnedLoans = $patron_handler->renewLoans($loan_ids);
+  $returned_loans = $patron_handler->renewLoans($loan_ids);
   $result = array();
 
-  foreach ($returnedLoans as $id => $returnedLoan) {
-    if ($returnedLoan->isRenewed()) {
+  foreach ($returned_loans as $id => $returned_loan) {
+    if ($returned_loan->isRenewed()) {
       $result[$id] = DingProviderLoan::STATUS_RENEWED;
     }
     else {
