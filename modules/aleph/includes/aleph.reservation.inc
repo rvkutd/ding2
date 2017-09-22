@@ -46,7 +46,7 @@ function aleph_reservation_list($account, $requested_type = NULL) {
 
   try {
     $patron_handler = new AlephPatronHandler(aleph_client());
-    $patron_handler->setPatron(aleph_get_patron_by_global_account());
+    $patron_handler->setPatron(aleph_get_patron_by_account());
     $res = $patron_handler->getReservations();
   }
   catch (Exception $e) {

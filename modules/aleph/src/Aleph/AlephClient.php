@@ -116,7 +116,10 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function requestRest($method, $url, array $options = array()) {
-    $response = $this->client->request($method, $this->baseUrlRest . '/' . $url, $options);
+    $response = $this->client->request(
+      $method, $this->baseUrlRest . '/' . $url,
+      $options
+    );
     // Status from Aleph is OK.
     if ($response->getStatusCode() === 200) {
       return new \SimpleXMLElement($response->getBody());
@@ -188,7 +191,11 @@ class AlephClient {
 
     $options['body'] = 'post_xml=' . $xml->asXML();
 
-    $this->requestRest('POST', 'patron/' . $patron->getId() . '/patronInformation/password', $options);
+    $this->requestRest(
+      'POST',
+      'patron/' . $patron->getId() . '/patronInformation/password',
+      $options
+    );
   }
 
   /**
@@ -203,7 +210,10 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function getDebts(AlephPatron $patron) {
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/cash?view=full');
+    return $this->requestRest(
+      'GET',
+      'patron/' . $patron->getId() . '/circulationActions/cash?view=full'
+    );
   }
 
   /**
@@ -211,10 +221,15 @@ class AlephClient {
    *    The Aleph material to get items from.
    *
    * @return \SimpleXMLElement The SimpleXMLElement response from Aleph.
-   * The SimpleXMLElement response from Aleph.
+   *    The SimpleXMLElement response from Aleph.
+   *
+   * @throws \RuntimeException
    */
   public function getItems(AlephMaterial $material) {
-    return $this->requestRest('GET', 'record/' . $this->mainLibrary . $material->getId() . '/items?view=full');
+    return $this->requestRest(
+      'GET',
+      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full'
+    );
   }
 
   /**
@@ -223,13 +238,26 @@ class AlephClient {
    * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The patron to get loans from.
    *
-   * @return \SimpleXMLElement
+   * @param $loan_id
+   *    The loan ID to get specific loan.
+   *
+   * @return \SimpleXMLElement The response from Aleph.
    *    The response from Aleph.
    *
-   * * @throws \RuntimeException
+   * @throws \RuntimeException
    */
-  public function getLoans(AlephPatron $patron) {
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/loans?view=full');
+  public function getLoans(AlephPatron $patron, $loan_id = FALSE) {
+    if ($loan_id) {
+      return $this->requestRest(
+        'GET',
+        'patron/' . $patron->getId() . '/circulationActions/loans/' . $loan_id
+      );
+    }
+
+    return $this->requestRest(
+      'GET',
+      'patron/' . $patron->getId() . '/circulationActions/loans?view=full'
+    );
   }
 
   /**
@@ -243,7 +271,39 @@ class AlephClient {
    * @throws \RuntimeException
    */
   public function getReservations(AlephPatron $patron) {
-    return $this->requestRest('GET', 'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full');
+    return $this->requestRest(
+      'GET',
+      'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full'
+    );
+  }
+
+  /**
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
+   * @param array $ids
+   *
+   * @return \SimpleXMLElement
+   *
+   * @throws \RuntimeException
+   */
+  public function renewLoans(AlephPatron $patron, array $ids) {
+    $options = array();
+
+    $xml = new \SimpleXMLElement('<get-pat-loan></get-pat-loan>');
+
+    foreach ($ids as $id) {
+      $loan = $xml->addChild('loan');
+      $loan->addAttribute('renew', 'Y');
+      $z36 = $loan->addChild('z36');
+      $z36->addChild('z36-doc-number', $id);
+    }
+
+    $options['body'] = 'post_xml=' . $xml->asXML();
+
+    return $this->requestRest(
+      'POST',
+      'patron/' . $patron->getId() . '/circulationActions/loans',
+      $options
+    );
   }
 
 }

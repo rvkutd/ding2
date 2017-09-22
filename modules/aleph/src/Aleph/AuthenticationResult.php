@@ -39,10 +39,7 @@ class AuthenticationResult {
    * Check the patron is authenticated.
    */
   public function isAuthenticated() {
-    if (!$this->getClientError() && !$this->isBlocked()) {
-      return TRUE;
-    }
-    return FALSE;
+    return !$this->getClientError() && !$this->isBlocked();
   }
 
   /**

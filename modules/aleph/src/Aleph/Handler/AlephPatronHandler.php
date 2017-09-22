@@ -3,6 +3,7 @@
 namespace Drupal\aleph\Aleph\Handler;
 
 use Drupal\aleph\Aleph\Entity\AlephDebt;
+use Drupal\aleph\Aleph\Entity\AlephLoan;
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
@@ -19,7 +20,6 @@ use Drupal\aleph\Aleph\AuthenticationResult;
  */
 class AlephPatronHandler extends AlephHandlerBase {
 
-  protected $client;
   protected $patron;
 
   /**
@@ -47,6 +47,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @return \Drupal\aleph\Aleph\AuthenticationResult
    *    The authenticated Aleph patron.
+   *
+   * @throws \RuntimeException
    */
   public function authenticate($bor_id, $verification) {
     $response = $this->client->authenticate($bor_id, $verification);
@@ -89,6 +91,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @param string $pin
    *    The new pin code.
+   *
+   * @throws \RuntimeException
    */
   public function setPin($pin) {
     $this->client->changePin($this->getPatron(), $pin);
@@ -118,6 +122,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    *
    * @return \Drupal\aleph\Aleph\Entity\AlephDebt[]
    *    Array of AlephDebt objects.
+   *
+   * @throws \RuntimeException
    */
   public function getDebts() {
     $xml = $this->client->getDebts($this->getPatron());
@@ -159,6 +165,35 @@ class AlephPatronHandler extends AlephHandlerBase {
       }
     }
     return $reservations;
+  }
+
+  /**
+   * @param $ids
+   *
+   * @return AlephLoan[]
+   * @throws \RuntimeException
+   */
+  public function renewLoans($ids) {
+    $response = $this->client->renewLoans($this->getPatron(), $ids);
+    $loans = $response->xpath('renewals/institution/loan');
+    $renewed_loans = array();
+
+    foreach ($loans as $loan) {
+      $loan_details = $this->client->getLoans(
+        $this->getPatron(), (string) $loan['id'][0]
+      );
+
+      $renewed_loan = new AlephLoan();
+      $renewed_loan->setLoanId((string) $loan['id'][0]);
+      $renewed_loan->setStatusCode((string) $loan->xpath('status-code')[0]);
+      $renewed_loan->setDocNumber((string) $loan_details->xpath('loan/z36/z36-doc-number')[0]);
+
+      if (in_array($renewed_loan->getDocNumber(), $ids, TRUE)) {
+        $renewed_loans[$renewed_loan->getDocNumber()] = $renewed_loan;
+      }
+    }
+
+    return $renewed_loans;
   }
 
   /**
