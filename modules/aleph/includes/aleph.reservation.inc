@@ -108,8 +108,16 @@ function aleph_reservation_delete() {
   return NULL;
 }
 
+/**
+ * Implements provider reservation, reservation_deletion_enabled.
+ *
+ * Check where reservation deletion have been enabled in the providers settings.
+ *
+ * @return bool
+ *   Whether deletion is enabled.
+ */
 function aleph_reservation_reservation_deletion_enabled() {
-  return FALSE;
+  return variable_get('aleph_enable_reservation_deletion', FALSE);
 }
 
 /**

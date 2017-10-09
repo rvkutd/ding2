@@ -103,6 +103,14 @@ function aleph_settings_form() {
     '#default_value' => variable_get('aleph_main_library', ''),
   );
 
+  $form['aleph']['aleph_enable_reservation_deletion'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable reservation deletion'),
+    '#default_value' => variable_get('aleph_enable_reservation_deletion',
+      FALSE),
+    '#description' => t('Allow users to delete their reservations.'),
+  );
+
   $form['aleph']['aleph_enable_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable logging'),
