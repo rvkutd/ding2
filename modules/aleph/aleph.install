@@ -36,3 +36,14 @@ function aleph_requirements($phase) {
 
   return $requirements;
 }
+
+/**
+ * Implements hook_uninstall().
+ */
+function aleph_uninstall() {
+  variable_del('aleph_base_url');
+  variable_del('aleph_base_url_rest');
+  variable_del('aleph_main_library');
+  variable_del('aleph_enable_reservation_deletion');
+  variable_del('aleph_enable_logging');
+}
