@@ -15,8 +15,28 @@ function aleph_reservation_options() {
   return array();
 }
 
-function aleph_reservation_default_options() {
-  return array();
+/**
+ * Implements provider reservation, default_options.
+ *
+ * @param object $account
+ *   Drupal user account object.
+ *
+ * @return array
+ *   The interest period and default pick-up branch from the provider profile.
+ */
+function aleph_reservation_default_options($account) {
+  // Load profile2 profile.
+  $profile = ding_user_provider_profile($account);
+
+  // Use a metadata wrapper to access the data.
+  $wrapper = entity_metadata_wrapper('profile2', $profile);
+
+  $result = array(
+    'aleph_preferred_branch' => $wrapper->field_aleph_preferred_branch->value(),
+    'interest_period' => $wrapper->field_aleph_interest_period->value(),
+  );
+
+  return $result;
 }
 
 function aleph_reservation_options_submit() {
