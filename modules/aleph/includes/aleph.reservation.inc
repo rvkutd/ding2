@@ -23,7 +23,7 @@ function aleph_reservation_options() {
  * @param array $values
  *   Form values.
  */
-function aleph_reservation_options_submit($account, $values) {
+function aleph_reservation_options_submit($account, array $values) {
   // Load profile2 profile.
   $profile = ding_user_provider_profile($account);
 
