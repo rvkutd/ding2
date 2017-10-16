@@ -30,18 +30,19 @@ function aleph_get_branches() {
 }
 
 /**
- * Get a list of allowed interest periods.
- *
- * The values are extracted from the interest period field in the provider
- * profile2 user profile.
+ * Returns list of allowed interest periods.
  *
  * @return array
  *   Array with the allowed interest period values.
  */
 function aleph_get_interest_periods() {
-  // Get the interest period profile fields allowed values.
-  $field_info = field_info_field('field_aleph_interest_period');
-  $interest_periods = isset($field_info['settings']['allowed_values']) ? $field_info['settings']['allowed_values'] : array();
+  $interest_periods = array(
+    30 => '1 month',
+    60 => '2 months',
+    90 => '3 months',
+    180 => '6 months',
+    360 => '12 months',
+  );
 
   return $interest_periods;
 }
