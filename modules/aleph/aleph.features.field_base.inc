@@ -26,14 +26,8 @@ function aleph_field_default_field_bases() {
     'locked' => 0,
     'module' => 'list',
     'settings' => array(
-      'allowed_values' => array(
-        30 => '1 month',
-        60 => '2 months',
-        90 => '3 months',
-        180 => '6 months',
-        360 => '12 months',
-      ),
-      'allowed_values_function' => '',
+      'allowed_values' => array(),
+      'allowed_values_function' => 'aleph_get_interest_periods',
       'profile2_private' => 0,
     ),
     'translatable' => 0,

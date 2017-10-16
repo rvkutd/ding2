@@ -11,8 +11,51 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
  * Handles reservation with Aleph.
  */
 
-function aleph_reservation_options() {
-  return array();
+/**
+ * Creates form which can be used during reservation.
+ *
+ * It's used to select preferred branch and interest period.
+ *
+ * @param object $account
+ *   Drupal user account object.
+ * @param string $default_value
+ *   The name of the branch that should be selected as default value.
+ *
+ * @return array
+ *   Form element with the provider reservation options (branch and interest
+ *   period).
+ */
+function aleph_reservation_options($account, $default_value = '') {
+  $branches = aleph_get_branches();
+  $periods = aleph_get_interest_periods();
+
+  $preferred_branch = NULL;
+  $interest_period = NULL;
+  if (ding_user_is_provider_user($account)) {
+    // Load profile2 profile.
+    $profile = ding_user_provider_profile($account);
+
+    // Use a metadata wrapper to access the data.
+    $wrapper = entity_metadata_wrapper('profile2', $profile);
+
+    // Get values.
+    $preferred_branch = $wrapper->field_aleph_preferred_branch->value();
+    $interest_period = aleph_reservation_default_interest_period($profile);
+  }
+
+  // Set default value in the selection box if given else use preferred_branch.
+  $default = $preferred_branch;
+  if (!empty($default_value)) {
+    $default = $default_value;
+  }
+
+  $form = array();
+  $form += ding_reservation_default_options_branch('alma_preferred_branch', $default, $branches);
+  if (variable_get('ding_reservation_disable_interest_date') !== 1) {
+    $form += ding_reservation_interest_period_selector('interest_period', $interest_period, $periods);
+  }
+
+  return $form;
 }
 
 /**
