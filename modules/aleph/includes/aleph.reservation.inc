@@ -39,6 +39,38 @@ function aleph_reservation_default_options($account) {
   return $result;
 }
 
+/**
+ * Implements provider reservation, default_interest_period.
+ *
+ * Tries to find the users default interest period based on the users profile2
+ * provider profile.
+ *
+ * @param object $profile
+ *   The users profile2 provider profile.
+ *
+ * @return string
+ *   The default interest period selected by the user in his/her profile or the
+ *   default value selected by the site.
+ */
+function aleph_reservation_default_interest_period($profile = NULL) {
+  // If profile is not given, try loading it for the user.
+  if (NULL === $profile) {
+    global $user;
+    $profile = ding_user_provider_profile($user);
+  }
+
+  // Get interest period from the profile.
+  $wrapper = entity_metadata_wrapper('profile2', $profile);
+  $value = $wrapper->field_aleph_interest_period->value();
+
+  // If no period is selected, try getting default value.
+  if (is_null($value) || empty($value)) {
+    $value = variable_get('aleph_default_interest_period', 360);
+  }
+
+  return $value;
+}
+
 function aleph_reservation_options_submit() {
   return NULL;
 }
