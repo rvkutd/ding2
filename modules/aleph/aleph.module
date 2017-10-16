@@ -118,6 +118,19 @@ function aleph_settings_form() {
     '#description' => t('Logs requests to the Aleph webservice. Sensitive information such as CPR number and PIN code is stripped from the requests.'),
   );
 
+  // Add the option to select a default interest period for reservations, if not
+  // selected it will default to 360 days (12 months). The users can override
+  // this during reservation.
+  $allowed_values = array(
+    30 => '1 month',
+    60 => '2 months',
+    90 => '3 months',
+    180 => '6 months',
+    360 => '12 months',
+  );
+  $default = variable_get('aleph_default_interest_period', 360);
+  $form['aleph'] += ding_reservation_interest_period_selector('aleph_default_interest_period', $default, $allowed_values);
+
   return system_settings_form($form);
 }
 
