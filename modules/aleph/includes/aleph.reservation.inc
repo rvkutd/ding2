@@ -16,6 +16,32 @@ function aleph_reservation_options() {
 }
 
 /**
+ * Implements provider reservation, options_submit.
+ *
+ * @param object $account
+ *   The user to get update preferred branch for.
+ * @param array $values
+ *   Form values.
+ */
+function aleph_reservation_options_submit($account, $values) {
+  // Load profile2 profile.
+  $profile = ding_user_provider_profile($account);
+
+  // Use a metadata wrapper to access the data.
+  $wrapper = entity_metadata_wrapper('profile2', $profile);
+
+  // Get values.
+  $preferred_branch = $wrapper->field_aleph_preferred_branch->value();
+
+  // If default branch was not found in the profile, update the profile with the
+  // one selected.
+  if (!$preferred_branch) {
+    $wrapper->field_aleph_preferred_branch->set($values['aleph_preferred_branch']);
+    $profile->save();
+  }
+}
+
+/**
  * Implements provider reservation, default_options.
  *
  * @param object $account
@@ -69,10 +95,6 @@ function aleph_reservation_default_interest_period($profile = NULL) {
   }
 
   return $value;
-}
-
-function aleph_reservation_options_submit() {
-  return NULL;
 }
 
 /**
