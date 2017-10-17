@@ -117,6 +117,14 @@ class AlephRequest {
   protected $requestNumber;
 
   /**
+   * The institution code.
+   *
+   * @var string
+   * For example 'ICE53'.
+   */
+  protected $institutionCode;
+
+  /**
    * Set the status message.
    *
    * @param string $status
@@ -355,6 +363,25 @@ class AlephRequest {
    */
   public function getRequestNumber() {
     return $this->requestNumber;
+  }
+
+  /**
+   * Set the institution code.
+   *
+   * @param string $institutionCode
+   */
+  public function setInstitutionCode($institutionCode) {
+    $this->institutionCode = $institutionCode;
+  }
+
+  /**
+   * Get the institution code.
+   *
+   * @return string
+   *    The institution code.
+   */
+  public function getInstitutionCode() {
+    return $this->institutionCode;
   }
 
 }
