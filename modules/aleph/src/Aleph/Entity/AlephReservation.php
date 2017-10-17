@@ -33,7 +33,7 @@ class AlephReservation {
   }
 
   /**
-   * @return \Drupal\aleph\Aleph\AlephRequest
+   * @return \Drupal\aleph\Aleph\Entity\AlephRequest
    */
   public function getRequest() {
     return $this->request;
