@@ -1,0 +1,203 @@
+<?php
+
+/**
+ * @file
+ * Main module file for Primo.
+ */
+
+define('PRIMO_COVERS_DEFAULT_HOSTNAME', 'leitir.is');
+
+/**
+ * Implements hook_ding_provider().
+ */
+function primo_ding_provider() {
+  return array(
+    'title' => 'Primo provider',
+    'settings' => 'primo_settings_form',
+    'provides' => array(
+      // TODO Remove this dummy provider when we implement proper Primo search
+      // We need to provide something to have a settings page.
+      'dummy' => array(
+        'prefix' => 'dummy',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function primo_menu() {
+  $items = array();
+
+  // We also provide a cover implementation. Add a shortcut to the settings form
+  // under the cover settings as well.
+  $items['admin/config/ting/covers/primo'] = array(
+    'title' => 'Primo',
+    'description' => 'Configure integration with Primo service.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('primo_settings_form'),
+    'access arguments' => array('administer site configuration'),
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Setting form for Primo configuration.
+ *
+ * @return []
+ *   A Form API array
+ */
+function primo_settings_form() {
+  $form = array();
+
+  $form['primo'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Primo service settings'),
+    '#tree' => FALSE,
+  );
+
+  $form['primo']['primo_base_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Base URL'),
+    '#description' => t('Base URL for Primo service.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('primo_base_url', ''),
+  );
+
+  $form['primo']['primo_institution_code'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Institution code'),
+    '#description' => t('Relevant for restricted scopes or for when searching against Primo Central.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('primo_institution_code', ''),
+  );
+
+  $form['primo']['primo_enable_logging'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable logging'),
+    '#default_value' => variable_get('primo_enable_logging', FALSE),
+    '#description' => t('Logs requests to the Primo webservice.'),
+  );
+
+  $form['covers'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Covers'),
+    '#tree' => FALSE,
+  );
+
+  $form['covers']['primo_covers_hostname'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Hostname'),
+    '#description' => t('The hostname for which to include covers.'),
+    '#required' => TRUE,
+    '#default_value' => variable_get('primo_covers_hostname',
+      PRIMO_COVERS_DEFAULT_HOSTNAME
+    ),
+  );
+
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_ting_covers().
+ */
+function primo_ting_covers($entities) {
+  $ids = array_map(function(TingEntity $entity) {
+    return $entity->ding_entity_id;
+  }, $entities);
+
+  // Replace entity ids with a set of Primo ids which are known to have covers.
+  // TODO: Remove this once we have proper search integration with Primo.
+  $ids = array(
+    'ICE01_PRIMO_TEST000811009',
+    'ICE01_PRIMO_TEST001027834',
+    'ICE01_PRIMO_TEST000335899',
+  );
+
+  $document = primo_load_by_recordid($ids);
+
+  $thumbnail_urls = array_fill_keys($ids, NULL);
+  array_walk($thumbnail_urls, function(&$url, $id, DOMDocument $document) {
+    $urls = primo_extract_thumbnail_urls($document, $id);
+    // We can only handle a single thumbnail per id so return the first.
+    $url = array_pop($urls);
+  }, $document);
+
+  // Splice the results back into an array mapping original ids with thumbnail
+  // urls for Primo ids.
+  // TODO: Remove this once we have proper search integration with Primo.
+  $thumbnail_urls = array_slice($thumbnail_urls, 0, count($entities));
+  return array_combine(
+    array_keys($entities),
+    array_pad($thumbnail_urls, count($entities), reset($thumbnail_urls))
+  );
+}
+
+/**
+ * Load documents based on their record id.
+ *
+ * @param string[] $rids
+ *   An array of Primo record ids.
+ *
+ * @return \DOMDocument
+ *   A DOMDocument containing the resulting XML. This XML will contain elements
+ *   for each of the requested record ids.
+ */
+function primo_load_by_recordid(array $rids) {
+  $url = variable_get('primo_base_url') . '/PrimoWebServices/xservice/search/brief';
+  $params = array(
+    'institution' => variable_get('primo_institution_code'),
+    'query' => 'rid,contains,' . implode($rids, ' OR '),
+    'indx' => 1,
+    'bulkSize' => count($rids),
+  );
+
+  $result = drupal_http_request(url($url, array('query' => $params)));
+
+  $document = new DOMDocument();
+  $document->loadXML($result->data);
+
+  return $document;
+}
+
+/**
+ * Extract thumbnail urls for a record in an XML document
+ *
+ * @param \DOMDocument $document
+ *   The document containing record information.
+ * @param string $id
+ *   The record id for which to extract the thumbnail url.
+ *
+ * @return string[]
+ *   An array of thumbnail urls for the record.
+ */
+function primo_extract_thumbnail_urls(DOMDocument $document, $id) {
+  $xpath = new DOMXPath($document);
+  $xpath->registerNamespace(
+    's', 'http://www.exlibrisgroup.com/xsd/jaguar/search');
+  $xpath->registerNamespace(
+    'p', 'http://www.exlibrisgroup.com/xsd/primo/primo_nm_bib');
+  $thumbnail_elements = $xpath->query('//s:DOC[.//p:recordid[.="' . $id .  '"]]//s:thumbnail'
+  );
+
+  $thumbnail_urls = [];
+  foreach ($thumbnail_elements as $thumbnail_element) {
+    $thumbnail_urls[] = $thumbnail_element->nodeValue;
+  }
+
+  // Primo results are known to include duplicates. Remove these.
+  $thumbnail_urls = array_unique($thumbnail_urls);
+
+  $thumbnail_urls = array_filter($thumbnail_urls, function ($url) {
+    // Only return thumbnail urls from an approved host. Primo also contains
+    // thumbnail urls for Google Books an potentially other sources. We do not
+    // want to include those here.
+    $hostname = variable_get('primo_covers_hostname', PRIMO_COVERS_DEFAULT_HOSTNAME);
+    return parse_url($url, PHP_URL_HOST) == $hostname;
+  });
+
+  return $thumbnail_urls;
+}
