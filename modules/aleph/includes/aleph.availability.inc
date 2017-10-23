@@ -4,7 +4,7 @@
  * Handles availability information from the library system.
  */
 
-use Drupal\aleph\Aleph\AlephMaterial;
+use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Handler\AlephMaterialHandler;
 
 /**
