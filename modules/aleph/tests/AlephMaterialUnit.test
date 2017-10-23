@@ -5,7 +5,7 @@
  * Contains the Aleph Material specific unit tests.
  */
 
-use Drupal\aleph\Aleph\AlephMaterial;
+use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\ding_test\DingUnitTestBase;
 
 /**

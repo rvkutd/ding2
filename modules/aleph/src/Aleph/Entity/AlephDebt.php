@@ -168,7 +168,9 @@ class AlephDebt {
       $debt->setDebtMaterial(AlephDebtMaterial::createDebtMaterial($debt_xml));
 
       // Add the debt to the debts array.
-      $debts[] = $debt;
+      if ($debt->getType() !== 'Payment') {
+        $debts[] = $debt;
+      }
     }
 
     return $debts;
