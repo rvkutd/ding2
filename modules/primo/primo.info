@@ -4,3 +4,4 @@ core = 7.x
 package = Providers
 project = primo
 dependencies[] = ding_provider
+dependencies[] = xautoload

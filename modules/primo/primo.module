@@ -5,6 +5,9 @@
  * Main module file for Primo.
  */
 
+use Drupal\xautoload\Adapter\LocalDirectoryAdapter;
+use Primo\Exception\TransferException;
+
 define('PRIMO_COVERS_DEFAULT_HOSTNAME', 'leitir.is');
 
 /**
@@ -105,6 +108,9 @@ function primo_settings_form() {
  * Implements hook_ting_covers().
  */
 function primo_ting_covers($entities) {
+  // A map from entity ids to urls for corresponding covers.
+  $covers = array();
+
   $ids = array_map(function(TingEntity $entity) {
     return $entity->ding_entity_id;
   }, $entities);
@@ -117,23 +123,35 @@ function primo_ting_covers($entities) {
     'ICE01_PRIMO_TEST000335899',
   );
 
-  $document = primo_load_by_recordid($ids);
+  try {
+    $document = primo_load_by_recordid($ids);
 
-  $thumbnail_urls = array_fill_keys($ids, NULL);
-  array_walk($thumbnail_urls, function(&$url, $id, DOMDocument $document) {
-    $urls = primo_extract_thumbnail_urls($document, $id);
-    // We can only handle a single thumbnail per id so return the first.
-    $url = array_pop($urls);
-  }, $document);
+    $thumbnail_urls = array_fill_keys($ids, NULL);
+    array_walk(
+      $thumbnail_urls,
+      function (&$url, $id, DOMDocument $document) {
+        $urls = primo_extract_thumbnail_urls($document, $id);
+        // We can only handle a single thumbnail per id so return the first.
+        $url = array_pop($urls);
+      },
+      $document
+    );
 
-  // Splice the results back into an array mapping original ids with thumbnail
-  // urls for Primo ids.
-  // TODO: Remove this once we have proper search integration with Primo.
-  $thumbnail_urls = array_slice($thumbnail_urls, 0, count($entities));
-  return array_combine(
-    array_keys($entities),
-    array_pad($thumbnail_urls, count($entities), reset($thumbnail_urls))
-  );
+    // Splice the results back into an array mapping original ids with thumbnail
+    // urls for Primo ids.
+    // TODO: Remove this once we have proper search integration with Primo.
+    $thumbnail_urls = array_slice($thumbnail_urls, 0, count($entities));
+    $covers = array_combine(
+      array_keys($entities),
+      array_pad($thumbnail_urls, count($entities), reset($thumbnail_urls))
+    );
+  }
+  catch (TransferException $e) {
+    // Do nothing. If an exception occurs then we simply to not return any
+    // covers from Primo.
+  }
+
+  return $covers;
 }
 
 /**
@@ -145,6 +163,9 @@ function primo_ting_covers($entities) {
  * @return \DOMDocument
  *   A DOMDocument containing the resulting XML. This XML will contain elements
  *   for each of the requested record ids.
+ *
+ * @throws \Primo\Exception\TransferException
+ *   Thrown if an error occurs when retrieveing data from Primo.
  */
 function primo_load_by_recordid(array $rids) {
   $url = variable_get('primo_base_url') . '/PrimoWebServices/xservice/search/brief';
@@ -155,7 +176,22 @@ function primo_load_by_recordid(array $rids) {
     'bulkSize' => count($rids),
   );
 
-  $result = drupal_http_request(url($url, array('query' => $params)));
+  $request_url = url($url, array('query' => $params));
+  $result = drupal_http_request($request_url);
+
+  if (!empty($result->error)) {
+    watchdog('primo',
+      'Unable to retrieve records %ids from %url: (%code) %error',
+      array(
+        '%ids' => implode(',', $rids),
+        '%url' => $request_url,
+        '%code' => $result->code,
+        '%error' => $result->error,
+      ),
+      WATCHDOG_WARNING
+    );
+    throw new TransferException($result->error, $result->code);
+  }
 
   $document = new DOMDocument();
   $document->loadXML($result->data);
@@ -200,4 +236,14 @@ function primo_extract_thumbnail_urls(DOMDocument $document, $id) {
   });
 
   return $thumbnail_urls;
+}
+
+/**
+ * Implements hook_xautoload().
+ */
+function primo_xautoload(LocalDirectoryAdapter $adapter) {
+  $adapter->addPsr4(
+    'Primo',
+    'src/Primo'
+  );
 }
