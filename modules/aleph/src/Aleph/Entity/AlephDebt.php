@@ -159,16 +159,14 @@ class AlephDebt {
       $debt->setSum((string) $debt_xml->xpath('z31/z31-sum')[0]);
       $debt->setDate((string) $debt_xml->xpath('z31/z31-date')[0]);
 
-      // Check if the debt has been paid..
-      if ((string) $debt_xml['transferred'][0] === 'Y') {
-        $debt->setPaid(TRUE);
-      }
-
-      // Set the debt material.
-      $debt->setDebtMaterial(AlephDebtMaterial::createDebtMaterial($debt_xml));
-
       // Add the debt to the debts array.
       if ($debt->getType() !== 'Payment') {
+        // Check if the debt has been paid..
+        if ((string) $debt_xml['transferred'][0] === 'Y') {
+          $debt->setPaid(TRUE);
+        }
+        // Set the debt material.
+        $debt->setDebtMaterial(AlephDebtMaterial::createDebtMaterial($debt_xml));
         $debts[] = $debt;
       }
     }
