@@ -171,6 +171,8 @@ class AlephPatronHandler extends AlephHandlerBase {
   }
 
   /**
+   * Renew a patron's loans.
+   *
    * @param $ids
    *
    * @return AlephLoan[]
@@ -197,6 +199,18 @@ class AlephPatronHandler extends AlephHandlerBase {
     }
 
     return $renewed_loans;
+  }
+
+  /**
+   * Create a reservation for a patron.
+   *
+   * @param AlephPatron $patron
+   * @param AlephReservation $reservation
+   *
+   * @throws \RuntimeException
+   */
+  public function createReservation($patron, $reservation) {
+    $this->client->createReservation($patron, $reservation->getRequest());
   }
 
   /**

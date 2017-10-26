@@ -4,6 +4,8 @@
  * Handles reservation with Aleph.
  */
 
+use Drupal\aleph\Aleph\Entity\AlephRequest;
+use Drupal\aleph\Aleph\Entity\AlephReservation;
 use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 
 /**
@@ -213,8 +215,57 @@ function aleph_reservation_list($account, $requested_type = NULL) {
   return $result;
 }
 
-function aleph_reservation_create() {
-  return array();
+/**
+ * Create a new reservation in the library system.
+ *
+ * @param object $account
+ *   Drupal user account object.
+ * @param string $id
+ *   ID of reservation.
+ *
+ * @return array
+ *   Reservation information.
+ *
+ * @throws DingProviderReservationExists
+ * @throws DingProviderReservationNotAllowed
+ * @throws DingProviderReservationNotAvailable
+ */
+function aleph_reservation_create($account, $id) {
+  $patron_handler = new AlephPatronHandler(aleph_client());
+  $patron_handler->setPatron(aleph_get_patron_by_account());
+
+  // Check if the users has this reservation and throw exception.
+  $reservation_exists = FALSE;
+  $reservations = $patron_handler->getReservations();
+
+  foreach ($reservations as $reservation) {
+    if ($id === $reservation->getItem()->getId()) {
+      $reservation_exists = TRUE;
+    }
+  }
+
+  if ($reservation_exists) {
+    throw new DingProviderReservationExists();
+  }
+
+  // Add the interest period for the 'to' date.
+  $interest_period = aleph_reservation_default_interest_period();
+
+  $end_request_date = new DateTime();
+  $end_request_date->add(new DateInterval('P' . $interest_period . 'D'));
+
+  // Build the reservation object.
+  $defaults = aleph_reservation_default_options($account);
+  $reservation = new AlephReservation();
+  $request = new AlephRequest();
+  $request->setRequestDate(new DateTime());
+  $request->setEndRequestDate($end_request_date);
+  $request->setPickupLocation($defaults['aleph_preferred_branch']);
+  $reservation->setRequest($request);
+
+  // Try to make the reservation.
+  $patron = $patron_handler->getPatron();
+  $patron_handler->createReservation($patron, $reservation);
 }
 
 function aleph_reservation_update() {
