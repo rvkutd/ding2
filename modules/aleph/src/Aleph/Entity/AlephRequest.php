@@ -80,7 +80,7 @@ class AlephRequest {
   /**
    * Last date of interest for the hold request.
    *
-   * @var string
+   * @var \DateTime
    */
   protected $endRequestDate;
 
@@ -257,10 +257,10 @@ class AlephRequest {
   /**
    * Set the request date.
    *
-   * @param string $request_date
+   * @param \DateTime $request_date
    */
   public function setRequestDate($request_date) {
-    $this->requestDate = $request_date;
+    $this->requestDate = $request_date->format('Y-m-d');
   }
 
   /**
@@ -275,10 +275,10 @@ class AlephRequest {
   /**
    * Set the end request date.
    *
-   * @param string $end_request_date
+   * @param \DateTime $end_request_date
    */
   public function setEndRequestDate($end_request_date) {
-    $this->endRequestDate = $end_request_date;
+    $this->endRequestDate = $end_request_date->format('Y-m-d');
   }
 
   /**

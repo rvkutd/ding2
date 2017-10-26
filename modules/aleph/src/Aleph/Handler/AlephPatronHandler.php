@@ -2,6 +2,7 @@
 
 namespace Drupal\aleph\Aleph\Handler;
 
+use DateTime;
 use Drupal\aleph\Aleph\Entity\AlephDebt;
 use Drupal\aleph\Aleph\Entity\AlephLoan;
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
@@ -146,10 +147,12 @@ class AlephPatronHandler extends AlephHandlerBase {
         $request = new AlephRequest();
         $material = new AlephMaterial();
 
+        $end_request_date = (string) $hold_request->xpath('z37/z37-end-request-date')[0];
+
         $request->setStatus((string) $hold_request->xpath('z37/z37-status')[0]);
         $request->setPickupLocation((string) $hold_request->xpath('z37/z37-pickup-location')[0]);
         $request->setOpenDate((string) $hold_request->xpath('z37/z37-open-date')[0]);
-        $request->setEndRequestDate((string) $hold_request->xpath('z37/z37-end-request-date')[0]);
+        $request->setEndRequestDate(DateTime::createFromFormat('Ymd', $end_request_date));
         $request->setDocNumber((string) $hold_request->xpath('z37/z37-doc-number')[0]);
         $request->setHoldDate((string) $hold_request->xpath('z37/z37-hold-date')[0]);
         $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);
