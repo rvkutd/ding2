@@ -100,9 +100,9 @@ function primo_ting_covers($entities) {
   // Replace entity ids with a set of Primo ids which are known to have covers.
   // TODO: Remove this once we have proper search integration with Primo.
   $ids = array(
-    'ICE01_PRIMO_TEST000811009',
+    'ICE01_PRIMO_TEST000335901',
     'ICE01_PRIMO_TEST001027834',
-    'ICE01_PRIMO_TEST000335899',
+    'ICE01_PRIMO_TEST000335895',
   );
 
   try {
