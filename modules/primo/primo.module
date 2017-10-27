@@ -8,8 +8,6 @@
 use Drupal\xautoload\Adapter\LocalDirectoryAdapter;
 use Primo\Exception\TransferException;
 
-define('PRIMO_COVERS_DEFAULT_HOSTNAME', 'leitir.is');
-
 /**
  * Implements hook_ding_provider().
  */
@@ -83,22 +81,6 @@ function primo_settings_form() {
     '#title' => t('Enable logging'),
     '#default_value' => variable_get('primo_enable_logging', FALSE),
     '#description' => t('Logs requests to the Primo webservice.'),
-  );
-
-  $form['covers'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Covers'),
-    '#tree' => FALSE,
-  );
-
-  $form['covers']['primo_covers_hostname'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Hostname'),
-    '#description' => t('The hostname for which to include covers.'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('primo_covers_hostname',
-      PRIMO_COVERS_DEFAULT_HOSTNAME
-    ),
   );
 
   return system_settings_form($form);
@@ -228,11 +210,14 @@ function primo_extract_thumbnail_urls(DOMDocument $document, $id) {
   $thumbnail_urls = array_unique($thumbnail_urls);
 
   $thumbnail_urls = array_filter($thumbnail_urls, function ($url) {
-    // Only return thumbnail urls from an approved host. Primo also contains
-    // thumbnail urls for Google Books an potentially other sources. We do not
-    // want to include those here.
-    $hostname = variable_get('primo_covers_hostname', PRIMO_COVERS_DEFAULT_HOSTNAME);
-    return parse_url($url, PHP_URL_HOST) == $hostname;
+    // Primo may return thumbnail urls to resources which are in fact not
+    // images. In fact some are not working at all. Request each of them to
+    // remove irrelevant ones. Use HEAD as we only care about status code and
+    // content type here.
+    $result = drupal_http_request($url, array('method' => 'HEAD'));
+    return
+      $result->code == 200 &&
+      stripos($result->headers['content-type'], 'image') === 0;
   });
 
   return $thumbnail_urls;
