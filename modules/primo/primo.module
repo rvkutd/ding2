@@ -209,15 +209,28 @@ function primo_extract_thumbnail_urls(DOMDocument $document, $id) {
   // Primo results are known to include duplicates. Remove these.
   $thumbnail_urls = array_unique($thumbnail_urls);
 
-  $thumbnail_urls = array_filter($thumbnail_urls, function ($url) {
+  $thumbnail_urls = array_filter($thumbnail_urls, function ($url) use ($id) {
     // Primo may return thumbnail urls to resources which are in fact not
     // images. In fact some are not working at all. Request each of them to
     // remove irrelevant ones. Use HEAD as we only care about status code and
     // content type here.
     $result = drupal_http_request($url, array('method' => 'HEAD'));
-    return
-      $result->code == 200 &&
+    $valid_thumbnail = $result->code == 200 &&
       stripos($result->headers['content-type'], 'image') === 0;
+
+    if (variable_get('primo_enable_logging', FALSE)) {
+      watchdog('primo', '%id: %state cover image url %url. Status: %code. Content type: %content_type',
+        array(
+          '%id' => $id,
+          '%state' => $valid_thumbnail ? t('Valid') : t('Invalid'),
+          '%url' => $url,
+          '%code' => $result->code,
+          '%content_type' => $result->headers['content-type'],
+        )
+      );
+    }
+
+    return $valid_thumbnail;
   });
 
   return $thumbnail_urls;
