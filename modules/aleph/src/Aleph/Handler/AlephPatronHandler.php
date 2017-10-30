@@ -2,12 +2,14 @@
 
 namespace Drupal\aleph\Aleph\Handler;
 
+use DateTime;
 use Drupal\aleph\Aleph\Entity\AlephDebt;
 use Drupal\aleph\Aleph\Entity\AlephLoan;
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
 use Drupal\aleph\Aleph\Entity\AlephRequest;
+use Drupal\aleph\Aleph\Entity\AlephRequestResponse;
 use Drupal\aleph\Aleph\Entity\AlephReservation;
 use Drupal\aleph\Aleph\AuthenticationResult;
 
@@ -146,10 +148,13 @@ class AlephPatronHandler extends AlephHandlerBase {
         $request = new AlephRequest();
         $material = new AlephMaterial();
 
+        $end_request_date = (string) $hold_request->xpath('z37/z37-end-request-date')[0];
+
         $request->setStatus((string) $hold_request->xpath('z37/z37-status')[0]);
         $request->setPickupLocation((string) $hold_request->xpath('z37/z37-pickup-location')[0]);
         $request->setOpenDate((string) $hold_request->xpath('z37/z37-open-date')[0]);
-        $request->setEndRequestDate((string) $hold_request->xpath('z37/z37-end-request-date')[0]);
+        $request->setEndRequestDate(DateTime::createFromFormat(ALEPH_DATE_FORMAT,
+          $end_request_date));
         $request->setDocNumber((string) $hold_request->xpath('z37/z37-doc-number')[0]);
         $request->setHoldDate((string) $hold_request->xpath('z37/z37-hold-date')[0]);
         $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);
@@ -168,6 +173,8 @@ class AlephPatronHandler extends AlephHandlerBase {
   }
 
   /**
+   * Renew a patron's loans.
+   *
    * @param $ids
    *
    * @return AlephLoan[]
@@ -194,6 +201,23 @@ class AlephPatronHandler extends AlephHandlerBase {
     }
 
     return $renewed_loans;
+  }
+
+  /**
+   * Create a reservation for a patron.
+   *
+   * @param AlephPatron $patron
+   * @param AlephReservation $reservation
+   *
+   * @throws \RuntimeException
+   *
+   * @return \Drupal\aleph\Aleph\Entity\AlephRequestResponse
+   */
+  public function createReservation($patron, $reservation) {
+    $response = $this->client->createReservation($patron,
+      $reservation->getRequest());
+
+    return AlephRequestResponse::createRequestResponseFromXML($response);
   }
 
   /**
