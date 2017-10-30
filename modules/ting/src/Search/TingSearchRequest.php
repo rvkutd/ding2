@@ -31,13 +31,6 @@ class TingSearchRequest {
   protected $searchStrategy;
 
   /**
-   * @var string
-   *   A short query that the provider is allowed to interpret more freely than
-   *   a "real" query.
-   */
-  protected $simpleQuery;
-
-  /**
    * @var int
    *   Maximum number of results to return.
    */
@@ -49,6 +42,12 @@ class TingSearchRequest {
    *   enumerate facet-matches alongside the actual material matches.
    */
   protected $facets = [];
+
+  /**
+   * @var int
+   *  Specify number of terms to return for each facet.
+   */
+  protected $termsPerFacet = NULL;
 
   /**
    * @var int
@@ -91,7 +90,26 @@ class TingSearchRequest {
    */
   protected $materialFilterIds;
 
+  /**
+   * @var BooleanStatementGroup[]
+   *   List of grouped BooleanStatementGroup and TingSearchFieldFilter
+   *   instances.
+   */
   protected $fieldFilters;
+
+  /**
+   * The part of the query that should be interpreted as a fulltext search.
+   *
+   * @var string
+   */
+  protected $fullTextQuery;
+
+  /**
+   * Whether in particular fulltext searches are fuzzy.
+   *
+   * @var bool
+   */
+  protected $fuzzy = FALSE;
 
   /**
    * Specifies whether collections in the search-result should be fully
@@ -172,35 +190,29 @@ class TingSearchRequest {
   }
 
   /**
-   * Perform a search with a "simple" query.
+   * The part of the query that should be interpreted as a fulltext query.
    *
-   * A simple query is a query that is easy for the user to enter, and may
-   * reference a specific ID.
+   * @return string
+   *   The query fragment.
+   */
+  public function getFullTextQuery() {
+    return $this->fullTextQuery;
+  }
+
+  /**
+   * Sets a string that should be interpreted as a fulltext query.
    *
-   * The underlying search-provider may return results that only match partially
-   * and will attempt to match the query against any relevant identifier of the
-   * materiale. Eg. a ISBN.
+   * The query may still contain more "advanced" parts such as a field filter.
    *
-   * @param string $query
-   *   A simple string that may only match the materials partially, or may be a
-   *   material-specific ID such as a ISBN
+   * @param string $full_text_query
+   *   Any string.
    *
    * @return TingSearchRequest
    *   the current query object.
    */
-  public function setSimpleQuery($query) {
-    $this->simpleQuery = $query;
+  public function setFullTextQuery($full_text_query) {
+    $this->fullTextQuery = $full_text_query;
     return $this;
-  }
-
-  /**
-   * Get the current simple-query string.
-   *
-   * @return string
-   *   The querys
-   */
-  public function getSimpleQuery() {
-    return $this->simpleQuery;
   }
 
   /**
@@ -225,6 +237,57 @@ class TingSearchRequest {
    */
   public function getFacets() {
     return $this->facets;
+  }
+
+  /**
+   * Returns whether searches should be fuzzy.
+   *
+   * @return bool
+   *   Whether the search should be fuzzy.
+   */
+  public function isFuzzy() {
+    return $this->fuzzy;
+  }
+
+  /**
+   * Sets whether searches should be fuzzy.
+   *
+   * This will in particular affect full-text queries specified via
+   * setFullTextQuery()
+   *
+   * @param bool $fuzzy
+   *   The flag.
+   *
+   * @return TingSearchRequest
+   *   the current query object.
+   */
+  public function setFuzzy($fuzzy) {
+    $this->fuzzy = $fuzzy;
+    return $this;
+  }
+
+  /**
+   * Maximum number of terms to return per facet.
+   *
+   * @return int
+   *   The maximum.
+   */
+  public function getTermsPerFacet() {
+    return $this->termsPerFacet;
+  }
+
+  /**
+   * Sets the maximum number of terms to return per facet.
+   *
+   * @param int $terms_per_facet
+   *   The maximum number of terms to return pr facet.
+   *
+   * @return TingSearchRequest
+   *   The current query object.
+   */
+  public function setTermsPrFacet($terms_per_facet) {
+    $this->termsPerFacet = $terms_per_facet;
+    return $this;
   }
 
   /**
@@ -333,22 +396,26 @@ class TingSearchRequest {
    * should just add a new boolean filter group. When done this can replace
    * ding_serendipity_exclude.
    *
-   * @param string[] $material_ids
-   *   The ids.
+   * @param string[]|string $material_ids
+   *   One or more ids.
    *
    * @return TingSearchRequest
    *   the current query object.
    */
   public function setMaterialFilter($material_ids) {
+    if (!is_array($material_ids)) {
+      $material_ids = [$material_ids];
+    }
+
     $this->materialFilterIds = $material_ids;
     return $this;
   }
 
   /**
-   * Get the list of field filters.
+   * Get the list of BooleanStatementGroup instances.
    *
-   * @return \Ting\Search\BooleanStatementInterface[]
-   *   The filters.
+   * @return BooleanStatementGroup[]
+   *   List of BooleanStatementGroup intances used to filter field.
    */
   public function getFieldFilters() {
     return $this->fieldFilters;
@@ -357,8 +424,9 @@ class TingSearchRequest {
   /**
    * Filter(s) or statement group(s) to add to the query.
    *
-   * @param BooleanStatementInterface[]|BooleanStatementInterface $filters
-   *   One or more filters.
+   * @param mixed[]|\Ting\Search\BooleanStatementGroup|\Ting\Search\TingSearchFieldFilter $filters
+   *   A single BooleanStatementGroup or TingSearchFieldFilter or a (potentially
+   *   mixed) array of both.
    *
    * @param string $logic_operator
    *   Operator to apply if this is not the first statement. See
@@ -368,13 +436,52 @@ class TingSearchRequest {
    *   the current query object.
    */
   public function addFieldFilters($filters, $logic_operator = BooleanStatementInterface::OP_AND) {
-    // Wrap in an array if it's not already.
-    if (!is_array($filters)) {
-      $filters = [$filters];
+    // First off, protect against silly code.
+    if (empty($filters)) {
+      return $this;
     }
-    if (!empty($filters)) {
-      $this->fieldFilters[] = new BooleanStatementGroup($filters, $logic_operator);
+
+    // If this is not already a group, well have to do some work before adding
+    // it.
+    if (!($filters instanceof BooleanStatementGroup)) {
+      // We're about to wrap the filter in a group - make sure it is an array
+      // before doing so.
+      if (!is_array($filters)) {
+        // Wrap in an array if it's not already.
+        $filters = [$filters];
+      }
+
+      // Wrap the array in an group.
+      $filters = new BooleanStatementGroup($filters, $logic_operator);
     }
+
+    $this->fieldFilters[] = $filters;
+    return $this;
+  }
+
+  /**
+   * Utility function for adding a single field filter.
+   *
+   * The field will be AND'ed together with any other filters added to the
+   * query. If you need OR or any more complex grouping of filters and groups
+   * use addFieldFilters().
+   *
+   * @param string $name
+   *   The field name.
+   *
+   * @param mixed|TingSearchFieldFilter::BOOLEAN_FIELD_VALUE $value
+   *   Field value, if omitted or set to
+   *   TingSearchFieldFilter::BOOLEAN_FIELD_VALUE the field is treated as a
+   *   boolean field that will be compared without an operator Eg:
+   *   (myboolfield AND anotherfield=123)
+   * @param string $operator
+   *   Operator to use when comparing the field instance with a value.
+   *
+   * @return TingSearchRequest
+   *   the current query object.
+   */
+  public function addFieldFilter($name, $value = TingSearchFieldFilter::BOOLEAN_FIELD_VALUE, $operator = '=') {
+    $this->addFieldFilters([new TingSearchFieldFilter($name, $value, $operator)]);
     return $this;
   }
 }
