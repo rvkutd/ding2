@@ -257,10 +257,10 @@ class AlephRequest {
   /**
    * Set the request date.
    *
-   * @param \DateTime $request_date
+   * @param \DateTimeInterface $request_date
    */
-  public function setRequestDate($request_date) {
-    $this->requestDate = $request_date->format('Y-m-d');
+  public function setRequestDate(\DateTimeInterface $request_date) {
+    $this->requestDate = $request_date->format(ALEPH_DATE_FORMAT);
   }
 
   /**
@@ -275,10 +275,10 @@ class AlephRequest {
   /**
    * Set the end request date.
    *
-   * @param \DateTime $end_request_date
+   * @param \DateTimeInterface $end_request_date
    */
-  public function setEndRequestDate($end_request_date) {
-    $this->endRequestDate = $end_request_date->format('Y-m-d');
+  public function setEndRequestDate(\DateTimeInterface $end_request_date) {
+    $this->endRequestDate = $end_request_date->format(ALEPH_DATE_FORMAT);
   }
 
   /**

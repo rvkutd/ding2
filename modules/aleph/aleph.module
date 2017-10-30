@@ -11,8 +11,8 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
 include_once 'aleph.features.inc';
 require __DIR__ . '/vendor/autoload.php';
 
-// Define date formats used by Alma.
-define('ALEPH_DATE', 'Y-m-d');
+// Define date formats used by Aleph.
+define('ALEPH_DATE_FORMAT', 'Y-m-d');
 
 /**
  * Return array with branch keys and names.
