@@ -12,7 +12,7 @@ include_once 'aleph.features.inc';
 require __DIR__ . '/vendor/autoload.php';
 
 // Define date formats used by Aleph.
-define('ALEPH_DATE_FORMAT', 'Y-m-d');
+define('ALEPH_DATE_FORMAT', 'Ymd');
 
 /**
  * Return array with branch keys and names.

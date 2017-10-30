@@ -153,7 +153,8 @@ class AlephPatronHandler extends AlephHandlerBase {
         $request->setStatus((string) $hold_request->xpath('z37/z37-status')[0]);
         $request->setPickupLocation((string) $hold_request->xpath('z37/z37-pickup-location')[0]);
         $request->setOpenDate((string) $hold_request->xpath('z37/z37-open-date')[0]);
-        $request->setEndRequestDate(DateTime::createFromFormat('Ymd', $end_request_date));
+        $request->setEndRequestDate(DateTime::createFromFormat(ALEPH_DATE_FORMAT,
+          $end_request_date));
         $request->setDocNumber((string) $hold_request->xpath('z37/z37-doc-number')[0]);
         $request->setHoldDate((string) $hold_request->xpath('z37/z37-hold-date')[0]);
         $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);

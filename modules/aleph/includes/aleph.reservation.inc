@@ -267,11 +267,13 @@ function aleph_reservation_create($account, $id) {
   }
   catch (Exception $e) {
     watchdog_exception('aleph', $e);
+    return array();
   }
 
   if ($response->success()) {
     return array(
       'branch' => $request->getPickupLocation(),
+      // Queue number not supported by Aleph.
       'queue_number' => NULL,
     );
   }
