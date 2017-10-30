@@ -281,11 +281,6 @@ class AlephClient {
   /**
    * Create a reservation.
    *
-   * @internal $rid
-   *    Record ID
-   * @internal $iid
-   *    Item ID
-   *
    * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
    *    The Aleph patron.
    *
@@ -316,7 +311,7 @@ class AlephClient {
 
     return $this->requestRest(
       'PUT',
-      'patron/' . $patron->getId() . '/record/' . $rid . '/items' . $iid . '/hold',
+      'patron/' . $patron->getId() . '/record/' . $rid . '/items/' . $iid . '/hold',
       $options
     );
   }
