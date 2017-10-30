@@ -96,9 +96,9 @@ class AlephRequestResponse {
   public static function createRequestResponseFromXML(\SimpleXMLElement $xml) {
     $response = new self();
 
-    $response->setReplyCode($xml->xpath('reply-code'));
-    $response->setReplyText($xml->xpath('reply-text'));
-    $response->setNote($xml->xpath('note'));
+    $response->setReplyCode((string) $xml->xpath('reply-code')[0]);
+    $response->setReplyText((string) $xml->xpath('reply-text')[0]);
+    $response->setNote((string) $xml->xpath('note')[0]);
 
     return $response;
   }

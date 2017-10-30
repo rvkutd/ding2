@@ -224,10 +224,12 @@ function aleph_reservation_list($account, $requested_type = NULL) {
  *   ID of reservation.
  *
  * @return array
- *  Reservation information.
+ *   Reservation information.
  *
  * @throws \DingProviderReservationExists
+ *   Reservation exists.
  * @throws \DingProviderUserException
+ *    General exception.
  */
 function aleph_reservation_create($account, $id) {
   $patron_handler = new AlephPatronHandler(aleph_client());
