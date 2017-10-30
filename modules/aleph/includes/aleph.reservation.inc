@@ -223,7 +223,8 @@ function aleph_reservation_list($account, $requested_type = NULL) {
  * @param string $id
  *   ID of reservation.
  *
- * @return array Reservation information.
+ * @return array
+ *  Reservation information.
  *
  * @throws \DingProviderReservationExists
  * @throws \DingProviderUserException
@@ -272,16 +273,7 @@ function aleph_reservation_create($account, $id) {
       'queue_number' => NULL,
     );
   }
-
-  switch ($response->getNote()) {
-    case 'Patron has already requested this item':
-      throw new DingProviderReservationExists();
-
-    default:
-      watchdog('aleph', 'Unexpected state "@state" on failed reservation',
-        ['@state' => $response->getNote()], WATCHDOG_WARNING);
-      throw new DingProviderUserException('Unknown error from library system while attempting to reserve.');
-  }
+  throw new DingProviderUserException(t($response->getNote()));
 }
 
 function aleph_reservation_update() {
