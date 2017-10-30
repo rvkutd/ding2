@@ -223,12 +223,10 @@ function aleph_reservation_list($account, $requested_type = NULL) {
  * @param string $id
  *   ID of reservation.
  *
- * @return array
- *   Reservation information.
+ * @return array Reservation information.
  *
- * @throws DingProviderReservationExists
- * @throws DingProviderReservationNotAllowed
- * @throws DingProviderReservationNotAvailable
+ * @throws \DingProviderReservationExists
+ * @throws \DingProviderUserException
  */
 function aleph_reservation_create($account, $id) {
   $patron_handler = new AlephPatronHandler(aleph_client());
@@ -265,7 +263,30 @@ function aleph_reservation_create($account, $id) {
 
   // Try to make the reservation.
   $patron = $patron_handler->getPatron();
-  $patron_handler->createReservation($patron, $reservation);
+  $response = NULL;
+  try {
+    $response = $patron_handler->createReservation($patron, $reservation);
+  }
+  catch (Exception $e) {
+    watchdog_exception('aleph', $e);
+  }
+
+  if ($response->success()) {
+    return array(
+      'branch' => $request->getPickupLocation(),
+      'queue_number' => NULL,
+    );
+  }
+
+  switch ($response->getNote()) {
+    case 'Patron has already requested this item':
+      throw new DingProviderReservationExists();
+
+    default:
+      watchdog('aleph', 'Unexpected state "@state" on failed reservation',
+        ['@state' => $response->getNote()], WATCHDOG_WARNING);
+      throw new DingProviderUserException('Unknown error from library system while attempting to reserve.');
+  }
 }
 
 function aleph_reservation_update() {

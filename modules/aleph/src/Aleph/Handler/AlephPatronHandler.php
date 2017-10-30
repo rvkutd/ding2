@@ -9,6 +9,7 @@ use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephPatron;
 use Drupal\aleph\Aleph\AlephClient;
 use Drupal\aleph\Aleph\Entity\AlephRequest;
+use Drupal\aleph\Aleph\Entity\AlephRequestResponse;
 use Drupal\aleph\Aleph\Entity\AlephReservation;
 use Drupal\aleph\Aleph\AuthenticationResult;
 
@@ -208,9 +209,17 @@ class AlephPatronHandler extends AlephHandlerBase {
    * @param AlephReservation $reservation
    *
    * @throws \RuntimeException
+   *
+   * @return \Drupal\aleph\Aleph\Entity\AlephRequestResponse
    */
   public function createReservation($patron, $reservation) {
-    $this->client->createReservation($patron, $reservation->getRequest());
+    $response = $this->client->createReservation($patron,
+      $reservation->getRequest());
+
+    $request_response = new AlephRequestResponse();
+    $request_response::createRequestResponseFromXML($response);
+
+    return $request_response;
   }
 
   /**
