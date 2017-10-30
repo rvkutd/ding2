@@ -216,10 +216,7 @@ class AlephPatronHandler extends AlephHandlerBase {
     $response = $this->client->createReservation($patron,
       $reservation->getRequest());
 
-    $request_response = new AlephRequestResponse();
-    $request_response::createRequestResponseFromXML($response);
-
-    return $request_response;
+    return AlephRequestResponse::createRequestResponseFromXML($response);
   }
 
   /**

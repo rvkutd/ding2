@@ -17,20 +17,20 @@ namespace Drupal\aleph\Aleph\Entity;
 class AlephRequestResponse {
 
   /**
-   * @var $replyCode
+   * @var string $replyCode
    *  The reply code is 0000 on success.
    */
   protected $replyCode;
 
   /**
-   * @var $replyText
+   * @var string $replyText
    *  The reply text.
    *  For example: "Failed to create request"
    */
   protected $replyText;
 
   /**
-   * @var $note
+   * @var string $note
    *  The note for the response.
    *  For example: "Patron has already requested this item."
    */
@@ -82,9 +82,7 @@ class AlephRequestResponse {
    * @return bool
    */
   public function success() {
-    if ($this->getReplyCode() === '0000') {
-      return TRUE;
-    }
+    return $this->getReplyCode() === '0000';
   }
 
   /**
