@@ -80,7 +80,7 @@ class AlephRequest {
   /**
    * Last date of interest for the hold request.
    *
-   * @var string
+   * @var \DateTime
    */
   protected $endRequestDate;
 
@@ -115,6 +115,14 @@ class AlephRequest {
    * @var string
    */
   protected $requestNumber;
+
+  /**
+   * The institution code.
+   *
+   * @var string
+   * For example 'ICE53'.
+   */
+  protected $institutionCode;
 
   /**
    * Set the status message.
@@ -249,10 +257,10 @@ class AlephRequest {
   /**
    * Set the request date.
    *
-   * @param string $request_date
+   * @param \DateTimeInterface $request_date
    */
-  public function setRequestDate($request_date) {
-    $this->requestDate = $request_date;
+  public function setRequestDate(\DateTimeInterface $request_date) {
+    $this->requestDate = $request_date->format(ALEPH_DATE_FORMAT);
   }
 
   /**
@@ -267,10 +275,10 @@ class AlephRequest {
   /**
    * Set the end request date.
    *
-   * @param string $end_request_date
+   * @param \DateTimeInterface $end_request_date
    */
-  public function setEndRequestDate($end_request_date) {
-    $this->endRequestDate = $end_request_date;
+  public function setEndRequestDate(\DateTimeInterface $end_request_date) {
+    $this->endRequestDate = $end_request_date->format(ALEPH_DATE_FORMAT);
   }
 
   /**
@@ -355,6 +363,25 @@ class AlephRequest {
    */
   public function getRequestNumber() {
     return $this->requestNumber;
+  }
+
+  /**
+   * Set the institution code.
+   *
+   * @param string $institutionCode
+   */
+  public function setInstitutionCode($institutionCode) {
+    $this->institutionCode = $institutionCode;
+  }
+
+  /**
+   * Get the institution code.
+   *
+   * @return string
+   *    The institution code.
+   */
+  public function getInstitutionCode() {
+    return $this->institutionCode;
   }
 
 }

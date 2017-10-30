@@ -9,6 +9,7 @@ namespace Drupal\aleph\Aleph;
 
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephPatron;
+use Drupal\aleph\Aleph\Entity\AlephRequest;
 use GuzzleHttp\Client;
 
 /**
@@ -274,6 +275,44 @@ class AlephClient {
     return $this->requestRest(
       'GET',
       'patron/' . $patron->getId() . '/circulationActions/requests/holds?view=full'
+    );
+  }
+
+  /**
+   * Create a reservation.
+   *
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
+   *    The Aleph patron.
+   *
+   * @param \Drupal\aleph\Aleph\Entity\AlephRequest $request
+   *    The request information.
+   *
+   * @return \SimpleXMLElement
+   * @throws \RuntimeException
+   */
+  public function createReservation(AlephPatron $patron, AlephRequest $request) {
+    $options = array();
+
+    $xml = new \SimpleXMLElement('<hold-request-parameters></hold-request-parameters>');
+    $xml->addChild('pickup-location', $request->getPickupLocation());
+    $xml->addChild('start-interest-date', $request->getRequestDate());
+    $xml->addChild('last-interest-date', $request->getEndRequestDate());
+
+    $options['body'] = 'post_xml=' . $xml->asXML();
+
+    // BIB library code + the system number.
+    // For example, USM01000050362.
+    $rid = $this->mainLibrary . $request->getDocNumber();
+
+    // ADM library code + the item record key.
+    // For example, USM50000238843000320.
+    $iid = $request->getInstitutionCode() . $request->getDocNumber() .
+      $request->getItemSequence();
+
+    return $this->requestRest(
+      'PUT',
+      'patron/' . $patron->getId() . '/record/' . $rid . '/items/' . $iid . '/hold',
+      $options
     );
   }
 
