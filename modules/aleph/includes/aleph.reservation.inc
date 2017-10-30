@@ -233,17 +233,12 @@ function aleph_reservation_create($account, $id) {
   $patron_handler->setPatron(aleph_get_patron_by_account());
 
   // Check if the users has this reservation and throw exception.
-  $reservation_exists = FALSE;
   $reservations = $patron_handler->getReservations();
 
   foreach ($reservations as $reservation) {
     if ($id === $reservation->getItem()->getId()) {
-      $reservation_exists = TRUE;
+      throw new DingProviderReservationExists();
     }
-  }
-
-  if ($reservation_exists) {
-    throw new DingProviderReservationExists();
   }
 
   // Add the interest period for the 'to' date.
