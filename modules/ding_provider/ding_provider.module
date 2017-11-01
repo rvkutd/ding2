@@ -4,7 +4,6 @@
  * Implements a common interface to backend providers.
  */
 
-use OpenSearch\OpenSearchTingObject;
 use Ting\TingObject;
 
 /**
@@ -630,6 +629,8 @@ function ding_provider_get_pseudo_entity($ding_entity_id) {
  *   original faust with the standard DBC namespace "870970-basis:".
  */
 function ding_provider_build_entity_id($ids) {
+  module_load_include('inc', 'ting', 'ting.client');
+
   if (is_array($ids) && !empty($ids)) {
     $translated_ids = array();
 
