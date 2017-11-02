@@ -16,10 +16,9 @@ function primo_ding_provider() {
     'title' => 'Primo provider',
     'settings' => 'primo_settings_form',
     'provides' => array(
-      // TODO Remove this dummy provider when we implement proper Primo search
-      // We need to provide something to have a settings page.
-      'dummy' => array(
-        'prefix' => 'dummy',
+      'search' => array(
+        'prefix' => 'search',
+        'file' => 'includes/primo.search.inc',
       ),
     ),
   );
@@ -244,4 +243,17 @@ function primo_xautoload(LocalDirectoryAdapter $adapter) {
     'Primo',
     'src/Primo'
   );
+}
+
+/**
+ * Implements hook_module_implements_alter().
+ */
+function primo_module_implements_alter(&$implementations, $hook) {
+  // TODO Remove once the Primo provider is fully implemented
+  // Ding does not support mixing multiple partial implementations of a provider
+  // so we fall back to OpenSearch while we implement Primo. Thus we need to
+  // OpenSearch enabled but not make it act as a provider.
+  if ($hook === 'ding_provider') {
+    unset($implementations['opensearch']);
+  }
 }
