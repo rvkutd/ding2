@@ -6,6 +6,7 @@
  */
 
 use Drupal\xautoload\Adapter\LocalDirectoryAdapter;
+use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
 
 /**
@@ -83,6 +84,22 @@ function primo_settings_form() {
   );
 
   return system_settings_form($form);
+}
+
+/**
+ * Get a configured client for the Primo Brief Search service ready for use.
+ *
+ * @return \Primo\BriefSearch\Client
+ *   The client.
+ */
+function primo_client() {
+  return new \Primo\BriefSearch\Client(
+    new GuzzleHttp\Client([
+      'base_uri' => variable_get('primo_base_url')
+    ]),
+    variable_get('primo_institution_code'),
+    ip_address()
+  );
 }
 
 /**
@@ -242,6 +259,50 @@ function primo_xautoload(LocalDirectoryAdapter $adapter) {
   $adapter->addPsr4(
     'Primo',
     'src/Primo'
+  );
+}
+
+/**
+ * Implements hook_libraries_info().
+ */
+function primo_libraries_info() {
+  return array(
+    'guzzle' => array(
+      'name' => 'Guzzle',
+      'vendor url' => 'https://github.com/guzzle/guzzle',
+      'download url' => 'https://github.com/guzzle/guzzle',
+      'version' => '6.2',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
+    'promises' => array(
+      'name' => 'Guzzle promises library',
+      'vendor url' => 'https://github.com/guzzle/promises',
+      'download url' => 'https://github.com/guzzle/promises',
+      'version' => '1.2',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
+    'http-message' => array(
+      'name' => 'Common interface for HTTP messages',
+      'vendor url' => 'https://github.com/php-fig/http-message',
+      'download url' => 'https://github.com/php-fig/http-message',
+      'version' => '1.0',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
+    'psr7' => array(
+      'name' => 'PSR-7 message implementation',
+      'vendor url' => 'https://github.com/guzzle/psr7',
+      'download url' => 'https://github.com/guzzle/psr7',
+      'version' => '1.3',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
   );
 }
 
