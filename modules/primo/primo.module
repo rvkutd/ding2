@@ -122,17 +122,28 @@ function primo_ting_covers($entities) {
   );
 
   try {
-    $document = primo_load_by_recordid($ids);
+    $client = primo_client();
+    $documents = $client->documents($ids);
 
-    $thumbnail_urls = array_fill_keys($ids, NULL);
+    $thumbnail_urls = array_map(function(Document $document) {
+      return $document->getThumbnailUrls();
+    }, $documents);
+
     array_walk(
       $thumbnail_urls,
-      function (&$url, $id, DOMDocument $document) {
-        $urls = primo_extract_thumbnail_urls($document, $id);
-        // We can only handle a single thumbnail per id so return the first.
-        $url = array_pop($urls);
-      },
-      $document
+      function(array &$thumbnail_urls, $record_id) {
+        $thumbnail_urls = array_filter($thumbnail_urls, function ($url) use ($record_id) {
+          // Primo may return thumbnail urls to resources which are in fact not
+          // images. In fact some are not working at all. Request each of them
+          // to remove irrelevant ones. Use HEAD as we only care about status
+          // code and content type here.
+          $client = primo_client();
+          return $client->validateThumbnail($url);
+        });
+
+        // We can only handle a single thumbnail so only use the first.
+        $thumbnail_urls = array_shift($thumbnail_urls);
+      }
     );
 
     // Splice the results back into an array mapping original ids with thumbnail
@@ -150,106 +161,6 @@ function primo_ting_covers($entities) {
   }
 
   return $covers;
-}
-
-/**
- * Load documents based on their record id.
- *
- * @param string[] $rids
- *   An array of Primo record ids.
- *
- * @return \DOMDocument
- *   A DOMDocument containing the resulting XML. This XML will contain elements
- *   for each of the requested record ids.
- *
- * @throws \Primo\Exception\TransferException
- *   Thrown if an error occurs when retrieveing data from Primo.
- */
-function primo_load_by_recordid(array $rids) {
-  $url = variable_get('primo_base_url') . '/PrimoWebServices/xservice/search/brief';
-  $params = array(
-    'institution' => variable_get('primo_institution_code'),
-    'query' => 'rid,contains,' . implode($rids, ' OR '),
-    'indx' => 1,
-    'bulkSize' => count($rids),
-  );
-
-  $request_url = url($url, array('query' => $params));
-  $result = drupal_http_request($request_url);
-
-  if (!empty($result->error)) {
-    watchdog('primo',
-      'Unable to retrieve records %ids from %url: (%code) %error',
-      array(
-        '%ids' => implode(',', $rids),
-        '%url' => $request_url,
-        '%code' => $result->code,
-        '%error' => $result->error,
-      ),
-      WATCHDOG_WARNING
-    );
-    throw new TransferException($result->error, $result->code);
-  }
-
-  $document = new DOMDocument();
-  $document->loadXML($result->data);
-
-  return $document;
-}
-
-/**
- * Extract thumbnail urls for a record in an XML document
- *
- * @param \DOMDocument $document
- *   The document containing record information.
- * @param string $id
- *   The record id for which to extract the thumbnail url.
- *
- * @return string[]
- *   An array of thumbnail urls for the record.
- */
-function primo_extract_thumbnail_urls(DOMDocument $document, $id) {
-  $xpath = new DOMXPath($document);
-  $xpath->registerNamespace(
-    's', 'http://www.exlibrisgroup.com/xsd/jaguar/search');
-  $xpath->registerNamespace(
-    'p', 'http://www.exlibrisgroup.com/xsd/primo/primo_nm_bib');
-  $thumbnail_elements = $xpath->query('//s:DOC[.//p:recordid[.="' . $id .  '"]]//s:thumbnail'
-  );
-
-  $thumbnail_urls = [];
-  foreach ($thumbnail_elements as $thumbnail_element) {
-    $thumbnail_urls[] = $thumbnail_element->nodeValue;
-  }
-
-  // Primo results are known to include duplicates. Remove these.
-  $thumbnail_urls = array_unique($thumbnail_urls);
-
-  $thumbnail_urls = array_filter($thumbnail_urls, function ($url) use ($id) {
-    // Primo may return thumbnail urls to resources which are in fact not
-    // images. In fact some are not working at all. Request each of them to
-    // remove irrelevant ones. Use HEAD as we only care about status code and
-    // content type here.
-    $result = drupal_http_request($url, array('method' => 'HEAD'));
-    $valid_thumbnail = $result->code == 200 &&
-      stripos($result->headers['content-type'], 'image') === 0;
-
-    if (variable_get('primo_enable_logging', FALSE)) {
-      watchdog('primo', '%id: %state cover image url %url. Status: %code. Content type: %content_type',
-        array(
-          '%id' => $id,
-          '%state' => $valid_thumbnail ? t('Valid') : t('Invalid'),
-          '%url' => $url,
-          '%code' => $result->code,
-          '%content_type' => $result->headers['content-type'],
-        )
-      );
-    }
-
-    return $valid_thumbnail;
-  });
-
-  return $thumbnail_urls;
 }
 
 /**
