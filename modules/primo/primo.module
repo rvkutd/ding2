@@ -5,7 +5,13 @@
  * Main module file for Primo.
  */
 
+use Concat\Http\Middleware\Logger;
 use Drupal\xautoload\Adapter\LocalDirectoryAdapter;
+use Drupal\PSR3\Logger\Watchdog;
+use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\MessageFormatter;
+use Primo\BriefSearch\Client;
 use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
 
@@ -93,8 +99,22 @@ function primo_settings_form() {
  *   The client.
  */
 function primo_client() {
-  return new \Primo\BriefSearch\Client(
-    new GuzzleHttp\Client([
+  $handler = HandlerStack::create();
+
+  if (variable_get('primo_enable_logging')) {
+    $watchdog = new Watchdog();
+    $watchdog->setWatchdogType('primo');
+    $formatter = new MessageFormatter(
+      'Request: {method} {uri}. Response: {code} {res_header_content-type} {res_header_content-length}'
+    );
+
+    $logger = new Logger($watchdog, $formatter);
+    $handler->push($logger, 'logger');
+  }
+
+  return new Client(
+    new GuzzleClient([
+      'handler' => $handler,
       'base_uri' => variable_get('primo_base_url')
     ]),
     variable_get('primo_institution_code'),
@@ -178,11 +198,29 @@ function primo_xautoload(LocalDirectoryAdapter $adapter) {
  */
 function primo_libraries_info() {
   return array(
+    'log' => array(
+      'name' => 'PSR Log',
+      'vendor url' => 'https://github.com/php-fig/log',
+      'download url' => 'https://github.com/php-fig/log',
+      'version' => '1.0.2',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
     'guzzle' => array(
       'name' => 'Guzzle',
       'vendor url' => 'https://github.com/guzzle/guzzle',
       'download url' => 'https://github.com/guzzle/guzzle',
       'version' => '6.2',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
+    'guzzle-log-middleware' => array(
+      'name' => 'Guzzle logging middleware',
+      'vendor url' => 'https://github.com/rtheunissen/guzzle-log-middleware',
+      'download url' => 'https://github.com/rtheunissen/guzzle-log-middleware',
+      'version' => 'v0.4.0',
       'xautoload' => function ($adapter) {
         $adapter->composerJson('composer.json');
       },
