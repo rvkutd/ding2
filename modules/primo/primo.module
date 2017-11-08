@@ -133,14 +133,6 @@ function primo_ting_covers($entities) {
     return $entity->ding_entity_id;
   }, $entities);
 
-  // Replace entity ids with a set of Primo ids which are known to have covers.
-  // TODO: Remove this once we have proper search integration with Primo.
-  $ids = array(
-    'ICE01_PRIMO_TEST000335901',
-    'ICE01_PRIMO_TEST001027834',
-    'ICE01_PRIMO_TEST000335895',
-  );
-
   try {
     $client = primo_client();
     $documents = $client->documents($ids);
@@ -166,14 +158,7 @@ function primo_ting_covers($entities) {
       }
     );
 
-    // Splice the results back into an array mapping original ids with thumbnail
-    // urls for Primo ids.
-    // TODO: Remove this once we have proper search integration with Primo.
-    $thumbnail_urls = array_slice($thumbnail_urls, 0, count($entities));
-    $covers = array_combine(
-      array_keys($entities),
-      array_pad($thumbnail_urls, count($entities), reset($thumbnail_urls))
-    );
+    $covers = $thumbnail_urls;
   }
   catch (TransferException $e) {
     // Do nothing. If an exception occurs then we simply to not return any
