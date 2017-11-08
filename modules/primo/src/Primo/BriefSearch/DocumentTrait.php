@@ -54,12 +54,37 @@ trait DocumentTrait {
     return $this->xpath($query);
   }
 
+  /**
+   * Retrieves values from a node list.
+   *
+   * @param \DOMNodeList $list
+   *   The node list.
+   *
+   * @return string[]
+   *   The node values.
+   */
   protected function nodeValues(\DOMNodeList $list) {
     $values = [];
     foreach ($list as $node) {
       $values[] = $node->nodeValue;
     }
     return $values;
+  }
+
+  /**
+   * Retrieves the first value from a node list.
+   *
+   * All subsequent values are discarded.
+   *
+   * @param \DOMNodeList $list
+   *   The node list.
+   *
+   * @return string
+   *   The value of the first node.
+   */
+  protected function nodeValue(\DOMNodeList $list) {
+    $values = $this->nodeValues($list);
+    return reset($values);
   }
 
 }

@@ -3,7 +3,7 @@
 namespace Primo\BriefSearch;
 
 /**
- * A result from accesing the Primo brief search servide.
+ * A result from accessing the Primo brief search service.
  */
 class Result {
   use DocumentTrait;

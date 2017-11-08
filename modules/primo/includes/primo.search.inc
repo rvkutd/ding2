@@ -5,6 +5,8 @@
  * Implements searching in Primo
  */
 
+use Primo\BriefSearch\Document;
+use Primo\Ting\Object;
 use Ting\Search\TingSearchRequest;
 
 // TODO Remove this once Primo search provider is fully implemented.
@@ -32,7 +34,11 @@ function primo_search_material_types() {
  *   An array of loaded objects.
  */
 function primo_search_object_load(array $ids) {
-  return opensearch_search_object_load($ids);
+  $client = primo_client();
+  $documents = $client->documents($ids);
+  return array_map(function(Document $document) {
+    return new Object($document);
+  }, $documents);
 }
 
 /**
