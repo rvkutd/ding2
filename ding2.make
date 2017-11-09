@@ -53,6 +53,12 @@ projects[dibs][patch][] = "https://www.drupal.org/files/issues/mysql_5.7_compati
 projects[diff][subdir] = "contrib"
 projects[diff][version] = "3.2"
 
+projects[drupal_psr3][subdir] = "contrib"
+projects[drupal_psr3][version] = "1.1"
+; Replace Composer with XAutoload
+; https://www.drupal.org/node/2921242
+projects[drupal_psr3][patch][] = "https://www.drupal.org/files/issues/drupal_psr3-optional_autoloading-2921242-2.patch"
+
 ; The patch ensures that file upload patch is created on file upload. It normally
 ; created on settings form save, but as we use feature this do not work.
 ; See https://www.drupal.org/node/2410241
@@ -454,6 +460,11 @@ libraries[guzzle][download][url] = "https://github.com/guzzle/guzzle.git"
 libraries[guzzle][download][tag] = "6.2.2"
 libraries[guzzle][destination] = "libraries"
 
+libraries[guzzle-log-middleware][download][type] = "git"
+libraries[guzzle-log-middleware][download][url] = "https://github.com/rtheunissen/guzzle-log-middleware"
+libraries[guzzle-log-middleware][download][tag] = "v0.4.0"
+libraries[guzzle][destination] = "libraries"
+
 libraries[http-message][download][type] = "git"
 libraries[http-message][download][url] = "https://github.com/php-fig/http-message.git"
 libraries[http-message][download][tag] = "1.0.1"
@@ -468,6 +479,11 @@ libraries[leaflet][download][type] = "get"
 libraries[leaflet][download][url] = "http://cdn.leafletjs.com/downloads/leaflet-0.7.3.zip"
 libraries[leaflet][directory_name] = "leaflet"
 libraries[leaflet][destination] = "libraries"
+
+libraries[log][download][type] = "git"
+libraries[log][download][url] = "https://github.com/php-fig/log"
+libraries[log][download][tag] = "1.0.2"
+libraries[log][destination] = "libraries"
 
 libraries[phly-http][download][type] = "git"
 libraries[phly-http][download][url] = "https://github.com/phly/http"

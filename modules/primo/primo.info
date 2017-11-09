@@ -4,4 +4,6 @@ core = 7.x
 package = Providers
 project = primo
 dependencies[] = ding_provider
+dependencies[] = drupal_psr3
+dependencies[] = libraries
 dependencies[] = xautoload
