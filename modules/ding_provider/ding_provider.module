@@ -4,7 +4,6 @@
  * Implements a common interface to backend providers.
  */
 
-use OpenSearch\OpenSearchTingObject;
 use Ting\TingObject;
 
 /**

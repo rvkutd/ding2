@@ -52,4 +52,3 @@ circle-run-unit-tests:
 	  "Ding! - Ting search unittest"
 	cd $(DRUPAL_SITE_PATH) && php scripts/run-tests.sh --php /opt/circleci/.phpenv/shims/php --xml $(CIRCLE_TEST_REPORTS)/phpunit \
 	  --class ConnieSearchSearchProviderImplementationTestCase
-
