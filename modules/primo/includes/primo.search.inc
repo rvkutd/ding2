@@ -68,6 +68,20 @@ function primo_search_search(TingSearchRequest $ting_query) {
 }
 
 /**
+ * Provide standard object ID's for primo provider.
+ *
+ * @param array|string $ids
+ *    Array with multiple ID's or a single ID.
+ *
+ * @return array|string
+ *    Array with multiple ID's. ID as key and object ID as value.
+ *    If a string is provided as parameter, a string with object ID.
+ */
+function primo_search_object_ids($ids) {
+  return opensearch_search_object_ids($ids);
+}
+
+/**
  * Allows the provider to programtically filter relations.
  *
  * @return array
