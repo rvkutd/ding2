@@ -70,13 +70,6 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getShortTitle() {
-    return $this->document->getBriefTitle();
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function getDescription() {
     return $this->document->getDescription();
   }
@@ -141,57 +134,8 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getMusician() {
-    // TODO: Implement getMusician() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getPegi() {
-    // TODO: Implement getPegi() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function getPublisher() {
     return $this->document->getPublisher();
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getReferenced() {
-    // TODO: Implement getReferenced() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getReplacedBy() {
-    // TODO: Implement getReplacedBy() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getReplaces() {
-    // TODO: Implement getReplaces() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getRights() {
-    // TODO: Implement getRights() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getSeriesDescription() {
-    // TODO: Implement getSeriesDescription() method.
   }
 
   /**
@@ -210,22 +154,8 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getSpatial() {
-    // TODO: Implement getSpatial() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function getSpoken() {
     // TODO: Implement getSpoken() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getSubTitles() {
-    // TODO: Implement getSubTitles() method.
   }
 
   /**
@@ -240,14 +170,6 @@ class Object implements TingObjectInterface {
    */
   public function getURI() {
     // TODO: Implement getURI() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getVersion() {
-    // Do nothing. Primo does not distinguish between difference versions of
-    // the same object.
   }
 
   /**
@@ -269,6 +191,90 @@ class Object implements TingObjectInterface {
    */
   public function getYear() {
     return $this->document->getYear();
+  }
+
+  // Below are parts of the TingObjectInterface which the Primo modules
+  // currently do not support.
+  // Note that this does not necessarily mean that the information is not
+  // available from Primo. It is just not implemented at the moment. Please
+  // check each getter for any additional information.
+
+  /**
+   * @inheritDoc
+   */
+  public function getShortTitle() {
+    // Return nothing. We do not support short titles at the moment.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getMusician() {
+    // Return nothing. We do not support musician information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getPegi() {
+    // Return nothing. We do not support PEGI information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getReferenced() {
+    // Return nothing. We do not support reference information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getReplacedBy() {
+    // Return nothing. We do not support version replacement information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getReplaces() {
+    // Return nothing. We do not support version replacement information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getRights() {
+    // Return nothing. We do not support rights information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getSeriesDescription() {
+    // Return nothing. We do not support series description.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getSpatial() {
+    // Return nothing. We do not support spatial information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getSubTitles() {
+    // Return nothing. We do not support subtitle information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getVersion() {
+    // Do nothing. Primo does not distinguish between difference versions of
+    // the same object.
   }
 
 }
