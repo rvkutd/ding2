@@ -64,21 +64,9 @@ class Document {
    *   Document title.
    */
   public function getTitle() {
-    $nodes = $this->recordXpath($this->recordId, '//primo:display/primo:title');
+    $nodes = $this->recordXpath($this->recordId, '//primo:addata/primo:btitle');
     return $this->nodeValue($nodes);
   }
-
-  /**
-   * Returns a short version of the document title.
-   *
-   * @return string
-   *   Document title.
-   */
-  public function getBriefTitle() {
-    $nodes = $this->recordXpath($this->recordId, '//primo:adddata/primo:btitle');
-    return $this->nodeValue($nodes);
-  }
-
 
   /**
    * Returns a extended description of the document.
