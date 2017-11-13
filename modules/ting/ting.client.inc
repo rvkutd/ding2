@@ -13,42 +13,6 @@ define('TING_CACHE_EMPTY_ENTRY', '8e4f3ef1784c020bf7afa5b6dd69b421');
 /**
  * Get an ting object or collection.
  *
- * Returns the search response for the given id.
- *
- * @param string $object_id
- *   The id to fetch.
- * @param bool $collection
- *   Whether to return a collection, if possible, or an object.
- * @param bool $with_relations
- *   Whether to return all relations. Defaults to FALSE.
- *
- * @todo Should use getObject, but the ting-client lib doesn't implement that.
- *
- * @return \TingClientObject|\TingClientObjectCollection
- *   Ting object or object collection if $collection is TRUE and a collection
- *   was found.
- */
-function ting_get_object_sal($object_id, $collection = FALSE, $with_relations = FALSE) {
-  // TODO BBS-SAL: Look at loading relations.
-  if ($collection) {
-    // TODO BBS-SAL: the docblock says "if possible, or an object." - we have to
-    // figure out when not to return a collection.
-    $result = ding_provider_invoke('search', 'collection_load', [$object_id]);
-  }
-  else {
-    $result = ding_provider_invoke('search', 'object_load', [$object_id]);
-  }
-
-  if (empty($result) || !is_array($result)) {
-    return NULL;
-  }
-
-  return reset($result);
-}
-
-/**
- * Get an ting object or collection.
- *
  * Returns the search response for the given id. This will cache the
  * result, and any sub-objects, so fetching objects from a recently
  * fetched collection won't trigger another backend request.
@@ -530,7 +494,7 @@ function ting_cache_get($id, $type = TING_CACHE_TING_OBJECT, $with_relations = F
   $cid = $type . ':' . $id;
   ting_cache_invoke_cache_key_hook($cid);
 
-  if ($ttl = variable_get('ting_cache_lifetime', TING_DEFAULT_CACHE_LIFETIME)) {
+  if ($ttl = variable_get('opensearch_cache_lifetime', OPENSEARCH_DEFAULT_CACHE_LIFETIME)) {
     $cache = cache_get($cid, 'cache_ting');
     if ($cache && ($cache->expire > REQUEST_TIME)) {
       $data = $cache->data;
@@ -574,7 +538,7 @@ function ting_cache_set($id, $value, $type = TING_CACHE_TING_OBJECT) {
   $cid = $type . ':' . $id;
   ting_cache_invoke_cache_key_hook($cid);
 
-  if ($ttl = variable_get('ting_cache_lifetime', TING_DEFAULT_CACHE_LIFETIME)) {
+  if ($ttl = variable_get('opensearch_cache_lifetime', OPENSEARCH_DEFAULT_CACHE_LIFETIME)) {
     cache_set($cid, $value, 'cache_ting', REQUEST_TIME + $ttl);
   }
   else {
@@ -690,10 +654,10 @@ function ting_get_request_factory() {
 
   if (!isset($request_factory)) {
     $url_variables = array(
-      'search' => 'ting_search_url',
-      'object' => 'ting_search_url',
-      'collection' => 'ting_search_url',
-      'recommendation' => 'ting_recommendation_url',
+      'search' => 'opensearch_url',
+      'object' => 'opensearch_url',
+      'collection' => 'opensearch_url',
+      'recommendation' => 'opensearch_recommendation_url',
     );
 
     // TODO: This should probably be rethought.
@@ -710,11 +674,11 @@ function ting_get_request_factory() {
     }
 
     $auth = array();
-    if (variable_get('ting_use_auth', FALSE)) {
+    if (variable_get('opensearch_use_auth', FALSE)) {
       $auth = array(
-        'name' => variable_get('ting_auth_name', ''),
-        'pass' => variable_get('ting_auth_pass', ''),
-        'group' => variable_get('ting_auth_group', ''),
+        'name' => variable_get('opensearch_auth_name', ''),
+        'pass' => variable_get('opensearch_auth_pass', ''),
+        'group' => variable_get('opensearch_auth_group', ''),
       );
     }
 
@@ -805,7 +769,7 @@ function ting_get_client() {
   static $client;
 
   if (!isset($client)) {
-    $logger = (variable_get('ting_enable_logging', FALSE)) ? new TingClientDrupalWatchDogLogger(ting_get_request_factory()) : new TingClientVoidLogger();
+    $logger = (variable_get('opensearch_enable_logging', FALSE)) ? new TingClientDrupalWatchDogLogger(ting_get_request_factory()) : new TingClientVoidLogger();
     $client = new TingClient(new TingClientRequestAdapter(), $logger);
   }
 
