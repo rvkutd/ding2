@@ -57,7 +57,7 @@ class Object implements TingObjectInterface {
    * @inheritDoc
    */
   public function getOwnerId() {
-    // TODO: Implement getOwnerId() method.
+    return $this->document->getSourceId();
   }
 
   /**
@@ -77,14 +77,6 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getRelations() {
-    // TODO: Implement getRelations() method.
-  }
-
-
-  /**
-   * @inheritDoc
-   */
   public function getAge() {
     // TODO: Implement getAge() method.
   }
@@ -99,15 +91,32 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getExtent() {
-    return $this->document->getDisplayFormat();
+  public function getContributors() {
+    return $this->document->getContributors();
   }
 
   /**
    * @inheritDoc
    */
-  public function getFormat() {
-    // TODO: Implement getFormat() method.
+  public function getCreators($format = self::NAME_FORMAT_DEFAULT) {
+    // Create a mapper for each name format. A mapper should take an array of
+    // elements for a name and combine them into a single string.
+    $defaultMapper = function(array $nameElements) {
+      return implode(' ', $nameElements);
+    };
+    $surnameFirstMapper = function(array $nameElements) {
+      return implode(', ', array_reverse($nameElements));
+    };
+    $mapper = ($format === self::NAME_FORMAT_SURNAME_FIRST) ? $surnameFirstMapper : $defaultMapper;
+
+    return array_map($mapper, $this->document->getCreators());
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getExtent() {
+    return $this->document->getDisplayFormat();
   }
 
   /**
@@ -134,8 +143,22 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
+  public function getMaterialSource() {
+    return $this->document->getSource();
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getPublisher() {
     return $this->document->getPublisher();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getSeriesTitles() {
+    return $this->document->getSeriesData();
   }
 
   /**
@@ -154,8 +177,11 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getSpoken() {
-    // TODO: Implement getSpoken() method.
+  public function getSubjects() {
+    $subjects = $this->document->getSubjects();
+    // Primo returns subjects as a single string but Ding2 expects an array of
+    // subject name strings. Explode by Primos delimiter.
+    return explode(' ; ', $subjects);
   }
 
   /**
@@ -175,15 +201,8 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function isPartOf() {
-    // TODO: Implement isPartOf() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
   public function getType() {
-    return $this->document->getFormat();
+    return $this->document->getType();
   }
 
   /**
@@ -209,6 +228,35 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
+  public function getAbstract() {
+    // Return nothing. We do not support abstracts.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getClassification() {
+    // Return nothing. We do not support classification.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getFormat() {
+    // Return nothing. The contents of this field is partly duplicated by
+    // getExtent().
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function isPartOf() {
+    // Return nothing. IsPartOf is not supported at the moment.
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getMusician() {
     // Return nothing. We do not support musician information.
   }
@@ -225,6 +273,13 @@ class Object implements TingObjectInterface {
    */
   public function getReferenced() {
     // Return nothing. We do not support reference information.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getRelations() {
+    // Return nothing. We do not support relations at the moment.
   }
 
   /**
@@ -265,6 +320,13 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
+  public function getSpoken() {
+    // Return nothing. We do not support spoken information.
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getSubTitles() {
     // Return nothing. We do not support subtitle information.
   }
@@ -275,6 +337,27 @@ class Object implements TingObjectInterface {
   public function getVersion() {
     // Do nothing. Primo does not distinguish between difference versions of
     // the same object.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getLanguage() {
+    // TODO: Implement getLanguage() method.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function getOnlineUrl() {
+    // TODO: Implement getOnlineUrl() method.
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function isOnline() {
+    // TODO: Implement isOnline() method.
   }
 
 }
