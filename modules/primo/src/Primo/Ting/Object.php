@@ -4,6 +4,7 @@
 namespace Primo\Ting;
 
 
+use Matriphe\ISO639\ISO639;
 use Primo\BriefSearch\Document;
 use Ting\TingObjectInterface;
 
@@ -343,7 +344,14 @@ class Object implements TingObjectInterface {
    * @inheritDoc
    */
   public function getLanguage() {
-    // TODO: Implement getLanguage() method.
+    $lang = $this->document->getLanguage();
+    if (!empty($lang)) {
+      // Languages returned by Primo is in ISO-639 format. To return something
+      // understandable by users we return the language for the code in the
+      // native tounge.
+      $languageConverter = new ISO639();
+      return $languageConverter->nativeByCode3($lang);
+    }
   }
 
   /**

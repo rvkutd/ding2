@@ -154,6 +154,19 @@ class Document {
   }
 
   /**
+   * Gets the language of the document.
+   *
+   * Languages are returned in three letter ISO-639 format.
+   *
+   * @return string
+   *   Language in ISO-639 format.
+   */
+  public function getLanguage() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:display/primo:language');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
    * Gets the value of a local display field.
    *
    * Primo supports local fields which are represented as XML elements named
