@@ -71,6 +71,14 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
+  public function getShortTitle() {
+    // Primo does not distinguish between short and default title lengths.
+    return $this->getTitle();
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getDescription() {
     return $this->document->getDescription();
   }
@@ -218,13 +226,6 @@ class Object implements TingObjectInterface {
   // Note that this does not necessarily mean that the information is not
   // available from Primo. It is just not implemented at the moment. Please
   // check each getter for any additional information.
-
-  /**
-   * @inheritDoc
-   */
-  public function getShortTitle() {
-    // Return nothing. We do not support short titles at the moment.
-  }
 
   /**
    * @inheritDoc
