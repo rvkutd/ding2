@@ -210,6 +210,15 @@ function primo_libraries_info() {
         $adapter->composerJson('composer.json');
       },
     ),
+    'http-message' => array(
+      'name' => 'Common interface for HTTP messages',
+      'vendor url' => 'https://github.com/php-fig/http-message',
+      'download url' => 'https://github.com/php-fig/http-message',
+      'version' => '1.0',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
     'iso-639' => array(
       'name' => 'PHP ISO-639 library',
       'vendor url' => 'https://github.com/matriphe/php-iso-639',
@@ -224,15 +233,6 @@ function primo_libraries_info() {
       'vendor url' => 'https://github.com/guzzle/promises',
       'download url' => 'https://github.com/guzzle/promises',
       'version' => '1.2',
-      'xautoload' => function ($adapter) {
-        $adapter->composerJson('composer.json');
-      },
-    ),
-    'http-message' => array(
-      'name' => 'Common interface for HTTP messages',
-      'vendor url' => 'https://github.com/php-fig/http-message',
-      'download url' => 'https://github.com/php-fig/http-message',
-      'version' => '1.0',
       'xautoload' => function ($adapter) {
         $adapter->composerJson('composer.json');
       },
