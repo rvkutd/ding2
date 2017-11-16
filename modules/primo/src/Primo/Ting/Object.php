@@ -152,6 +152,21 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
+  public function getLanguage() {
+    $lang = $this->document->getLanguage();
+    if (!empty($lang)) {
+      // Languages returned by Primo is in ISO-639 format. To return something
+      // understandable by users we convert it to English and let Drupal try to
+      // translate it to the user language.
+      $lang = (new ISO639())->languageByCode2b($lang);
+      $lang = t($lang);
+    }
+    return (!empty($lang)) ? $lang : FALSE;
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getMaterialSource() {
     return $this->document->getSource();
   }
@@ -339,20 +354,6 @@ class Object implements TingObjectInterface {
   public function getVersion() {
     // Do nothing. Primo does not distinguish between difference versions of
     // the same object.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getLanguage() {
-    $lang = $this->document->getLanguage();
-    if (!empty($lang)) {
-      // Languages returned by Primo is in ISO-639 format. To return something
-      // understandable by users we return the language for the code in the
-      // native tounge.
-      $languageConverter = new ISO639();
-      return $languageConverter->nativeByCode3($lang);
-    }
   }
 
   /**
