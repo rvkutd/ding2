@@ -470,6 +470,11 @@ libraries[http-message][download][url] = "https://github.com/php-fig/http-messag
 libraries[http-message][download][tag] = "1.0.1"
 libraries[http-message][destination] = "libraries"
 
+libraries[iso-639][download][type] = "git"
+libraries[iso-639][download][url] = "https://github.com/matriphe/php-iso-639"
+libraries[iso-639][download][tag] = "1.2"
+libraries[iso-639][destination] = "libraries"
+
 libraries[jsonmapper][download][type] = "git"
 libraries[jsonmapper][download][url] = "https://github.com/cweiske/jsonmapper"
 libraries[jsonmapper][download][tag] = "v0.4.4"

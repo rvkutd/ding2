@@ -79,8 +79,8 @@ trait DocumentTrait {
    * @param \DOMNodeList $list
    *   The node list.
    *
-   * @return string
-   *   The value of the first node.
+   * @return string|FALSE
+   *   The value of the first node. FALSE if the list is empty.
    */
   protected function nodeValue(\DOMNodeList $list) {
     $values = $this->nodeValues($list);
