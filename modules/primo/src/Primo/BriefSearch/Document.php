@@ -269,4 +269,15 @@ class Document {
     return $this->nodeValue($nodes);
   }
 
+  /**
+   * Get the url to the online representation of the document.
+   *
+   * @return string
+   *   Url.
+   */
+  public function getOnlineUrl() {
+    $nodes = $this->recordXpath($this->recordId, '//search:LINKS/search:linktorsrc');
+    return $this->nodeValue($nodes);
+  }
+
 }

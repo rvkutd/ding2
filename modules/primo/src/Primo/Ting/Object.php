@@ -181,6 +181,20 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
+  public function getOnlineUrl() {
+    return $this->document->getOnlineUrl();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function isOnline() {
+    return !empty($this->document->getOnlineUrl());
+  }
+
+  /**
+   * @inheritDoc
+   */
   public function getPublisher() {
     return $this->document->getPublisher();
   }
@@ -358,20 +372,6 @@ class Object implements TingObjectInterface {
   public function getVersion() {
     // Do nothing. Primo does not distinguish between difference versions of
     // the same object.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getOnlineUrl() {
-    // TODO: Implement getOnlineUrl() method.
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function isOnline() {
-    // TODO: Implement isOnline() method.
   }
 
 }
