@@ -270,108 +270,121 @@ class Object implements TingObjectInterface {
    * @inheritDoc
    */
   public function getClassification() {
-    // Return nothing. We do not support classification.
+    // We do not support classification.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getFormat() {
-    // Return nothing. The contents of this field is partly duplicated by
-    // getExtent().
+    // The contents of this field is partly duplicated by getExtent().
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function isPartOf() {
-    // Return nothing. IsPartOf is not supported at the moment.
+    // IsPartOf is not supported at the moment.
+    return [];
   }
 
   /**
    * @inheritDoc
    */
   public function getMusician() {
-    // Return nothing. We do not support musician information.
+    // We do not support musician information.
+    return [];
   }
 
   /**
    * @inheritDoc
    */
   public function getPegi() {
-    // Return nothing. We do not support PEGI information.
+    // We do not support PEGI information.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getReferenced() {
-    // Return nothing. We do not support reference information.
+    // We do not support reference information.
+    return [];
   }
 
   /**
    * @inheritDoc
    */
   public function getRelations() {
-    // Return nothing. We do not support relations at the moment.
+    // We do not support relations at the moment.
+    return [];
   }
 
   /**
    * @inheritDoc
    */
   public function getReplacedBy() {
-    // Return nothing. We do not support version replacement information.
+    // We do not support version replacement information.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getReplaces() {
-    // Return nothing. We do not support version replacement information.
+    // We do not support version replacement information.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getRights() {
-    // Return nothing. We do not support rights information.
+    // We do not support rights information.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getSeriesTitles() {
-    // Return nothing. We do not support retrieval of other titles in same
-    // series.
+    // We do not support retrieval of other titles in same series.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getSpatial() {
-    // Return nothing. We do not support spatial information.
+    // We do not support spatial information.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getSpoken() {
-    // Return nothing. We do not support spoken information.
+    // We do not support spoken information.
+    return FALSE;
   }
 
   /**
    * @inheritDoc
    */
   public function getSubTitles() {
-    // Return nothing. We do not support subtitle information.
+    // We do not support subtitle information.
+    return [];
   }
 
   /**
    * @inheritDoc
    */
   public function getVersion() {
-    // Do nothing. Primo does not distinguish between difference versions of
-    // the same object.
+    // Primo does not distinguish between difference versions of the same
+    // object.
+    return FALSE;
   }
 
 }
