@@ -181,8 +181,11 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getSeriesTitles() {
-    return $this->document->getSeriesData();
+  public function getSeriesDescription() {
+    // Series data contain both title of series and number for current document.
+    // We only want the series title so split and return first element.
+    $seriesData = explode(' ; ', $this->document->getSeriesData());
+    return array_shift($seriesData);
   }
 
   /**
@@ -323,8 +326,9 @@ class Object implements TingObjectInterface {
   /**
    * @inheritDoc
    */
-  public function getSeriesDescription() {
-    // Return nothing. We do not support series description.
+  public function getSeriesTitles() {
+    // Return nothing. We do not support retrieval of other titles in same
+    // series.
   }
 
   /**
