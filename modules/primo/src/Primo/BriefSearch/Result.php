@@ -36,5 +36,23 @@ class Result {
     return $documents;
   }
 
+  /**
+   * Returns the number of items in the result.
+   *
+   * @return int
+   *   The number of results.
+   */
+  public function getNumResults() {
+    $docset = $this->xpath('//sear:DOCSET');
+    // Empty list or false if we hit an error or can't find the element.
+    if (empty($docset)) {
+      return 0;
+    }
 
+    $docset = $docset->item(0);
+
+    // Returns '' if the attribute is missing.
+    $hits = $docset->getAttribute('TOTALHITS');
+    return $hits !== '' ? $hits : 0;
+  }
 }
