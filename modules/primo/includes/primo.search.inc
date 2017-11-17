@@ -2,11 +2,13 @@
 
 /**
  * @file
- * Implements searching in Primo
+ * Implements searching in Primo.
  */
 
 use Primo\BriefSearch\Document;
+use Primo\Exception\TransferException;
 use Primo\Ting\Object;
+use Primo\Ting\Result;
 use Ting\Search\TingSearchRequest;
 
 // TODO Remove this once Primo search provider is fully implemented.
@@ -64,7 +66,35 @@ function primo_search_collection_load($id) {
  *   The search result.
  */
 function primo_search_search(TingSearchRequest $ting_query) {
-  return opensearch_search_search($ting_query);
+  $query = '';
+  $client = primo_client();
+
+  // Add a general quoted free text search.
+  if (!empty($free_text_query = $ting_query->getFullTextQuery())) {
+
+    // Queyring against the "any" field will:
+    // "search against most of the (red: available) fields at once." as pre the
+    // documentation.
+    $query .= 'any,contains,' . urlencode($free_text_query);
+  }
+
+  // TODO: Verify the paging.
+  $page = $ting_query->getPage();
+  $count = $ting_query->getCount();
+
+  // Execute the search, return the result.
+  $ting_result = NULL;
+  try {
+    $primo_result = $client->search($query, $page, $count);
+    $ting_result = new Result($primo_result, $ting_query);
+
+  }
+  catch (TransferException $e) {
+    // If an error occurs log it, and don't set $ting_result.
+    watchdog('primo', 'Error while searching: ' . $e->getMessage());
+  }
+
+  return $ting_result;
 }
 
 /**
