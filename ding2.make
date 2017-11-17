@@ -53,12 +53,6 @@ projects[dibs][patch][] = "https://www.drupal.org/files/issues/mysql_5.7_compati
 projects[diff][subdir] = "contrib"
 projects[diff][version] = "3.2"
 
-projects[drupal_psr3][subdir] = "contrib"
-projects[drupal_psr3][version] = "1.1"
-; Replace Composer with XAutoload
-; https://www.drupal.org/node/2921242
-projects[drupal_psr3][patch][] = "https://www.drupal.org/files/issues/drupal_psr3-optional_autoloading-2921242-2.patch"
-
 ; The patch ensures that file upload patch is created on file upload. It normally
 ; created on settings form save, but as we use feature this do not work.
 ; See https://www.drupal.org/node/2410241
@@ -505,6 +499,11 @@ libraries[promises][download][type] = "git"
 libraries[promises][download][url] = "https://github.com/guzzle/promises.git"
 libraries[promises][download][tag] = "1.2.0"
 libraries[promises][destination] = "libraries"
+
+libraries[psr3-watchdog][download][type] = "git"
+libraries[psr3-watchdog][download][url] = "https://github.com/drupol/drupal7_psr3_watchdog.git"
+libraries[psr3-watchdog][download][tag] = "0.0.2"
+libraries[psr3-watchdog][destination] = "libraries"
 
 libraries[psr7][download][type] = "git"
 libraries[psr7][download][url] = "https://github.com/guzzle/psr7.git"

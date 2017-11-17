@@ -7,7 +7,7 @@
 
 use Concat\Http\Middleware\Logger;
 use Drupal\xautoload\Adapter\LocalDirectoryAdapter;
-use Drupal\PSR3\Logger\Watchdog;
+use drupol\drupal7_psr3_watchdog\Logger\WatchdogLogger;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\MessageFormatter;
@@ -102,8 +102,7 @@ function primo_client() {
   $handler = HandlerStack::create();
 
   if (variable_get('primo_enable_logging')) {
-    $watchdog = new Watchdog();
-    $watchdog->setWatchdogType('primo');
+    $watchdog = new WatchdogLogger('primo');
     $formatter = new MessageFormatter(
       'Request: {method} {uri}. Response: {code} {res_header_content-type} {res_header_content-length}'
     );
@@ -233,6 +232,15 @@ function primo_libraries_info() {
       'vendor url' => 'https://github.com/guzzle/promises',
       'download url' => 'https://github.com/guzzle/promises',
       'version' => '1.2',
+      'xautoload' => function ($adapter) {
+        $adapter->composerJson('composer.json');
+      },
+    ),
+    'psr3-watchdog' => array(
+      'name' => 'Drupal PSR-3 compatible logger',
+      'vendor url' => 'https://github.com/drupol/drupal7_psr3_watchdog',
+      'download url' => 'https://github.com/drupol/drupal7_psr3_watchdog',
+      'version' => 'master',
       'xautoload' => function ($adapter) {
         $adapter->composerJson('composer.json');
       },
