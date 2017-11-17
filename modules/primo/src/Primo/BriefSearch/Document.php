@@ -43,6 +43,17 @@ class Document {
   }
 
   /**
+   * Get the id of the source organization.
+   *
+   * @return string
+   *   Source organization id.
+   */
+  public function getSourceId() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:control/primo:sourceid');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
    * This ID identifies the record in the source repository.
    *
    * A source repository could be an ALEPH system number supplied in MARC 21 tag
@@ -64,21 +75,9 @@ class Document {
    *   Document title.
    */
   public function getTitle() {
-    $nodes = $this->recordXpath($this->recordId, '//primo:display/primo:title');
+    $nodes = $this->recordXpath($this->recordId, '//primo:addata/primo:btitle');
     return $this->nodeValue($nodes);
   }
-
-  /**
-   * Returns a short version of the document title.
-   *
-   * @return string
-   *   Document title.
-   */
-  public function getBriefTitle() {
-    $nodes = $this->recordXpath($this->recordId, '//primo:adddata/primo:btitle');
-    return $this->nodeValue($nodes);
-  }
-
 
   /**
    * Returns a extended description of the document.
@@ -155,6 +154,19 @@ class Document {
   }
 
   /**
+   * Gets the language of the document.
+   *
+   * Languages are returned in three letter ISO-639 format.
+   *
+   * @return string
+   *   Language in ISO-639 format.
+   */
+  public function getLanguage() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:display/primo:language');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
    * Gets the value of a local display field.
    *
    * Primo supports local fields which are represented as XML elements named
@@ -172,8 +184,99 @@ class Document {
     return $this->nodeValue($nodes);
   }
 
-  public function getFormat() {
-    $nodes = $this->recordXpath($this->recordId, '//primo:addata/primo:format');
+  /**
+   * Get the format of the document ie. the type.
+   *
+   * Example: book
+   *
+   * @return string
+   *   Document format.
+   */
+  public function getType() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:display/primo:type');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
+   * Get the names of the person(s) who created the document.
+   *
+   * Examples of creators are authors or musicians.
+   *
+   * @return string[][]
+   *   Creator names broken into elements.
+   */
+  public function getCreators() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:addata/primo:au');
+    // Creator names may be in the format [lastname], [firstname]. If so we
+    // split and reverse them to return an array of name elements with firstname
+    // before lastname. If the name is not in this format there will be no split
+    // and we simply return the name as an array with a single entry containing
+    // the full name.
+    return array_map(function($name) {
+      return array_reverse(explode(', ', $name, 2));
+    }, $this->nodeValues($nodes));
+  }
+
+  /**
+   * Get the names of the person(s) who contributed to the document.
+   *
+   * Examples of contributors are translators.
+   *
+   * @return string[]
+   *   Contributor names.
+   */
+  public function getContributors() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:addata/primo:addau');
+    return $this->nodeValues($nodes);
+  }
+
+  /**
+   * Gets all the subjects of the document as a single string.
+   *
+   * Each subject will be separated by a semi-colon (;).
+   *
+   * @return string
+   *   Subject string.
+   */
+  public function getSubjects() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:display/primo:subject');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
+   * Gets the name of the system from which the document originates.
+   *
+   * E.g. Aleph.
+   *
+   * @return string
+   *   Source system name.
+   */
+  public function getSource() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:control/primo:sourcesystem');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
+   * Gets data about whether the document is part of a series.
+   *
+   * Data will usually be in the format [title]; [number]
+   *
+   * @return string
+   *   Series data.
+   */
+  public function getSeriesData() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:addata/primo:seriestitle');
+    return $this->nodeValue($nodes);
+  }
+
+  /**
+   * Get the url to the online representation of the document.
+   *
+   * @return string
+   *   Url.
+   */
+  public function getOnlineUrl() {
+    $nodes = $this->recordXpath($this->recordId, '//search:LINKS/search:linktorsrc');
     return $this->nodeValue($nodes);
   }
 
