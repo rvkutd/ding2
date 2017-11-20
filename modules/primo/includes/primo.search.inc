@@ -10,6 +10,7 @@ use Primo\Exception\TransferException;
 use Primo\Ting\Collection;
 use Primo\Ting\Object;
 use Primo\Ting\Result;
+use Ting\Search\SearchProviderException;
 use Ting\Search\TingSearchRequest;
 
 // TODO Remove this once Primo search provider is fully implemented.
@@ -70,6 +71,9 @@ function primo_search_collection_load($id) {
  *
  * @return \Ting\Search\TingSearchResultInterface
  *   The search result.
+ *
+ * @throws \Ting\Search\SearchProviderException
+ *   Thrown if an error occurs.
  */
 function primo_search_search(TingSearchRequest $ting_query) {
   $query = '';
@@ -89,18 +93,13 @@ function primo_search_search(TingSearchRequest $ting_query) {
   $count = $ting_query->getCount();
 
   // Execute the search, return the result.
-  $ting_result = NULL;
   try {
     $primo_result = $client->search($query, $page, $count);
-    $ting_result = new Result($primo_result, $ting_query);
-
+    return new Result($primo_result, $ting_query);
   }
   catch (TransferException $e) {
-    // If an error occurs log it, and don't set $ting_result.
-    watchdog('primo', 'Error while searching: ' . $e->getMessage());
+    throw new SearchProviderException('Exception occured while searching against primo', 0, $e);
   }
-
-  return $ting_result;
 }
 
 /**
