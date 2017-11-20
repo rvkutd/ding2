@@ -158,7 +158,9 @@ class AlephPatronHandler extends AlephHandlerBase {
         $request->setDocNumber((string) $hold_request->xpath('z37/z37-doc-number')[0]);
         $request->setHoldDate((string) $hold_request->xpath('z37/z37-hold-date')[0]);
         $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);
-        $request->setSequence(ltrim((string) $hold_request->xpath('z37/z37-sequence')[0], 0));
+        $request->setSequence((string) $hold_request->xpath('z37/z37-sequence')[0]);
+        $request->setItemSequence((string) $hold_request->xpath('z37/z37-item-sequence')[0]);
+        $request->setInstitutionCode((string) $hold_request->xpath('z37/translate-change-active-library')[0]);
 
         $material->setTitle((string) $hold_request->xpath('z13/z13-title')[0]);
         $material->setId((string) $hold_request->xpath('z13/z13-doc-number')[0]);
@@ -218,6 +220,28 @@ class AlephPatronHandler extends AlephHandlerBase {
       $reservation->getRequest());
 
     return AlephRequestResponse::createRequestResponseFromXML($response);
+  }
+
+  /**
+   * Delete a patrons reservation(s).
+   *
+   * @param $patron
+   *    The Aleph patron.
+   *
+   * @param $reservation_id
+   *    The reservation ID.
+   *
+   * @return \Drupal\aleph\Aleph\Entity\AlephRequestResponse
+   *
+   * @throws \RuntimeException
+   */
+  public function deleteReservation(AlephPatron $patron, $reservation_id) {
+    $response = $this->client->deleteReservation($patron, $reservation_id);
+    $response_object = new AlephRequestResponse();
+    $response_object->setReplyCode((string) $response->xpath('del-pat-hold/reply-code')[0]);
+    $response_object->setNote((string) $response->xpath('del-pat-hold/note')
+    [0]);
+    return $response_object;
   }
 
   /**
