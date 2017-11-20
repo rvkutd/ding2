@@ -48,11 +48,11 @@ class Result {
     if (empty($docset)) {
       return 0;
     }
-
     $docset = $docset->item(0);
 
-    // Returns '' if the attribute is missing.
-    $hits = $docset->getAttribute('TOTALHITS');
-    return $hits !== '' ? $hits : 0;
+    // Cast the string return-value from getAttributes. getAttributes returns an
+    // empty string if the attribute cannot be found which will be cast to 0.
+    // which will be cast to 0.
+    return (int) $docset->getAttribute('TOTALHITS');
   }
 }
