@@ -7,6 +7,7 @@
 
 use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
+use Primo\Ting\Collection;
 use Primo\Ting\Object;
 use Primo\Ting\Result;
 use Ting\Search\TingSearchRequest;
@@ -53,7 +54,12 @@ function primo_search_object_load(array $ids) {
  *   The collection.
  */
 function primo_search_collection_load($id) {
-  return opensearch_search_collection_load($id);
+  $client = primo_client();
+  // We don't support collections, so load a single document, filter it to
+  // avoid NULL-results, and return a Collection object loaded with the array
+  // containing 0 or 1 document.
+  $documents = array_filter($client->documents([$id]));
+  return new Collection($documents);
 }
 
 /**

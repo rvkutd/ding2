@@ -6,6 +6,7 @@
 
 namespace Primo\Ting;
 
+use Primo\BriefSearch\Document;
 use Ting\Search\TingSearchRequest;
 use Ting\Search\TingSearchResultInterface;
 use TingCollection;
@@ -52,10 +53,12 @@ class Result implements TingSearchResultInterface {
     $this->result = $result;
     $this->tingSearchRequest = $ting_search_request;
 
-    // Construct a Ting collection pr. document.
-    foreach ($this->result->getDocuments() as $document) {
-      $this->collections[] = new TingCollection($document->getRecordId(), new Collection([$document]));
-    }
+    // Extract the document ids and load a collection collection pr. document.
+    $ids = array_map(function(Document $document) {
+      return $document->getRecordId();
+    }, $result->getDocuments());
+    $this->collections = entity_load('ting_collection', array(),
+      array('ding_entity_id' => $ids));
   }
 
   /**
