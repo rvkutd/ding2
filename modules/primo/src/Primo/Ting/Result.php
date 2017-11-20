@@ -68,7 +68,7 @@ class Result implements TingSearchResultInterface {
    *   The number of objects.
    */
   public function getNumTotalObjects() {
-    return count($this->result->getDocuments());
+    return $this->result->getNumResults();
   }
 
   /**
@@ -81,9 +81,9 @@ class Result implements TingSearchResultInterface {
    *   The number of collections.
    */
   public function getNumTotalCollections() {
-    // Will in effect be one collection pr object as we don't support
-    // collections.
-    return count($this->collections);
+    // We don't support collections so the count of collections is == count of
+    // objects.
+    return $this->getNumTotalObjects();
   }
 
   /**
