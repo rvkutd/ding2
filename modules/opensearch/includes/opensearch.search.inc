@@ -8,6 +8,7 @@ use OpenSearch\OpenSearchTingObject;
 use OpenSearch\OpenSearchTingObjectCollection;
 use OpenSearch\OpenSearchTingSearchResult;
 use Ting\Search\DingProviderStrategy;
+use Ting\Search\SearchProviderException;
 use Ting\Search\StatementGroupRender;
 use Ting\Search\TingSearchCommonFields;
 use Ting\Search\TingSearchCommonSortFields;
@@ -19,21 +20,19 @@ use Ting\Search\TingSearchSort;
  */
 function opensearch_search_material_types() {
   // Ensure we have ting client.
-  module_load_include('inc', 'ting', 'ting.client');
+  module_load_include('inc', 'opensearch', 'opensearch.client');
 
   // Get a list of types by executing a null query and look at the facets
   // result.
   $options = [
-    // TODO BBS-SAL: Set the facet via SAL.
     'facets' => ['facet.type'],
     'numFacets' => 99,
     'reply_only' => TRUE,
     // Following configuration breaks the search, commented out for now.
     // 'sort' => 'random',
   ];
-  module_load_include('client.inc', 'ting');
-  // TODO BBS-SAL: search via the abstraction-layer.
-  $result = ting_do_search("*", 0, 0, $options);
+  module_load_include('client.inc', 'opensearch');
+  $result = opensearch_do_search("*", 0, 0, $options);
 
   $types = [];
   foreach ($result->facets['facet.type']->terms as $term => $count) {
@@ -53,7 +52,7 @@ function opensearch_search_material_types() {
  *   An array of loaded objects.
  */
 function opensearch_search_object_load(array $ids) {
-  $objects = ting_get_objects($ids);
+  $objects = opensearch_get_objects($ids);
   foreach ($objects as $id => $object) {
     if (!empty($object)) {
       $objects[$id] = new OpenSearchTingObject($object);
@@ -72,7 +71,7 @@ function opensearch_search_object_load(array $ids) {
  *   The collection.
  */
 function opensearch_search_collection_load($id) {
-  $reply = ting_get_object($id, TRUE);
+  $reply = opensearch_get_object($id, TRUE);
   return new OpenSearchTingObjectCollection($reply);
 }
 
@@ -84,14 +83,15 @@ function opensearch_search_collection_load($id) {
  *
  * @return \Ting\Search\TingSearchResultInterface
  *   The search result.
+ *
+ * @throws \Ting\Search\SearchProviderException
+ *   If an error occurs during search.
  */
 function opensearch_search_search(TingSearchRequest $ting_query) {
   // TODO BBS-SAL: At some point this function will become big enough that we
   // Should split it up - consider doing some OO "Handlers". Alternativly do a
   // OpenSearchTingSearchQuery, create a TingSearchQueryInterface and handle its
   // construction via new provider-function.
-  // TODO BBS-SAL: At some point we should move the entire ting-client, and
-  // ting.client.inc from the thing-module to the opensearch module.
   $query_parts = [];
   // Start off with an empty query, then attempt to construct it from what we
   // can find in $ting_query.
@@ -181,8 +181,12 @@ function opensearch_search_search(TingSearchRequest $ting_query) {
   $options['allObjects'] = $ting_query->getPopulateCollections();
 
   // Ensure we have ting client.
-  module_load_include('inc', 'ting', 'ting.client');
-  $result = new OpenSearchTingSearchResult(ting_do_search($query, $ting_query->getPage(), $ting_query->getCount(), $options), $ting_query);
+  module_load_include('inc', 'opensearch', 'opensearch.client');
+  $search_result = opensearch_do_search($query, $ting_query->getPage(), $ting_query->getCount(), $options);
+  if ($search_result === NULL) {
+    throw new SearchProviderException("Unable to execute search, inspect logs for details");
+  }
+  $result = new OpenSearchTingSearchResult($search_result, $ting_query);
 
   // Handle the situation where opensearch sets a default sort.
   if (empty($result->getSearchRequest()->getSorts()) && !empty($result->openSearchResult->sortUsed)) {
@@ -504,8 +508,8 @@ function opensearch_search_prepare_reference_query($query_string) {
 function opensearch_search_sort_options() {
   // Do not show sort-options specific for rank_frequency if
   // custom_ranking is enabled or another rank is selected.
-  $default_sort = variable_get('ting_sort_default', 'rank_frequency');
-  $custom_ranking = variable_get('ting_ranking_custom', FALSE);
+  $default_sort = variable_get('opensearch_sort_default', 'rank_frequency');
+  $custom_ranking = variable_get('opensearch_ranking_custom', FALSE);
   if ($default_sort !== 'rank_frequency' || !empty($custom_ranking)) {
     return [];
   }
@@ -557,8 +561,8 @@ function opensearch_search_object_ids($ids) {
       $options['collectionType'] = 'manifestation';
 
       // Ensure we have ting client.
-      module_load_include('inc', 'ting', 'ting.client');
-      $res = ting_do_search($query, 1, count($chunk), $options);
+      module_load_include('inc', 'opensearch', 'opensearch.client');
+      $res = opensearch_do_search($query, 1, count($chunk), $options);
 
       // Sometimes the well will be unreachable or not even one of the ids in
       // chunk was searchable. In any case, this protects against a notice.
@@ -593,11 +597,70 @@ function opensearch_search_object_ids($ids) {
     return $translated_ids;
   }
   elseif (is_numeric($ids)) {
-    module_load_include('client.inc', 'ting');
-    $obj = ting_do_search('rec.id=' . $ids . ' AND facet.acSource=bibliotekskatalog');
+    module_load_include('client.inc', 'opensearch');
+    $obj = opensearch_do_search('rec.id=' . $ids . ' AND facet.acSource=bibliotekskatalog');
     $entity_id = ($obj) ? key($obj->collections) : '870970-basis:' . $ids;
 
     return $entity_id;
   }
   return FALSE;
+}
+
+/**
+ * Auto-complete callback for the ting search block.
+ *
+ * @param string $query
+ *   The string to search suggestion with.
+ *
+ * @return array $items
+ *   Items similar to the query.
+ */
+function opensearch_search_autocomplete($query) {
+  $items = array();
+
+  $rest_url = variable_get('opensearch_search_autocomplete_suggestion_url', '');
+  $method = variable_get('ting_search_autocomplete_method', 'facets');
+  $settings = opensearch_search_autocomplete_settings();
+
+  if (drupal_strlen($query) < $settings['minimumString']) {
+    return $items;
+  }
+  unset($settings['minimumString']);
+
+  if (empty($settings['index'])) {
+    watchdog('opensearch', 'Autocomplete index not defined ', array(), $severity = WATCHDOG_WARNING);
+    return $items;
+  }
+
+  $rest_url = $rest_url . 'rest/' . $method;
+  $settings['query'] = $query;
+  $url = url($rest_url, array('query' => $settings));
+
+  $result = drupal_http_request($url);
+
+  if (!empty($result->data)) {
+    $result_data = drupal_json_decode($result->data);
+    if (empty($result->error)) {
+      if (!empty($result_data['suggestions'])) {
+        foreach ($result_data['suggestions'] as $suggestion) {
+          if ($method == 'facetSpell') {
+            $items[truncate_utf8(strip_tags($suggestion['phrase']), 256, TRUE, FALSE, 1)] = $suggestion['phrase'];
+          }
+          else {
+            $items[truncate_utf8(strip_tags($suggestion['suggestion']), 256, TRUE, FALSE, 1)] = $suggestion['suggestion'];
+          }
+        }
+      }
+    }
+    else {
+      $message = t('Autocomplete error: @error (@error_code) using following URL: @url');
+      watchdog('opensearch', $message, array(
+        '@error' => $result->error,
+        '@error_code' => $result->code,
+        '@url' => $url
+      ), WATCHDOG_ERROR);
+    }
+  }
+
+  return $items;
 }
