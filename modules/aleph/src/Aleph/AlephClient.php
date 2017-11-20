@@ -317,10 +317,16 @@ class AlephClient {
   }
 
   /**
+   * Renew loans.
+   *
    * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
+   *    The Aleph patron.
+   *
    * @param array $ids
+   *    The ID(s) of the loans to renew.
    *
    * @return \SimpleXMLElement
+   *    The XML response from Aleph.
    *
    * @throws \RuntimeException
    */
@@ -342,6 +348,28 @@ class AlephClient {
       'POST',
       'patron/' . $patron->getId() . '/circulationActions/loans',
       $options
+    );
+  }
+
+  /**
+   * Delete a reservation.
+   *
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
+   *    The Aleph patron.
+   *
+   * @param $reservation_id
+   *    The reservation ID.
+   *
+   * @return \SimpleXMLElement The response from Aleph.
+   *    The response from Aleph.
+   *
+   * @throws \RuntimeException
+   */
+  public function deleteReservation(AlephPatron $patron, $reservation_id) {
+    return $this->requestRest(
+      'DELETE',
+      'patron/' . $patron->getId() . '/circulationActions/requests/holds/' .
+      $reservation_id
     );
   }
 

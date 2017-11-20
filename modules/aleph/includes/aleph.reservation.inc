@@ -181,7 +181,8 @@ function aleph_reservation_list($account, $requested_type = NULL) {
 
     $ding_reservation = array(
       'ding_entity_id' => ding_provider_build_entity_id($material->getId()),
-      'id' => $material->getId(),
+      'id' => $request->getInstitutionCode() . $request->getDocNumber() .
+        $request->getItemSequence() . $request->getSequence(),
       'pickup_branch_id' => $request->getPickupLocation(),
       'created' => $request->getOpenDate(),
       'expiry' => $request->getEndRequestDate(),
@@ -284,8 +285,34 @@ function aleph_reservation_update() {
   return NULL;
 }
 
-function aleph_reservation_delete() {
-  return NULL;
+/**
+ * Implements provider reservation, delete.
+ *
+ * @param object $account
+ *   User to delete reservations for.
+ * @param array|string $reservation_ids
+ *   Reservations to delete.
+ *
+ * @return bool
+ */
+function aleph_reservation_delete($account, $reservation_ids) {
+  try {
+    $patron_handler = new AlephPatronHandler(aleph_client());
+    $patron_handler->setPatron(aleph_get_patron_by_account($account));
+    $patron = $patron_handler->getPatron();
+    if (is_array($reservation_ids)) {
+      foreach ($reservation_ids as $reservation_id) {
+        $patron_handler->deleteReservation($patron, $reservation_id);
+      }
+    }
+    else {
+      $patron_handler->deleteReservation($patron, $reservation_ids);
+    }
+  }
+  catch (Exception $e) {
+    watchdog_exception('aleph', $e);
+    return FALSE;
+  }
 }
 
 /**

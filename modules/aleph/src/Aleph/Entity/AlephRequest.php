@@ -170,7 +170,7 @@ class AlephRequest {
    * @param string $sequence
    */
   public function setSequence($sequence) {
-    $this->sequence = ltrim($sequence, 0);
+    $this->sequence = $sequence;
   }
 
   /**
