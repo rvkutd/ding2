@@ -134,13 +134,20 @@ class Client {
    */
   public function validateThumbnail($url) {
     // Use HEAD as we only care about status code and content type here.
-    $response = $this->httpClient->head($url);
-    // According to docs content type should be a string but is really a array
-    // with a single string entry.
-    /* @var string[] $contentType */
-    $contentType = $response->getHeader('Content-Type');
-    return $response->getStatusCode() === 200 &&
-      stripos(implode('', $contentType), 'image') === 0;
+    try {
+      $response = $this->httpClient->head($url);
+      // According to docs content type should be a string but is really a array
+      // with a single string entry.
+      /* @var string[] $contentType */
+      $contentType = $response->getHeader('Content-Type');
+      return stripos(implode('', $contentType), 'image') === 0;
+    }
+    catch (RequestException $e) {
+      if ($e->getResponse()->getStatusCode() != 404) {
+        watchdog_exception('primo', $e);
+      }
+      return FALSE;
+    }
   }
 
 }
