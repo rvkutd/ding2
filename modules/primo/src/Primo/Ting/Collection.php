@@ -28,7 +28,7 @@ class Collection implements TingObjectCollectionInterface {
    *   Documents from a Primo search.
    */
   public function __construct($documents) {
-    // Wrap each Prio document in a Ting compatible Object instance.
+    // Wrap each Primo document in a Ting compatible Object instance.
     $this->objects = array_map(function(Document $document) {
       return new Object($document);
     }, $documents);

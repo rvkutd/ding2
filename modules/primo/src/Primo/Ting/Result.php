@@ -49,7 +49,7 @@ class Result implements TingSearchResultInterface {
    * @param \Ting\Search\TingSearchRequest $ting_search_request
    *   Ting search query request that was executed to produce the result.
    */
-  public function __construct($result, TingSearchRequest $ting_search_request) {
+  public function __construct(\Primo\BriefSearch\Result $result, TingSearchRequest $ting_search_request) {
     $this->result = $result;
     $this->tingSearchRequest = $ting_search_request;
 
@@ -129,6 +129,7 @@ class Result implements TingSearchResultInterface {
    *   List of facets, empty if none where found.
    */
   public function getFacets() {
+    // TODO: Implement.
     return [];
   }
 }
