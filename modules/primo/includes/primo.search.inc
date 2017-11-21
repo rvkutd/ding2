@@ -68,21 +68,32 @@ function primo_search_search(TingSearchRequest $ting_query) {
 }
 
 /**
- * Provide standard object ID's for primo provider.
+ * Provide standard object ID's for Primo provider.
  *
  * @param array|string $ids
- *    Array with multiple ID's or a single ID.
+ *    Array with id's.
  *
- * @return array|string
- *    Array with multiple ID's. ID as key and object ID as value.
- *    If a string is provided as parameter, a string with object ID.
+ * @return array
+ *    Array with multiple ID's.
+ *    ID as key and Primo sourceid as value.
  */
 function primo_search_object_ids($ids) {
-  return opensearch_search_object_ids($ids);
+  $translated_ids = array();
+
+  if (is_array($ids)) {
+    foreach ($ids as $id) {
+      $translated_ids[$id] = variable_get('primo_sourceid') . $id;
+    }
+  }
+  else {
+    $translated_ids[$id] = variable_get('primo_sourceid') . $id;
+  }
+
+  return $translated_ids;
 }
 
 /**
- * Allows the provider to programtically filter relations.
+ * Allows the provider to programmatically filter relations.
  *
  * @return array
  *   Filtered list.
