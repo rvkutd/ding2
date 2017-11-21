@@ -52,13 +52,6 @@ class Result implements TingSearchResultInterface {
   public function __construct(\Primo\BriefSearch\Result $result, TingSearchRequest $ting_search_request) {
     $this->result = $result;
     $this->tingSearchRequest = $ting_search_request;
-
-    // Extract the document ids and load a collection collection pr. document.
-    $ids = array_map(function(Document $document) {
-      return $document->getRecordId();
-    }, $result->getDocuments());
-    $this->collections = entity_load('ting_collection', array(),
-      array('ding_entity_id' => $ids));
   }
 
   /**
@@ -95,6 +88,17 @@ class Result implements TingSearchResultInterface {
    *   Collections contained in the search result.
    */
   public function getTingEntityCollections() {
+    // Load if not loaded yet.
+    if ($this->collections === NULL) {
+      // Extract the document ids and load a collection pr. document.
+      $ids = array_map(function(Document $document) {
+        return $document->getRecordId();
+      }, $this->result->getDocuments());
+
+      $this->collections = entity_load('ting_collection', array(),
+        array('ding_entity_id' => $ids));
+    }
+
     return $this->collections;
   }
 
