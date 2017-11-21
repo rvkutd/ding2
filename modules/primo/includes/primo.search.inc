@@ -2,11 +2,15 @@
 
 /**
  * @file
- * Implements searching in Primo
+ * Implements searching in Primo.
  */
 
 use Primo\BriefSearch\Document;
+use Primo\Exception\TransferException;
+use Primo\Ting\Collection;
 use Primo\Ting\Object;
+use Primo\Ting\Result;
+use Ting\Search\SearchProviderException;
 use Ting\Search\TingSearchRequest;
 
 // TODO Remove this once Primo search provider is fully implemented.
@@ -51,7 +55,12 @@ function primo_search_object_load(array $ids) {
  *   The collection.
  */
 function primo_search_collection_load($id) {
-  return opensearch_search_collection_load($id);
+  $client = primo_client();
+  // We don't support collections, so load a single document, filter it to
+  // avoid NULL-results, and return a Collection object loaded with the array
+  // containing 0 or 1 document.
+  $documents = array_filter($client->documents([$id]));
+  return new Collection($documents);
 }
 
 /**
@@ -62,9 +71,35 @@ function primo_search_collection_load($id) {
  *
  * @return \Ting\Search\TingSearchResultInterface
  *   The search result.
+ *
+ * @throws \Ting\Search\SearchProviderException
+ *   Thrown if an error occurs.
  */
 function primo_search_search(TingSearchRequest $ting_query) {
-  return opensearch_search_search($ting_query);
+  $query = '';
+  $client = primo_client();
+
+  // Add a general quoted free text search.
+  if (!empty($free_text_query = $ting_query->getFullTextQuery())) {
+
+    // Queyring against the "any" field will:
+    // "search against most of the (red: available) fields at once." as pre the
+    // documentation.
+    $query .= 'any,contains,' . urlencode($free_text_query);
+  }
+
+  // TODO: Verify the paging.
+  $page = $ting_query->getPage();
+  $count = $ting_query->getCount();
+
+  // Execute the search, return the result.
+  try {
+    $primo_result = $client->search($query, $page, $count);
+    return new Result($primo_result, $ting_query);
+  }
+  catch (TransferException $e) {
+    throw new SearchProviderException('Exception occured while searching against primo', 0, $e);
+  }
 }
 
 /**
