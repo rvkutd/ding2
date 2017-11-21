@@ -201,3 +201,24 @@ function primo_search_prepare_reference_query($query_string) {
 function primo_search_sort_options() {
   return opensearch_search_sort_options();
 }
+
+/**
+ * Auto-complete callback for the ting search block.
+ *
+ * @param string $query
+ *   The string to search suggestion with.
+ *
+ * @return array $items
+ *   Items similar to the query.
+ */
+function primo_search_autocomplete($query) {
+  // TODO: Only search on titles, and do something to speed up the query.
+  $results = ting_start_query()->setCount(10)->setFullTextQuery($query)->execute();
+
+  $suggestions = [];
+  foreach ($results->getTingEntityCollections() as $collection) {
+    $suggestions[$collection->getTitle()] = $collection->getTitle();
+  }
+
+  return $suggestions;
+}
