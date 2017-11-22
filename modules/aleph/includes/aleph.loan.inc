@@ -24,16 +24,18 @@ function aleph_loan_list() {
   $results = array();
 
   foreach ($loans as $loan) {
+    $loan_id = $loan->getId();
+
     $loan_data = array(
       'ding_entity_id' => ding_provider_build_entity_id($loan->getId()),
       'display_name' => $loan->getTitle(),
       'loan_date' => $loan->getLoanDate(),
       'expiry' => $loan->getDueDate(),
-      'materials_number' => $loan->getId(),
+      'materials_number' => $loan_id,
       'renewable' => $loan->isRenewable(),
     );
 
-    $results[] = new DingProviderLoan($loan->getId(), $loan_data);
+    $results[$loan_id] = new DingProviderLoan($loan_id, $loan_data);
   }
 
   return $results;

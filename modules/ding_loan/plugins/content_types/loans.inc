@@ -268,8 +268,7 @@ function ding_loan_loans_form($form, &$form_state, $account, $loans = array()) {
  */
 function ding_loan_loans_form_submit($form, &$form_state) {
   $ids = array();
-  $items = $form_state['values']['items'];
-  foreach ($items as $item) {
+  foreach ($form_state['values']['items'] as $item) {
     if ($item->renewable && $form_state['values'][$item->id]) {
       $ids[] = $item->id;
     }
@@ -288,20 +287,17 @@ function ding_loan_loans_form_submit($form, &$form_state) {
 
   $result = ding_provider_invoke('loan', 'renew', $form_state['values']['account'], $ids);
   foreach ($result as $id => $status) {
+    $item = $form_state['values']['items'][$id];
     // Try to get entity for the item.
-    foreach ($items as $item) {
-      if ($item->id === $id) {
-        $entity = $item->entity;
-        if (!is_object($entity) || $entity->reply === FALSE) {
-          // Build pseudo entity based on provider information.
-          $entity = ding_provider_get_pseudo_entity($item->ding_entity_id);
-          $title = $entity->getTitle() ?: $item->display_name;
-        }
-        else {
-          // Create title from entity object.
-          $title = $entity->getTitle();
-        }
-      }
+    $entity = $item->entity;
+    if (!is_object($entity) || $entity->reply == FALSE) {
+      // Build pseudo entity based on provider information.
+      $entity = ding_provider_get_pseudo_entity($item->ding_entity_id);
+      $title = $entity->getTitle() ?: $item->display_name;
+    }
+    else {
+      // Create title from entity object.
+      $title = $entity->getTitle();
     }
 
     // @todo Better feedback.
