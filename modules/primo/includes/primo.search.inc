@@ -8,7 +8,7 @@
 use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
 use Primo\Ting\Collection;
-use Primo\Ting\Object;
+use Primo\Ting\ObjectMapper;
 use Primo\Ting\Result;
 use Ting\Search\SearchProviderException;
 use Ting\Search\TingSearchRequest;
@@ -29,20 +29,67 @@ function primo_search_material_types() {
 }
 
 /**
- * Load objects from Open Search.
+ * Load objects from Primo.
  *
  * @param string[] $ids
  *   Array of ids to load from Open Search.
  *
  * @return Ting\TingObjectInterface[]
  *   An array of loaded objects.
+ *
+ * @throws \Ting\Search\SearchProviderException
+ *   Thrown if an error occurs.
  */
 function primo_search_object_load(array $ids) {
-  $client = primo_client();
-  $documents = $client->documents($ids);
-  return array_map(function(Document $document) {
-    return new Object($document);
-  }, $documents);
+  // First set up a list of id's we wish to load and a list of actual loads.
+  $to_load = $ids;
+  $loaded = [];
+
+  // Load existing objects from cache: Go through the argument list and attempt
+  // a lookup, if we have a hit, remove the entry from the to_load list.
+  array_walk($ids,
+    function ($record_id, $to_load_key) use (&$to_load, &$loaded) {
+      if (($object = _primo_cache_get($record_id)) !== FALSE) {
+        watchdog('primo', 'Cache hit @id', ['@id' => $record_id], WATCHDOG_DEBUG);
+        unset($to_load[$to_load_key]);
+        $loaded[$record_id] = $object;
+      }
+    }
+  );
+
+  // Load any objects we don't have in the cache from primo.
+  if (!empty($to_load)) {
+    $client = primo_client();
+    try {
+      $documents = $client->documents($to_load);
+      // Warm the cache and map the documents into objects.
+      $mapped = _primo_search_map_and_warm_cache_documents($documents);
+    }
+    catch (TransferException $e) {
+      throw new SearchProviderException('Exception occured while searching against primo', 0, $e);
+    }
+
+    // Map Primo Document to Ting Objects and add them to the cache as we go
+    // along.
+    array_walk($to_load,
+      function ($record_id, $to_load_key) use (&$loaded, $mapped) {
+        watchdog('primo', 'Cache miss @id', ['@id' => $record_id], WATCHDOG_DEBUG);
+
+        if (empty($mapped[$record_id])) {
+          // The document could not be loaded, remove it altogether.
+          watchdog('primo', 'Unable to load object with id @id', ['@id' => $record_id], WATCHDOG_WARNING);
+          unset($loaded[$record_id]);
+        }
+        else {
+          // Map the result document into a ting-compatible TingObject and cache
+          // it.
+          $loaded[$record_id] = $mapped[$record_id];
+        }
+      }
+    );
+  }
+
+  return $loaded;
 }
 
 /**
@@ -53,14 +100,14 @@ function primo_search_object_load(array $ids) {
  *
  * @return Ting\TingObjectCollectionInterface
  *   The collection.
+ *
+ * @throws \Ting\Search\SearchProviderException
+ *   Thrown if an error occurs.
  */
 function primo_search_collection_load($id) {
-  $client = primo_client();
-  // We don't support collections, so load a single document, filter it to
-  // avoid NULL-results, and return a Collection object loaded with the array
-  // containing 0 or 1 document.
-  $documents = array_filter($client->documents([$id]));
-  return new Collection($documents);
+  // We don't support collections, so load a single document whos id will be the
+  // same as the "collections".
+  return new Collection(primo_search_object_load([$id]));
 }
 
 /**
@@ -96,7 +143,13 @@ function primo_search_search(TingSearchRequest $ting_query) {
   // Execute the search, return the result.
   try {
     $primo_result = $client->search($query, $page, $count);
-    return new Result($primo_result, $ting_query);
+    $result = new Result($primo_result, $ting_query);
+
+    // Pre-warm the cache so that subsequent loads of objects for the documents
+    // in the result will be ready and won't require a new search.
+    _primo_search_map_and_warm_cache_result($result);
+
+    return $result;
   }
   catch (TransferException $e) {
     throw new SearchProviderException('Exception occured while searching against primo', 0, $e);
