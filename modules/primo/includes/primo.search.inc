@@ -82,9 +82,10 @@ function primo_search_search(TingSearchRequest $ting_query) {
   // Add a general quoted free text search.
   if (!empty($free_text_query = $ting_query->getFullTextQuery())) {
 
-    // Queyring against the "any" field will:
+    // Querying against the "any" field will:
     // "search against most of the (red: available) fields at once." as pre the
     // documentation.
+    // We always use fuzzy searches, so no need for setFuzzy/isFuzzy.
     $query .= 'any,contains,' . urlencode($free_text_query);
   }
 
