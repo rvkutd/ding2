@@ -136,4 +136,14 @@ class Result implements TingSearchResultInterface {
     // TODO: Implement.
     return [];
   }
+
+  /**
+   * Returns the primo-specific search result.
+   *
+   * @return \Primo\BriefSearch\Result
+   *   The search result.
+   */
+  public function getPrimoSearchresult() {
+    return $this->result;
+  }
 }
