@@ -15,6 +15,11 @@ use Primo\BriefSearch\Client;
 use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
 
+// Cache entry type.
+define('PRIMO_CACHE_TING_OBJECT', 'primo-object');
+define('PRIMO_DEFAULT_CACHE_LIFETIME', 900);
+define('PRIMO_STATIC_CACHE', 'primo.module:_primo_cache');
+
 /**
  * Implements hook_ding_provider().
  */
@@ -268,4 +273,71 @@ function primo_module_implements_alter(&$implementations, $hook) {
   if ($hook === 'ding_provider') {
     unset($implementations['opensearch']);
   }
+}
+
+/**
+ * Get cached entry from the primo cache.
+ *
+ * @param string $id
+ *   The id (a Primo record id for objects).
+ * @param string $type
+ *   The type of data to cache, which is used to set the cache id. See
+ *   PRIMO_CACHE_* constants.
+ *
+ * @return mixed
+ *   The cached item based on the $type and $id given. If non found in the cache
+ *   NULL is returned.
+ */
+function _primo_cache_get($id, $type = PRIMO_CACHE_TING_OBJECT) {
+  $cid = $type . ':' . $id;
+
+  if ($ttl = variable_get('primo_cache_lifetime', PRIMO_DEFAULT_CACHE_LIFETIME)) {
+    $cache = cache_get($cid, 'cache_primo');
+    if ($cache && ($cache->expire > REQUEST_TIME)) {
+      // Return the cache entry if it has not been expired.
+      return $cache->data;
+    }
+  }
+  else {
+    // Without proper caching, use a static cache that only works on pr.
+    // request.
+    $cache = &drupal_static(PRIMO_STATIC_CACHE);
+    if (isset($cache) && array_key_exists($cid, $cache)) {
+      return $cache[$cid];
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Writes a cache entry.
+ *
+ * @param string $id
+ *   The id (a Primo record id for objects)
+ * @param mixed $value
+ *   The value to store in the cache.
+ * @param string $type
+ *   The type of data to cache, which is used to set the cache id. See
+ *   PRIMO_CACHE_* constants.
+ */
+function _primo_cache_set($id, $value, $type = PRIMO_CACHE_TING_OBJECT) {
+  // Define the cache id.
+  $cid = $type . ':' . $id;
+
+  if ($ttl = variable_get('primo_cache_lifetime', PRIMO_DEFAULT_CACHE_LIFETIME)) {
+    cache_set($cid, $value, 'cache_primo', REQUEST_TIME + $ttl);
+  }
+  else {
+    // Without proper caching, use a request-scoped static cache.
+    $cache = &drupal_static(PRIMO_STATIC_CACHE, []);
+    $cache[$cid] = $value;
+  }
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function primo_flush_caches() {
+  // We have our own cache that core should be aware of.
+  return array('cache_primo');
 }
