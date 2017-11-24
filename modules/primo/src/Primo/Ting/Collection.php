@@ -17,21 +17,18 @@ class Collection implements TingObjectCollectionInterface {
   /**
    * List of the Ting objects that makes up the collection.
    *
-   * @var \Primo\Ting\Object[]
+   * @var \Ting\TingObjectInterface[]
    */
   protected $objects;
 
   /**
    * Collection constructor.
    *
-   * @param \Primo\BriefSearch\Document[] $documents
+   * @param \Ting\TingObjectInterface[] $objects
    *   Documents from a Primo search.
    */
-  public function __construct($documents) {
-    // Wrap each Primo document in a Ting compatible Object instance.
-    $this->objects = array_map(function(Document $document) {
-      return new Object($document);
-    }, $documents);
+  public function __construct($objects) {
+    $this->objects = $objects;
   }
 
   /**
@@ -51,6 +48,6 @@ class Collection implements TingObjectCollectionInterface {
    *   The object.
    */
   public function getPrimaryObject() {
-    return $this->objects[0];
+    return empty($this->objects) ? NULL : reset($this->objects);
   }
 }
