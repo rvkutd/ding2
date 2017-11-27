@@ -42,52 +42,65 @@ function primo_search_material_types() {
  */
 function primo_search_object_load(array $ids) {
   // First set up a list of id's we wish to load and a list of actual loads.
-  $to_load = $ids;
+  $to_load = array_combine($ids, $ids);
   $loaded = [];
+
+  // Keep track of loading for later logging.
+  $misses = $failed = [];
 
   // Load existing objects from cache: Go through the argument list and attempt
   // a lookup, if we have a hit, remove the entry from the to_load list.
   array_walk($ids,
-    function ($record_id, $to_load_key) use (&$to_load, &$loaded) {
+    function ($record_id) use (&$to_load, &$loaded) {
       if (($object = _primo_cache_get($record_id)) !== FALSE) {
-        watchdog('primo', 'Cache hit @id', ['@id' => $record_id], WATCHDOG_DEBUG);
-        unset($to_load[$to_load_key]);
+        unset($to_load[$record_id]);
         $loaded[$record_id] = $object;
       }
     }
   );
+  // Prepare any hits for logging.
+  $hits = array_intersect($ids, array_keys($loaded));
 
   // Load any objects we don't have in the cache from primo.
   if (!empty($to_load)) {
     $client = primo_client();
     try {
       $documents = $client->documents($to_load);
-      // Warm the cache and map the documents into objects.
-      $mapped = _primo_search_map_and_warm_cache_documents($documents);
+      if (!empty($documents)) {
+        // Warm the cache and map the documents into objects.
+        $mapped = _primo_search_map_and_warm_cache_documents($documents);
+        $loaded = array_merge($mapped, $loaded);
+
+        // Any successfully mapped object counts as a cache miss.
+        $misses = array_intersect($ids, array_keys($mapped));
+      }
     }
     catch (TransferException $e) {
       throw new SearchProviderException('Exception occured while searching against primo', 0, $e);
     }
+  }
 
-    // Map Primo Document to Ting Objects and add them to the cache as we go
-    // along.
-    array_walk($to_load,
-      function ($record_id, $to_load_key) use (&$loaded, $mapped) {
-        watchdog('primo', 'Cache miss @id', ['@id' => $record_id], WATCHDOG_DEBUG);
+  // Any id we have left now was not present in the cache and could not be
+  // loaded from primo and should be counted as a failed load.
+  $failed = array_diff(array_values($ids), array_keys($loaded));
 
-        if (empty($mapped[$record_id])) {
-          // The document could not be loaded, remove it altogether.
-          watchdog('primo', 'Unable to load object with id @id', ['@id' => $record_id], WATCHDOG_WARNING);
-          unset($loaded[$record_id]);
-        }
-        else {
-          // Map the result document into a ting-compatible TingObject and cache
-          // it.
-          $loaded[$record_id] = $mapped[$record_id];
-        }
-      }
+  // Write statistics to the log.
+  if (variable_get('primo_enable_logging', FALSE)) {
+    $log_level = !empty($failed) ? WATCHDOG_WARNING : WATCHDOG_DEBUG;
+    watchdog('primo',
+      'Primo object load cache: @hit_count hits: @hit_ids @miss_count misses: @miss_ids @fail_count failures: @fail_ids',
+      [
+        '@hit_count' => count($hits),
+        '@hit_ids' => implode(', ', $hits),
+        '@miss_count' => count($misses),
+        '@miss_ids' => implode(', ', $misses),
+        '@fail_count' => count($failed),
+        '@fail_ids' => implode(', ', $failed),
+      ], $log_level
     );
   }
+
+
 
   return $loaded;
 }
