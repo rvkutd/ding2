@@ -14,6 +14,13 @@ use GuzzleHttp\MessageFormatter;
 use Primo\BriefSearch\Client;
 use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
+use Primo\Ting\ObjectMapper;
+use Primo\Ting\Result;
+
+// Cache entry type.
+define('PRIMO_CACHE_TING_OBJECT', 'primo-object');
+define('PRIMO_DEFAULT_CACHE_LIFETIME', 900);
+define('PRIMO_STATIC_CACHE', 'primo.module:_primo_cache');
 
 /**
  * Implements hook_ding_provider().
@@ -268,4 +275,108 @@ function primo_module_implements_alter(&$implementations, $hook) {
   if ($hook === 'ding_provider') {
     unset($implementations['opensearch']);
   }
+}
+
+/**
+ * Get cached entry from the primo cache.
+ *
+ * @param string $id
+ *   The id (a Primo record id for objects).
+ * @param string $type
+ *   The type of data to cache, which is used to set the cache id. See
+ *   PRIMO_CACHE_* constants.
+ *
+ * @return mixed
+ *   The cached item based on the $type and $id given. If non found in the cache
+ *   NULL is returned.
+ */
+function _primo_cache_get($id, $type = PRIMO_CACHE_TING_OBJECT) {
+  $cid = $type . ':' . $id;
+
+  if ($ttl = variable_get('primo_cache_lifetime', PRIMO_DEFAULT_CACHE_LIFETIME)) {
+    $cache = cache_get($cid, 'cache_primo');
+    if ($cache && ($cache->expire > REQUEST_TIME)) {
+      // Return the cache entry if it has not been expired.
+      return $cache->data;
+    }
+  }
+  else {
+    // Without proper caching, use a static cache that only works on pr.
+    // request.
+    $cache = &drupal_static(PRIMO_STATIC_CACHE);
+    if (isset($cache) && array_key_exists($cid, $cache)) {
+      return $cache[$cid];
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Writes a cache entry.
+ *
+ * @param string $id
+ *   The id (a Primo record id for objects).
+ * @param mixed $value
+ *   The value to store in the cache.
+ * @param string $type
+ *   The type of data to cache, which is used to set the cache id. See
+ *   PRIMO_CACHE_* constants.
+ */
+function _primo_cache_set($id, $value, $type = PRIMO_CACHE_TING_OBJECT) {
+  // Define the cache id.
+  $cid = $type . ':' . $id;
+
+  if ($ttl = variable_get('primo_cache_lifetime', PRIMO_DEFAULT_CACHE_LIFETIME)) {
+    cache_set($cid, $value, 'cache_primo', REQUEST_TIME + $ttl);
+  }
+  else {
+    // Without proper caching, use a request-scoped static cache.
+    $cache = &drupal_static(PRIMO_STATIC_CACHE, []);
+    $cache[$cid] = $value;
+  }
+}
+
+/**
+ * Implements hook_flush_caches().
+ */
+function primo_flush_caches() {
+  // We have our own cache that core should be aware of.
+  return array('cache_primo');
+}
+
+/**
+ * Map Primo documents to Objects and insert them into the cache.
+ *
+ * @param \Primo\BriefSearch\Document[] $documents
+ *   The documents to be mapped.
+ *
+ * @return \Ting\TingObjectInterface[]
+ *   Mapped objects that has been inserted into the cache.
+ */
+function _primo_search_map_and_warm_cache_documents(array $documents) {
+  return array_map(
+    function (Document $document) {
+      $record_id = $document->getRecordId();
+      if (FALSE === ($object = _primo_cache_get($record_id))) {
+        // Map the Document to an object and write it to the cache.
+        $mapper = new ObjectMapper($document);
+        $object = $mapper->map();
+        _primo_cache_set($record_id, $object);
+      }
+      return $object;
+    }, $documents
+  );
+}
+
+/**
+ * Map Documents in a Primo Result into Objects and insert them into the cache.
+ *
+ * @param \Primo\Ting\Result $ting_result
+ *   The Result with Documents to be mapped.
+ *
+ * @return \Ting\TingObjectInterface[]
+ *   Mapped objects that has been inserted into the cache.
+ */
+function _primo_search_map_and_warm_cache_result(Result $ting_result) {
+  return _primo_search_map_and_warm_cache_documents($ting_result->getPrimoSearchresult()->getDocuments());
 }
