@@ -51,7 +51,7 @@ class ObjectMapper {
 
     // Populate the object. Simple Object properties we have a 1:1 counterpart
     // to in the Primo object is mapped directly. Properties that requires more
-    // processing before they can be mapped are handled by instance load*()
+    // processing before they can be mapped are handled by instance map*()
     // functions.
     $object->setId($this->document->getRecordId());
     $object->setSourceId($this->document->getSourceRecordId());
@@ -93,29 +93,17 @@ class ObjectMapper {
     $object->setClassifications(FALSE);
     // The contents of this field is partly duplicated by getExtent().
     $object->setFormat(FALSE);
-    // IsPartOf is not supported at the moment.
     $object->setIsPartOf([]);
-    // We do not support musician information.
     $object->setMusician([]);
-    // We do not support PEGI information.
     $object->setPegi(FALSE);
-    // We do not support reference information.
     $object->setReferenced([]);
-    // We do not support relations at the moment.
     $object->setRelations([]);
-    // We do not support version replacement information.
     $object->setReplacedBy(FALSE);
-    // We do not support version replacement information.
     $object->setReplaces(FALSE);
-    // We do not support rights information.
     $object->setRights(FALSE);
-    // We do not support retrieval of other titles in same series.
     $object->setSeriesTitles(FALSE);
-    // We do not support spatial information.
     $object->setSpatial(FALSE);
-    // We do not support spoken information.
     $object->setSpoken(FALSE);
-    // We do not support subtitle information.
     $object->setSubTitles([]);
     // Primo does not distinguish between difference versions of the same
     // object.

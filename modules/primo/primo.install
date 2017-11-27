@@ -9,7 +9,7 @@
  */
 function primo_schema() {
   $schema = [];
-  // Cache table used by primo_execute_cache.
+  // Cache table used by _primo_cache_get/set.
   $schema['cache_primo'] = drupal_get_schema_unprocessed(
     'system',
     'cache'

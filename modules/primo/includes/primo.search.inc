@@ -32,7 +32,7 @@ function primo_search_material_types() {
  * Load objects from Primo.
  *
  * @param string[] $ids
- *   Array of ids to load from Open Search.
+ *   Array of ids to load from Primo.
  *
  * @return Ting\TingObjectInterface[]
  *   An array of loaded objects.
@@ -93,7 +93,7 @@ function primo_search_object_load(array $ids) {
 }
 
 /**
- * Load a collection from Open Search.
+ * Load a collection from Primo.
  *
  * @param string $id
  *   Id of material to load as a collection.
