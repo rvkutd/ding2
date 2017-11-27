@@ -89,7 +89,11 @@ function primo_search_search(TingSearchRequest $ting_query) {
     $query .= 'any,contains,' . urlencode($free_text_query);
   }
 
-  // TODO: Verify the paging.
+  // We use a free text search instead of the raw query.
+  if (!empty($raw_query = $ting_query->getRawQuery())) {
+    $query .= 'any,contains,' . urlencode($raw_query);
+  }
+
   $page = $ting_query->getPage();
   $count = $ting_query->getCount();
 
@@ -99,7 +103,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
     return new Result($primo_result, $ting_query);
   }
   catch (TransferException $e) {
-    throw new SearchProviderException('Exception occured while searching against primo', 0, $e);
+    throw new SearchProviderException('Exception occurred while searching against primo', 0, $e);
   }
 }
 
@@ -122,7 +126,7 @@ function primo_search_object_ids($ids) {
     }
   }
   else {
-    $translated_ids[$id] = variable_get('primo_sourceid') . $id;
+    $translated_ids[$ids] = variable_get('primo_sourceid') . $ids;
   }
 
   return $translated_ids;
