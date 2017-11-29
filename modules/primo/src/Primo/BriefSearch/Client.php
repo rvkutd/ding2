@@ -29,6 +29,13 @@ class Client {
   protected $defaultParameters;
 
   /**
+   * Commaseperated list of of scopes the search should be done within.
+   *
+   * @var string
+   */
+  protected $locationScopes;
+
+  /**
    * Client constructor.
    *
    * @param \GuzzleHttp\ClientInterface $httpClient
@@ -40,13 +47,16 @@ class Client {
    * @param string $ipAddress
    *   The client IP. This will help to identify the institution in cases the
    *   institution was not identified (according to the IP range associated with
-   *   the institution)
+   *   the institution).
+   * @param string $scopes
+   *   Comma-seperated list of location scopes the search should be done within.
    */
-  public function __construct(ClientInterface $httpClient, $institution, $ipAddress) {
+  public function __construct(ClientInterface $httpClient, $institution, $ipAddress, $scopes = NULL) {
     $this->httpClient = $httpClient;
+    $this->locationScopes = $scopes;
     $this->defaultParameters = [
       'institution' => $institution,
-      'ip' => $ipAddress
+      'ip' => $ipAddress,
     ];
   }
 
@@ -109,6 +119,11 @@ class Client {
       'indx' => $offset,
       'bulkSize' => $numResults,
     ] + $this->defaultParameters;
+
+    // If we're configured to search in a scope, add it.
+    if (!empty($this->locationScopes)) {
+      $parameters['loc'] = 'local,scope:(' . $this->locationScopes . ')';
+    }
     try {
       $response = $this->httpClient->get('PrimoWebServices/xservice/search/brief', [
         'query' => $parameters

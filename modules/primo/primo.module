@@ -89,6 +89,15 @@ function primo_settings_form() {
     '#default_value' => variable_get('primo_institution_code', ''),
   );
 
+  $form['primo']['primo_location_scopes'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Search scope'),
+    '#description' => t('List of institution codes the searches should be scoped within. The list must be comma-seperated without spaces and suitable for a local loc parameter. See <a href="@briefsearch-documentation">the Brief Search documentation</a>',
+      ['@briefsearch-documentation' => 'https://developers.exlibrisgroup.com/primo/apis/webservices/xservices/search/briefsearch']),
+    '#required' => FALSE,
+    '#default_value' => variable_get('primo_location_scopes', ''),
+  );
+
   $form['primo']['primo_sourceid'] = array(
     '#type' => 'textfield',
     '#title' => t('Source ID'),
@@ -104,7 +113,18 @@ function primo_settings_form() {
     '#description' => t('Logs requests to the Primo webservice.'),
   );
 
+  $form['#submit'][] = 'primo_settings_form_submit';
   return system_settings_form($form);
+}
+
+/**
+ * Submit handler for the primo provider settings form.
+ */
+function primo_settings_form_submit($form, &$form_state) {
+  // Do some basic whitespace cleanup in case the user was sloppy.
+  if (isset($form_state['values']['primo_location_scopes'])) {
+    $form_state['values']['primo_location_scopes'] = trim(str_replace(' ', '', $form_state['values']['primo_location_scopes']));
+  }
 }
 
 /**
@@ -133,7 +153,8 @@ function primo_client() {
       'base_uri' => variable_get('primo_base_url')
     ]),
     variable_get('primo_institution_code'),
-    ip_address()
+    ip_address(),
+    variable_get('primo_location_scopes', [])
   );
 }
 
