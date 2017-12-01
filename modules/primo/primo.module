@@ -106,6 +106,15 @@ function primo_settings_form() {
     '#default_value' => variable_get('primo_sourceid', ''),
   );
 
+  $form['primo']['primo_source_systems'] = array(
+    '#type' => 'textarea',
+    '#title' => t('Source systems'),
+    '#default_value' => _primo_textarea_array_value(variable_get('primo_source_systems', [])),
+    '#value_callback' => '_primo_textarea_value_array',
+    '#description' => t("System identifies the system used by the source repositories indexed by Primo. Examples: Aleph, ADAM, MetaLib, SFX, and Digitool).\nEnter one per line and note that spelling must be exactly as it appears in Primo."),
+    '#required' => TRUE,
+  );
+
   $form['primo']['primo_enable_logging'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable logging'),
@@ -125,6 +134,52 @@ function primo_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['primo_location_scopes'])) {
     $form_state['values']['primo_location_scopes'] = trim(str_replace(' ', '', $form_state['values']['primo_location_scopes']));
   }
+}
+
+/**
+ * Value callback for text area elements which represent arrays of strings.
+ *
+ * This callback is useful for textareas where the user is supposed to enter
+ * one value per line. The contents of the textarea is then mapped from a
+ * multiline string to an array of singleline strings.
+ *
+ * Use with #value_callback
+ *
+ * @param array $element
+ *   The form element.
+ * @param string|FALSE $input
+ *   The user input string. FALSE if there is no user input.
+ * @param array $form_state
+ *   The form state.
+ *
+ * @return string[]
+ *   Array of single-line strings.
+ */
+function _primo_textarea_value_array(array $element, $input = FALSE, $form_state = []) {
+  // Return any default value if no value is provided.
+  if ($input === FALSE) {
+    return isset($element['#default_value']) ? $element['#default_value'] : NULL;
+  }
+
+  // Split into multiple single-line strings and clean up whitespace.
+  $elements = explode("\n", $input);
+  return array_map('trim', $elements);
+}
+
+/**
+ * Converts an a array of strings to a single multiline array.
+ *
+ * This is basicly the reverse of _primo_textarea_value_array() and useful for
+ * displaying an array of strings in a textarea.
+ *
+ * @param mixed $array
+ *   Input value. Should be an array of strings.
+ *
+ * @return string
+ *   A single multiline string.
+ */
+function _primo_textarea_array_value($array) {
+  return implode("\n", $array);
 }
 
 /**

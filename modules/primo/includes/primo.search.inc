@@ -22,10 +22,22 @@ module_load_include('inc', 'opensearch',
   'includes/opensearch.search');
 
 /**
- * Get a list of material types from the Well.
+ * Get a list of material types from Primo.
  */
 function primo_search_material_types() {
   return opensearch_search_material_types();
+}
+
+/**
+ * Get a list of Primo sources.
+ *
+ * @return string[]
+ *   Primo source names.
+ */
+function primo_search_sources() {
+  // We are not able to extract sources from Primo programmatically so instead
+  // we maintain a list of them in the administration interface.
+  return variable_get('primo_source_systems', []);
 }
 
 /**
