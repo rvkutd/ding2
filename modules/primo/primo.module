@@ -16,6 +16,7 @@ use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
 use Primo\Ting\ObjectMapper;
 use Primo\Ting\Result;
+use Ting\Search\TingSearchCommonFields;
 
 // Cache entry type.
 define('PRIMO_CACHE_TING_OBJECT', 'primo-object');
@@ -455,4 +456,23 @@ function _primo_search_map_and_warm_cache_documents(array $documents) {
  */
 function _primo_search_map_and_warm_cache_result(Result $ting_result) {
   return _primo_search_map_and_warm_cache_documents($ting_result->getPrimoSearchresult()->getDocuments());
+}
+
+/**
+ * Maps SAL "common fields" to primo fields.
+ *
+ * @return array
+ *   The mapped fields.
+ */
+function _primo_common_field_mapping() {
+  return [
+    TingSearchCommonFields::TITLE => 'title',
+    TingSearchCommonFields::ACQUISITION_DATE => 'created',
+    TingSearchCommonFields::AUTHOR => 'creator',
+    // Top level categories.
+    TingSearchCommonFields::CATEGORY => 'facet_tlevel',
+    TingSearchCommonFields::LANGUAGE => 'lang',
+    TingSearchCommonFields::MATERIAL_TYPE => 'rtype',
+    TingSearchCommonFields::SUBJECT => 'sub',
+  ];
 }
