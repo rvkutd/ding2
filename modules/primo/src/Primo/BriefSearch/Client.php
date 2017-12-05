@@ -55,8 +55,8 @@ class Client {
     $this->httpClient = $httpClient;
     $this->locationScopes = $scopes;
     $this->defaultParameters = [
-      'institution' => $institution,
-      'ip' => $ipAddress,
+      ['institution' => $institution],
+      ['ip' => $ipAddress],
     ];
   }
 
@@ -90,22 +90,20 @@ class Client {
    *   Thrown if an error occurs during retrieval.
    */
   public function documents($recordIds) {
-    $result = $this->search('rid,contains,' . implode($recordIds, ' OR '), 1, count($recordIds));
+    $result = $this->search([['query' => 'rid,contains,' . implode($recordIds, ' OR ')]], 1, count($recordIds));
     return $result->getDocuments();
   }
 
   /**
    * Execute a search
    *
-   * @param string $query
-   *   The raw query string
+   * @param array $queryParameters
+   *   List of query-parameter-name => query-value arrays. See documentation for
+   *   what options are available.
    * @param int $offset
    *   The offset of the search results to return. Use 1 for the first result.
    * @param int $numResults
    *   The number of results to return.
-   * @param array $parameters
-   *   Addition query parameters to use for the query. See documentation for what
-   *   options are available.
    *
    * @return \Primo\BriefSearch\Result
    *   The search result.
@@ -113,20 +111,31 @@ class Client {
    * @throws \Primo\Exception\TransferException
    *   If an error occurs during the execution of the search.
    */
-  public function search($query, $offset, $numResults, $parameters = []) {
-    $parameters += [
-      'query' => $query,
-      'indx' => $offset,
-      'bulkSize' => $numResults,
-    ] + $this->defaultParameters;
+  public function search(array $queryParameters, $offset, $numResults) {
+    $queryParameters = array_merge(
+      $queryParameters,
+      [
+        ['indx' => $offset],
+        ['bulkSize' => $numResults],
+      ],
+      $this->defaultParameters
+    );
+
+    // Normalize the parameters, if we have have several entries for the same
+    // field gather it under a single entry.
+    $queryParametersMerged = array_reduce($queryParameters, function ($carry, $parameter) {
+      list($key, $value) = each($parameter);
+      $carry[$key][] = $value;
+      return $carry;
+    }, []);
 
     // If we're configured to search in a scope, add it.
-    if (!empty($this->locationScopes)) {
-      $parameters['loc'] = 'local,scope:(' . $this->locationScopes . ')';
+    ICE01_PRIMO_TEST001439401    if (!empty($this->locationScopes)) {
+      $parameters[] = ['loc' => 'local,scope:(' . $this->locationScopes . ')'];
     }
     try {
       $response = $this->httpClient->get('PrimoWebServices/xservice/search/brief', [
-        'query' => $parameters
+        'query' => \GuzzleHttp\Psr7\build_query($queryParametersMerged)
       ]);
       return new Result($response->getBody()->getContents());
     } catch (RequestException $e) {
