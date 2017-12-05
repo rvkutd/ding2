@@ -30,11 +30,15 @@ class PrimoStatementRenderer {
   /**
    * Renders a list of statements into primo briefsearch queries.
    *
-   * @param array $statements
-   *   List of statements.
+   * @param mixed[] $statements
+   *   One or more instances of BooleanStatementGroup and/or
+   *   TingSearchFieldFilter.
    *
    * @return array
-   *   The rendered statements as a list of <key> => query where key is a valid
+   *   The rendered statements as a list of
+   *   [parameter-name => [parameter values], ...]
+   *   Where 'parameter-name' is a valid Briefsearch query parameter.
+   *   Eg. ['query' => ['name,exact,value OR VALUE', '...'], 'query' => ...].
    *   Primo briefsearch query parameter.
    *
    * @throws \Ting\Search\UnsupportedSearchQueryException
@@ -48,47 +52,17 @@ class PrimoStatementRenderer {
     // We now have a list of groups containing one or more fields each. If the
     // group contains several statements, they will be against the same field.
     // We can now map the array using $this->renderGroup();
-    return array_map('reset', array_map([$this, 'renderGroup'], $groups));
-  }
-
-  /**
-   * Render a group into a statement.
-   *
-   * The groups must be "Primo" compatible. See parameter documentation for
-   * details.
-   *
-   * @param \Ting\Search\BooleanStatementGroup $group
-   *   A list of BooleanStatementGroup instances containing one or more
-   *   statements all against the same field if they are joined by OR.
-   *
-   * @return array
-   *   A list of <key> => <query> arrays where key is a valid query key such as
-   *   "query".
-   */
-  protected function renderGroup(BooleanStatementGroup $group) {
-    // We're a group group containing one or more field statements (against the
-    // same field) into a single query=<fieldname>,exact,<list of values>.
-    // See https://developers.exlibrisgroup.com/primo/apis/webservices/xservices/search/briefsearch
-    // for more details.
-    $statements = $group->getStatements();
-
-    // The group has been preprocessed so we know it to contain at least one
-    // statement and all statements will be against the same field so the
-    // following is safe.
-    $field_name = $statements[0]->getName();
-    // If this is a field we have a mapping for, map it.
-    if (isset($this->mapping[$field_name])) {
-      $field_name = $this->mapping[$field_name];
-    }
-    $values = array_map(function (TingSearchFieldFilter $statement) {
-      // "Escape" the string by replacing commas with spaces.
-      return str_replace(',', ' ', $this->escapeValue($statement->getValue()));
-    }, $statements);
-
-    $values_joined = implode(' ' . $group->getLogicOperator() . ' ', $values);
-
-    // Eg. query=rtype,exact,audiobooks OR articles.
-    return [['query' => $field_name . ',exact,' . $values_joined]];
+    return array_reduce(array_map([$this, 'renderGroup'], $groups), function ($carry, $rendered_group) {
+      foreach ($rendered_group as $parameter_key => $parameter_value) {
+        if (isset($carry[$parameter_key])) {
+          $carry[$parameter_key] = array_merge($carry[$parameter_key], $parameter_value);
+        }
+        else {
+          $carry[$parameter_key] = $parameter_value;
+        }
+      }
+      return $carry;
+    }, []);
   }
 
   /**
@@ -144,7 +118,11 @@ class PrimoStatementRenderer {
         }
         else {
           // The group referenced more than one field and was not joined by AND.
-          throw new UnsupportedSearchQueryException("Primo only supports AND between different field.");
+          throw new UnsupportedSearchQueryException(
+            'Encountered ' . $statement->getLogicOperator() . ' operator between the fields '
+            . implode(', ', $field_names)
+            . '. Primo only supports AND between different fields.'
+          );
         }
       }
       else {
@@ -154,6 +132,47 @@ class PrimoStatementRenderer {
       }
       return $carry;
     }, []);
+  }
+
+  /**
+   * Render a group into a statement.
+   *
+   * The groups must be "Primo" compatible. See parameter documentation for
+   * details.
+   *
+   * @param \Ting\Search\BooleanStatementGroup $group
+   *   A list of BooleanStatementGroup instances containing one or more
+   *   statements all against the same field if they are joined by OR.
+   *
+   * @return array
+   *   An associative array with keys that are valid primo query parameters such
+   *   as "query" and values that are an array of valid primo parameter-values.
+   *   Eg. ['query' => ['author,exact,Rowlings', 'title,exact,Harry Potter']].
+   */
+  protected function renderGroup(BooleanStatementGroup $group) {
+    // We're a group group containing one or more field statements (against the
+    // same field) into a single query=<fieldname>,exact,<list of values>.
+    // See https://developers.exlibrisgroup.com/primo/apis/webservices/xservices/search/briefsearch
+    // for more details.
+    $statements = $group->getStatements();
+
+    // The group has been preprocessed so we know it to contain at least one
+    // statement and all statements will be against the same field so the
+    // following is safe.
+    $field_name = $statements[0]->getName();
+    // If this is a field we have a mapping for, map it.
+    if (isset($this->mapping[$field_name])) {
+      $field_name = $this->mapping[$field_name];
+    }
+    $values = array_map(function (TingSearchFieldFilter $statement) {
+      // "Escape" the string by replacing commas with spaces.
+      return str_replace(',', ' ', $this->escapeValue($statement->getValue()));
+    }, $statements);
+
+    $values_joined = implode(' ' . $group->getLogicOperator() . ' ', $values);
+
+    // Eg. query=rtype,exact,audiobooks OR articles.
+    return ['query' => [$field_name . ',exact,' . $values_joined]];
   }
 
   /**
@@ -174,7 +193,7 @@ class PrimoStatementRenderer {
       ',' => ' ',
     ];
 
-    return str_replace(array_keys($replacements), array_values($replacements), $value);
+    return strtr($value, $replacements);
   }
 
 }

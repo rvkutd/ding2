@@ -65,12 +65,12 @@ class PrimoSearchUnitTest extends DingUnitTestBase {
       new TingSearchFieldFilter(TingSearchCommonFields::AUTHOR, 'Rowlings'),
       new TingSearchFieldFilter(TingSearchCommonFields::AUTHOR, 'JK'),
     ]);
-    $expected_result[] = ['query' => 'creator,exact,Rowlings AND JK'];
+    $expected_result['query'][] = 'creator,exact,Rowlings AND JK';
 
     $group2 = new BooleanStatementGroup([
       new TingSearchFieldFilter(TingSearchCommonFields::TITLE, 'Harry'),
     ]);
-    $expected_result[] = ['query' => 'title,exact,Harry'];
+    $expected_result['query'][] = 'title,exact,Harry';
 
     $renderer = new PrimoStatementRenderer(_primo_common_field_mapping());
     $rendered = $renderer->renderStatements([$group1, $group2]);
@@ -91,19 +91,19 @@ class PrimoSearchUnitTest extends DingUnitTestBase {
     // Test we can escape values.
     // Should be ok.
     $filters[] = new TingSearchFieldFilter('field1', 'someANDvalue');
-    $expected_result[] = ['query' => 'field1,exact,someANDvalue'];
+    $expected_result['query'][] = 'field1,exact,someANDvalue';
 
     // Should "AND" should be removed.
     $filters[] = new TingSearchFieldFilter('field2', 'some AND value');
-    $expected_result[] = ['query' => 'field2,exact,some value'];
+    $expected_result['query'][] = 'field2,exact,some value';
 
     // Should "OR" should be removed.
     $filters[] = new TingSearchFieldFilter('field3', 'some OR value');
-    $expected_result[] = ['query' => 'field3,exact,some value'];
+    $expected_result['query'][] = 'field3,exact,some value';
 
     // Commas should be replaced with spaces.
     $filters[] = new TingSearchFieldFilter('field4', 'some,value');
-    $expected_result[] = ['query' => 'field4,exact,some value'];
+    $expected_result['query'][] = 'field4,exact,some value';
 
     $rendered = $renderer->renderStatements($filters);
 
@@ -123,12 +123,12 @@ class PrimoSearchUnitTest extends DingUnitTestBase {
       new TingSearchFieldFilter('field1', 'value1'),
       new TingSearchFieldFilter('field2', 'value2'),
     ], BooleanStatementGroup::OP_AND);
-    $expected_result[] = ['query' => 'field1,exact,value1'];
-    $expected_result[] = ['query' => 'field2,exact,value2'];
+    $expected_result['query'][] = 'field1,exact,value1';
+    $expected_result['query'][] = 'field2,exact,value2';
 
     // The two statements above should be added the same way as the following.
     $filters[] = new TingSearchFieldFilter('field3', 'value3');
-    $expected_result[] = ['query' => 'field3,exact,value3'];
+    $expected_result['query'][] = 'field3,exact,value3';
 
     $rendered = $renderer->renderStatements($filters);
 

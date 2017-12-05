@@ -157,7 +157,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
     // "search against most of the (red: available) fields at once." as pre the
     // documentation.
     // We always use fuzzy searches, so no need for setFuzzy/isFuzzy.
-    $queries[] = ['query' => 'any,contains,' . urlencode($free_text_query)];
+    $queries['query'][] = 'any,contains,' . urlencode($free_text_query);
   }
 
   // Handle filters.
@@ -168,7 +168,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // We use a free text search instead of the raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
-    $queries[] = ['query' => 'any,contains,' . urlencode($raw_query)];
+    $queries['query'][] = 'any,contains,' . urlencode($raw_query);
   }
 
   $page = $ting_query->getPage();
