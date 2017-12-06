@@ -209,7 +209,7 @@ function primo_client() {
     ]),
     variable_get('primo_institution_code'),
     ip_address(),
-    variable_get('primo_location_scopes', [])
+    variable_get('primo_location_scopes', '')
   );
 }
 
