@@ -55,4 +55,39 @@ class Result {
     // which will be cast to 0.
     return (int) $docset->getAttribute('TOTALHITS');
   }
+
+  /**
+   * Returns all facets included in the search result.
+   *
+   * @return \Primo\BriefSearch\Facet[]
+   *   Facets in the search result.
+   */
+  public function getFacets() {
+    $facets = [];
+
+    $facetNodes = $this->xpath('//search:FACET');
+    foreach ($facetNodes as $facetNode) {
+      /* @var \DOMNode $facetNode */
+      $nameAttribute = $facetNode->attributes->getNamedItem('NAME');
+      $facets[] = new Facet($this->document, $nameAttribute->nodeValue);
+    }
+
+    return $facets;
+  }
+
+  /**
+   * Returns a specific facet if it is included in the search result.
+   *
+   * @param string $id
+   *   The id of the facet to retrieve.
+   *
+   * @return \Primo\BriefSearch\Facet|NULL
+   *   The facet with the provided id. NULL if it is not found in the result.
+   */
+  public function getFacet($id) {
+    $facets = array_filter($this->getFacets(), function(Facet $facet) use ($id) {
+      return $facet->getId() === $id;
+    });
+    return array_shift($facets);
+  }
 }
