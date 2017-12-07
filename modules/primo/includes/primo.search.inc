@@ -295,12 +295,24 @@ function primo_search_sort_options() {
  *   Items similar to the query.
  */
 function primo_search_autocomplete($query) {
-  // TODO: Only search on titles, and do something to speed up the query.
-  $results = ting_start_query()->setCount(10)->setFullTextQuery($query)->execute();
-
   $suggestions = [];
-  foreach ($results->getTingEntityCollections() as $collection) {
-    $suggestions[$collection->getTitle()] = $collection->getTitle();
+
+  try {
+    $results = primo_client()
+      ->search('swtitle,begins_with,' . urlencode($query), 1, 10)
+      ->getDocuments();
+  }
+  catch (TransferException $e) {
+    watchdog('primo', '@error_code: @message',
+      ['@error_code' => $e->getCode(), '@message' => $e->getMessage()],
+      WATCHDOG_ERROR
+    );
+    return $suggestions;
+  }
+
+  foreach ($results as $result) {
+    $title = $result->getTitle();
+    $suggestions[$title] = $title;
   }
 
   return $suggestions;
