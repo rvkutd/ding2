@@ -7,6 +7,9 @@
 namespace Primo\Ting;
 
 use Primo\BriefSearch\Document;
+use Primo\BriefSearch\Facet;
+use Ting\Search\TingSearchFacet;
+use Ting\Search\TingSearchFacetTerm;
 use Ting\Search\TingSearchRequest;
 use Ting\Search\TingSearchResultInterface;
 use TingCollection;
@@ -39,6 +42,15 @@ class Result implements TingSearchResultInterface {
    * @var \TingCollection[]
    */
   protected $collections;
+
+  /**
+   * Ting facets mapped from the search result.
+   *
+   * Initialized as NULL to signal that the initial load has not been attempted.
+   *
+   * @var \Ting\Search\TingSearchFacet[]
+   */
+  protected $facets = NULL;
 
   /**
    * Result constructor.
@@ -133,8 +145,35 @@ class Result implements TingSearchResultInterface {
    *   List of facets, empty if none where found.
    */
   public function getFacets() {
-    // TODO: Implement.
-    return [];
+    // Return the mapped facets if we've already done the work.
+    if ($this->facets !== NULL) {
+      return $this->facets;
+    }
+
+    // Prepare for loading.
+    $this->facets = [];
+
+    // Handle empty facets.
+    $primo_facets = $this->result->getFacets();
+    if (empty($primo_facets)) {
+      return $this->facets;
+    }
+
+    // Convert Primo Facets to TingSearchFacetTerm instances.
+    array_walk($primo_facets, function (Facet $facet) {
+      $values = $facet->getValues();
+
+      $terms = array_map(function ($name, $frequency) {
+        return new TingSearchFacetTerm($name, $frequency);
+      }, array_keys($values), $values);
+
+      // Return facets indexed by their id prefixed with "facet_". This will
+      // make the id match the syntax Primo expects when it is later used as a
+      // field query in ting_search_search_execute().
+      $this->facets['facet_' . $facet->getId()] = new TingSearchFacet('facet_' . $facet->getId(), $terms);
+    });
+
+    return $this->facets;
   }
 
   /**

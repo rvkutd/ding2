@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Main install file for Primo.
@@ -18,6 +19,76 @@ function primo_schema() {
 }
 
 /**
+ * Implements hook_install().
+ *
+ * Set default during installation.
+ */
+function primo_install() {
+  primo_install_set_defaults();
+}
+
+/**
+ * Set defaults for Primo.
+ *
+ * This function may override existing settings.
+ */
+function primo_install_set_defaults() {
+  primo_install_set_facet_defaults();
+}
+
+/**
+ * Setup default facets.
+ */
+function primo_install_set_facet_defaults() {
+  $facets = [
+    [
+      'name' => 'facet_creator',
+      'title' => 'Creator',
+      'sorting' => 'default',
+      'weight' => '-6',
+    ],
+    [
+      'name' => 'facet_lang',
+      'title' => 'Language',
+      'sorting' => 'default',
+      'weight' => '-5',
+    ],
+    [
+      'name' => 'facet_rtype',
+      'title' => 'Material type',
+      'sorting' => 'default',
+      'weight' => '-4',
+    ],
+    [
+      'name' => 'facet_topic',
+      'title' => 'Topic',
+      'sorting' => 'default',
+      'weight' => '-3',
+    ],
+    [
+      'name' => 'facet_tlevel',
+      'title' => 'Top level category',
+      'sorting' => 'default',
+      'weight' => '-2',
+    ],
+    [
+      'name' => 'facet_creationdate',
+      'title' => 'Year',
+      'sorting' => 'numeric_reverse',
+      'weight' => '-1',
+    ],
+    [
+      'name' => 'facet_genre',
+      'title' => 'Genre',
+      'sorting' => 'default',
+      'weight' => '0',
+    ],
+  ];
+
+  variable_set('ding_facetbrowser_facets', $facets);
+}
+
+/**
  * Add cache table to cache objects we generate from searches.
  */
 function primo_update_7001() {
@@ -25,4 +96,11 @@ function primo_update_7001() {
   $ret = [];
   $ret[] = db_create_table('cache_primo', $schema['cache_primo']);
   return $ret;
+}
+
+/**
+ * Set defaults for Primo.
+ */
+function primo_update_7002() {
+  primo_install_set_defaults();
 }
