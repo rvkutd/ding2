@@ -30,9 +30,8 @@ class PrimoStatementRenderer {
   /**
    * Renders a list of statements into primo briefsearch queries.
    *
-   * @param mixed[] $statements
-   *   One or more instances of BooleanStatementGroup and/or
-   *   TingSearchFieldFilter.
+   * @param \Ting\Search\FilterStatementInterface[] $statements
+   *   One or more filters to render.
    *
    * @return array
    *   The rendered statements as a list of
@@ -68,7 +67,7 @@ class PrimoStatementRenderer {
   /**
    * Verify we can process the statements and convert them to groups.
    *
-   * @param mixed[] $statements
+   * @param \Ting\Search\FilterStatementInterface[] $statements
    *   One or more instances of BooleanStatementGroup and/or
    *   TingSearchFieldFilter.
    *
@@ -87,6 +86,16 @@ class PrimoStatementRenderer {
         // Convert the statement to a group.
         $carry[] = new BooleanStatementGroup([$statement]);
         return $carry;
+      }
+
+      // The only other statement-type we support is groups, so make sure we
+      // did'nt get passed something we don't support.
+      if (!($statement instanceof BooleanStatementGroup)) {
+        // We got something unexpected.
+        $details = is_object($statement) ? get_class($statement) : (string) $statement;
+        throw new UnsupportedSearchQueryException(
+          'Encountered unknown filter type ' . $details
+        );
       }
 
       // We have a group, examine it to determine whether we Primo will be able

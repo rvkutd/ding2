@@ -156,6 +156,28 @@ class PrimoSearchUnitTest extends DingUnitTestBase {
     }
     catch (UnsupportedSearchQueryException $e) {
       // All is ok.
+      $this->pass("Expected exception is thrown");
+      return;
+    }
+
+    // The renderer should have thrown an exception.
+    $this->fail('Expected exception to be trown');
+  }
+
+  /**
+   * Test we can't add an invalid field filter to a statement.
+   */
+  public function testInvalidFieldFilter() {
+    $invalid = (object) [];
+
+    $renderer = new PrimoStatementRenderer(_primo_common_field_mapping());
+    // Test that the filter is rejected.
+    try {
+      $renderer->preprocessStatements([$invalid]);
+    }
+    catch (UnsupportedSearchQueryException $e) {
+      // All is ok.
+      $this->pass("Expected exception is thrown");
       return;
     }
 
