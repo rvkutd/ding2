@@ -281,18 +281,26 @@ function primo_search_sort_options() {
  *
  * @return array $items
  *   Items similar to the query.
- *
- * @throws \Primo\Exception\TransferException
  */
 function primo_search_autocomplete($query) {
-  $results = primo_client()
-    ->search('swtitle,begins_with,' . urlencode($query), 1, 10)
-    ->getDocuments();
-
   $suggestions = [];
 
+  try {
+    $results = primo_client()
+      ->search('swtitle,begins_with,' . urlencode($query), 1, 10)
+      ->getDocuments();
+  }
+  catch (TransferException $e) {
+    watchdog('primo', '@error_code: @message',
+      ['@error_code' => $e->getCode(), '@message' => $e->getMessage()],
+      WATCHDOG_ERROR
+    );
+    return $suggestions;
+  }
+
   foreach ($results as $result) {
-    $suggestions[$result->getTitle()] = $result->getTitle();
+    $title = $result->getTitle();
+    $suggestions[$title] = $title;
   }
 
   return $suggestions;
