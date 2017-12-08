@@ -45,6 +45,27 @@ function primo_ding_provider() {
 function primo_menu() {
   $items = array();
 
+  $items['admin/config/primo'] = array(
+    'title' => 'Primo',
+    'description' => 'Manage Primo integration settings.',
+    'position' => 'left',
+    'weight' => 20,
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+
+  // This provides alternate access to provider settings.
+  $items['admin/config/primo/settings'] = array(
+    'title' => 'Provider settings',
+    'description' => 'Base settings for the Primo integration',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('primo_settings_form'),
+    'access arguments' => array('administer primo settings'),
+    'weight' => -1
+  );
+
   // We also provide a cover implementation. Add a shortcut to the settings form
   // under the cover settings as well.
   $items['admin/config/ting/covers/primo'] = array(
@@ -57,6 +78,17 @@ function primo_menu() {
   );
 
   return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function primo_permission() {
+  return array(
+    'administer primo settings' => array(
+      'title' => t('Administer Primo settings'),
+    ),
+  );
 }
 
 /**
