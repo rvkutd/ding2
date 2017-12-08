@@ -163,7 +163,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
   // Handle filters.
   if (!empty($field_filters = $ting_query->getFieldFilters())) {
     $renderer = new PrimoStatementRenderer(_primo_common_field_mapping());
-    $queries = array_merge($queries, $renderer->renderStatements($field_filters));
+    $queries = array_merge_recursive($queries, $renderer->renderStatements($field_filters));
   }
 
   // We use a free text search instead of the raw query.
@@ -304,7 +304,7 @@ function primo_search_autocomplete($query) {
 
   try {
     $results = primo_client()
-      ->search('swtitle,begins_with,' . urlencode($query), 1, 10)
+      ->search(['query' => ['swtitle,begins_with,' . urlencode($query)]], 1, 10)
       ->getDocuments();
   }
   catch (TransferException $e) {
