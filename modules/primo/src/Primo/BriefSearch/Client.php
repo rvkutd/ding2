@@ -55,8 +55,8 @@ class Client {
     $this->httpClient = $httpClient;
     $this->locationScopes = $scopes;
     $this->defaultParameters = [
-      'institution' => $institution,
-      'ip' => $ipAddress,
+      'institution' => [$institution],
+      'ip' => [$ipAddress],
     ];
   }
 
@@ -90,53 +90,12 @@ class Client {
    *   Thrown if an error occurs during retrieval.
    */
   public function documents($recordIds) {
-    $result = $this->search('rid,contains,' . implode($recordIds, ' OR '), 1, count($recordIds));
+    $result = $this->search([['query' => 'rid,contains,' . implode($recordIds, ' OR ')]], 1, count($recordIds));
     return $result->getDocuments();
   }
 
   /**
-   * Execute a search
-   *
-   * @param string $query
-   *   The raw query string
-   * @param int $offset
-   *   The offset of the search results to return. Use 1 for the first result.
-   * @param int $numResults
-   *   The number of results to return.
-   * @param array $parameters
-   *   Addition query parameters to use for the query. See documentation for what
-   *   options are available.
-   *
-   * @return \Primo\BriefSearch\Result
-   *   The search result.
-   *
-   * @throws \Primo\Exception\TransferException
-   *   If an error occurs during the execution of the search.
-   */
-  public function search($query, $offset, $numResults, $parameters = []) {
-    $parameters += [
-      'query' => $query,
-      'indx' => $offset,
-      'bulkSize' => $numResults,
-    ] + $this->defaultParameters;
-
-    // If we're configured to search in a scope, add it.
-    if (!empty($this->locationScopes)) {
-      $parameters['loc'] = 'local,scope:(' . $this->locationScopes . ')';
-    }
-    try {
-      $response = $this->httpClient->get('PrimoWebServices/xservice/search/brief', [
-        'query' => $parameters
-      ]);
-      return new Result($response->getBody()->getContents());
-    } catch (RequestException $e) {
-      // Wrap the exception and rethrow.
-      throw new TransferException($e->getMessage(), $e->getCode(), $e);
-    }
-  }
-
-  /**
-   * Validate a Primo thumbnail url
+   * Validate a Primo thumbnail url.
    *
    * Primo may return thumbnail urls to resources which are in fact not
    * images. This method will check verify that a url is a valid thumbnail.
@@ -162,6 +121,47 @@ class Client {
         watchdog_exception('primo', $e);
       }
       return FALSE;
+    }
+  }
+
+  /**
+   * Execute a search.
+   *
+   * @param array $queryParameters
+   *   List of query-parameters on the form [key => [val1, val2...]].
+   *   what options are available.
+   * @param int $offset
+   *   The offset of the search results to return. Use 1 for the first result.
+   * @param int $numResults
+   *   The number of results to return.
+   *
+   * @return \Primo\BriefSearch\Result
+   *   The search result.
+   *
+   * @throws \Primo\Exception\TransferException
+   *   If an error occurs during the execution of the search.
+   */
+  public function search(array $queryParameters, $offset, $numResults) {
+    // Set user-specified "runtime" values.
+    $queryParameters['indx'] = [$offset];
+    $queryParameters['bulkSize'] = [$numResults];
+
+    // Add in "static" defaults.
+    $queryParameters = array_merge_recursive($queryParameters, $this->defaultParameters);
+
+    // If we're configured to search in a scope, add it.
+    if (!empty($this->locationScopes)) {
+      $parameters[] = ['loc' => 'local,scope:(' . $this->locationScopes . ')'];
+    }
+    try {
+      $response = $this->httpClient->get('PrimoWebServices/xservice/search/brief', [
+        'query' => \GuzzleHttp\Psr7\build_query($queryParameters),
+      ]);
+      return new Result($response->getBody()->getContents());
+    }
+    catch (RequestException $e) {
+      // Wrap the exception and rethrow.
+      throw new TransferException($e->getMessage(), $e->getCode(), $e);
     }
   }
 

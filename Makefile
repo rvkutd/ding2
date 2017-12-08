@@ -56,3 +56,7 @@ circle-run-unit-tests:
 	  "Opensearch"
 	cd $(DRUPAL_SITE_PATH) && php scripts/run-tests.sh --php /opt/circleci/.phpenv/shims/php --xml $(CIRCLE_TEST_REPORTS)/phpunit \
 	  --class ConnieSearchSearchProviderImplementationTestCase
+	# Switch from opensearch to primo and run primo tests
+	cd $(DRUPAL_SITE_PATH) && drush dis opensearch -y && drush en primo -y
+	cd $(DRUPAL_SITE_PATH) && php scripts/run-tests.sh --php /opt/circleci/.phpenv/shims/php --xml $(CIRCLE_TEST_REPORTS)/phpunit \
+	  "Primo"

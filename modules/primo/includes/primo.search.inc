@@ -5,10 +5,9 @@
  * Implements searching in Primo.
  */
 
-use Primo\BriefSearch\Document;
 use Primo\Exception\TransferException;
 use Primo\Ting\Collection;
-use Primo\Ting\ObjectMapper;
+use Primo\Ting\PrimoStatementRenderer;
 use Primo\Ting\Result;
 use Ting\Search\SearchProviderException;
 use Ting\Search\TingSearchRequest;
@@ -148,7 +147,7 @@ function primo_search_collection_load($id) {
  *   Thrown if an error occurs.
  */
 function primo_search_search(TingSearchRequest $ting_query) {
-  $query = '';
+  $queries = [];
   $client = primo_client();
 
   // Add a general quoted free text search.
@@ -158,12 +157,18 @@ function primo_search_search(TingSearchRequest $ting_query) {
     // "search against most of the (red: available) fields at once." as pre the
     // documentation.
     // We always use fuzzy searches, so no need for setFuzzy/isFuzzy.
-    $query .= 'any,contains,' . urlencode($free_text_query);
+    $queries['query'][] = 'any,contains,' . urlencode($free_text_query);
+  }
+
+  // Handle filters.
+  if (!empty($field_filters = $ting_query->getFieldFilters())) {
+    $renderer = new PrimoStatementRenderer(_primo_common_field_mapping());
+    $queries = array_merge($queries, $renderer->renderStatements($field_filters));
   }
 
   // We use a free text search instead of the raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
-    $query .= 'any,contains,' . urlencode($raw_query);
+    $queries['query'][] = 'any,contains,' . urlencode($raw_query);
   }
 
   $page = $ting_query->getPage();
@@ -171,7 +176,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // Execute the search, return the result.
   try {
-    $primo_result = $client->search($query, $page, $count);
+    $primo_result = $client->search($queries, $page, $count);
     $result = new Result($primo_result, $ting_query);
 
     // Pre-warm the cache so that subsequent loads of objects for the documents

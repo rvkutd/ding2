@@ -3,6 +3,7 @@ description = Implementation of Primo API.
 core = 7.x
 package = Providers
 project = primo
+files[] = tests/*
 dependencies[] = ding_provider
 dependencies[] = drupal_psr3
 dependencies[] = libraries
