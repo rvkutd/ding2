@@ -164,11 +164,7 @@ class ObjectMapper {
   public function mapLanguage() {
     $lang = $this->document->getLanguage();
     if (!empty($lang)) {
-      // Languages returned by Primo is in ISO-639 format. To return something
-      // understandable by users we convert it to English and let Drupal try to
-      // translate it to the user language.
-      $lang = (new ISO639())->languageByCode2b($lang);
-      $lang = t($lang);
+      $lang = ValueMapper::mapLanguageFromIso639($lang);
     }
     return (!empty($lang)) ? $lang : FALSE;
   }
