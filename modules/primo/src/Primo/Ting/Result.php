@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * The Result class.
- */
 
 namespace Primo\Ting;
 
@@ -12,7 +8,6 @@ use Ting\Search\TingSearchFacet;
 use Ting\Search\TingSearchFacetTerm;
 use Ting\Search\TingSearchRequest;
 use Ting\Search\TingSearchResultInterface;
-use TingCollection;
 
 /**
  * A Ting compatible search result from the Primo search provider.
@@ -57,7 +52,6 @@ class Result implements TingSearchResultInterface {
    *
    * @param \Primo\BriefSearch\Result $result
    *   Primo search result.
-   *
    * @param \Ting\Search\TingSearchRequest $ting_search_request
    *   Ting search query request that was executed to produce the result.
    */
@@ -161,9 +155,18 @@ class Result implements TingSearchResultInterface {
 
     // Convert Primo Facets to TingSearchFacetTerm instances.
     array_walk($primo_facets, function (Facet $facet) {
+      // Get term name => frequency array.
       $values = $facet->getValues();
 
-      $terms = array_map(function ($name, $frequency) {
+      // Map to TingSearchFacetTerm instances, do name-mapping if necessary.
+      $terms = array_map(function ($name, $frequency) use ($facet) {
+        if ($facet->getId() === 'lang' && !empty($mapped = ValueMapper::mapLanguageFromIso639($name))) {
+          $name = $mapped;
+        }
+        elseif ($facet->getId() === 'genre' && !empty($mapped = ValueMapper::mapGenreFromCode($name))) {
+          $name = $mapped;
+        }
+
         return new TingSearchFacetTerm($name, $frequency);
       }, array_keys($values), $values);
 
@@ -185,4 +188,5 @@ class Result implements TingSearchResultInterface {
   public function getPrimoSearchresult() {
     return $this->result;
   }
+
 }

@@ -18,6 +18,15 @@ class PrimoStatementRenderer {
   protected $mapping = NULL;
 
   /**
+   * Functions that can map a field value, keyed by field name.
+   *
+   * Initialized via initializeValueMappers().
+   *
+   * @var array
+   */
+  protected $valueMappers = [];
+
+  /**
    * PrimoStatementRenderer constructor.
    *
    * @param array $mapping
@@ -25,6 +34,29 @@ class PrimoStatementRenderer {
    */
   public function __construct(array $mapping) {
     $this->mapping = $mapping;
+
+    // Setup the local valueMappers property.
+    $this->initializeValueMappers();
+  }
+
+  /**
+   * Setup value mappers.
+   *
+   * This is done in a function as we're not allowed to do it at property
+   * initialization.
+   */
+  protected function initializeValueMappers() {
+    // Setup value mappers.
+    $this->valueMappers = [
+      // Map facet languages back to ISO639.
+      'facet_lang' => function ($lang) {
+        return ValueMapper::mapLanguageToIso639($lang);
+      },
+      // Map genres back to codes.
+      'facet_genre' => function ($genre) {
+        return ValueMapper::mapGenreToCode($genre);
+      },
+    ];
   }
 
   /**
@@ -173,10 +205,21 @@ class PrimoStatementRenderer {
     if (isset($this->mapping[$field_name])) {
       $field_name = $this->mapping[$field_name];
     }
+
+    // Get all the values and process them.
     $values = array_map(function (TingSearchFieldFilter $statement) {
-      // "Escape" the string by replacing commas with spaces.
-      return str_replace(',', ' ', $this->escapeValue($statement->getValue()));
+      return $statement->getValue();
     }, $statements);
+
+    // If this is a field we have a value-mapper for, do the mapping.
+    if (isset($this->valueMappers[$field_name])) {
+      $values = array_map($this->valueMappers[$field_name], $values);
+    }
+
+    $values = array_map(function ($statement) {
+      // "Escape" the string by replacing commas with spaces.
+      return str_replace(',', ' ', $this->escapeValue($statement));
+    }, $values);
 
     $values_joined = implode(' ' . $group->getLogicOperator() . ' ', $values);
 

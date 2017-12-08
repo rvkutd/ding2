@@ -15,6 +15,11 @@ class ValueMapper {
   const T_CONTEXT_LANGUAGE = NULL;
 
   /**
+   * The t() context used for primo genres.
+   */
+  const T_CONTEXT_GENRE = 'Primo Genre code';
+
+  /**
    * Maps names of languages in ISO639 to translated names.
    *
    * The mapping is done in two parts, first the langcode is mapped to its full
@@ -85,6 +90,28 @@ class ValueMapper {
 
     // Mapping completed, return it.
     return $langcode;
+  }
+
+  /**
+   * Maps primo genere codes to their mapped counterpart.
+   *
+   * @param string $code
+   *   The Primo code.
+   *
+   * @return string
+   *   The translated code or the input code if it could not be mapped.
+   */
+  public static function mapGenreFromCode($code) {
+    return t($code, [], ['context' => static::T_CONTEXT_GENRE]);
+  }
+
+  /**
+   * @param $genre
+   *
+   * @return false|int|string
+   */
+  public static function mapGenreToCode($genre) {
+    return static::reverseTranslate($genre, static::T_CONTEXT_GENRE);
   }
 
   /**
