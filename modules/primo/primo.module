@@ -230,7 +230,7 @@ function _primo_textarea_value_array(array $element, $input = FALSE, $form_state
 }
 
 /**
- * Converts an a array of strings to a single multiline array.
+ * Converts an array of strings to a single multiline string.
  *
  * This is basicly the reverse of _primo_textarea_value_array() and useful for
  * displaying an array of strings in a textarea.
