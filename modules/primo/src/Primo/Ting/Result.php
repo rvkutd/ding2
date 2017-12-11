@@ -1,15 +1,13 @@
 <?php
-/**
- * @file
- * The Result class.
- */
 
 namespace Primo\Ting;
 
 use Primo\BriefSearch\Document;
+use Primo\BriefSearch\Facet;
+use Ting\Search\TingSearchFacet;
+use Ting\Search\TingSearchFacetTerm;
 use Ting\Search\TingSearchRequest;
 use Ting\Search\TingSearchResultInterface;
-use TingCollection;
 
 /**
  * A Ting compatible search result from the Primo search provider.
@@ -41,11 +39,19 @@ class Result implements TingSearchResultInterface {
   protected $collections;
 
   /**
+   * Ting facets mapped from the search result.
+   *
+   * Initialized as NULL to signal that the initial load has not been attempted.
+   *
+   * @var \Ting\Search\TingSearchFacet[]
+   */
+  protected $facets = NULL;
+
+  /**
    * Result constructor.
    *
    * @param \Primo\BriefSearch\Result $result
    *   Primo search result.
-   *
    * @param \Ting\Search\TingSearchRequest $ting_search_request
    *   Ting search query request that was executed to produce the result.
    */
@@ -133,8 +139,44 @@ class Result implements TingSearchResultInterface {
    *   List of facets, empty if none where found.
    */
   public function getFacets() {
-    // TODO: Implement.
-    return [];
+    // Return the mapped facets if we've already done the work.
+    if ($this->facets !== NULL) {
+      return $this->facets;
+    }
+
+    // Prepare for loading.
+    $this->facets = [];
+
+    // Handle empty facets.
+    $primo_facets = $this->result->getFacets();
+    if (empty($primo_facets)) {
+      return $this->facets;
+    }
+
+    // Convert Primo Facets to TingSearchFacetTerm instances.
+    array_walk($primo_facets, function (Facet $facet) {
+      // Get term name => frequency array.
+      $values = $facet->getValues();
+
+      // Map to TingSearchFacetTerm instances, do name-mapping if necessary.
+      $terms = array_map(function ($name, $frequency) use ($facet) {
+        if ($facet->getId() === 'lang' && !empty($mapped = ValueMapper::mapLanguageFromIso639($name))) {
+          $name = $mapped;
+        }
+        elseif ($facet->getId() === 'genre' && !empty($mapped = ValueMapper::mapGenreFromCode($name))) {
+          $name = $mapped;
+        }
+
+        return new TingSearchFacetTerm($name, $frequency);
+      }, array_keys($values), $values);
+
+      // Return facets indexed by their id prefixed with "facet_". This will
+      // make the id match the syntax Primo expects when it is later used as a
+      // field query in ting_search_search_execute().
+      $this->facets['facet_' . $facet->getId()] = new TingSearchFacet('facet_' . $facet->getId(), $terms);
+    });
+
+    return $this->facets;
   }
 
   /**
@@ -146,4 +188,5 @@ class Result implements TingSearchResultInterface {
   public function getPrimoSearchresult() {
     return $this->result;
   }
+
 }
