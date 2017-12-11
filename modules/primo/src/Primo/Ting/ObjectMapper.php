@@ -78,7 +78,7 @@ class ObjectMapper {
     $object->setSeriesDescription($this->mapSeriesDescription());
     $object->setSource($this->mapSource());
     $object->setSubjects($this->mapSubjects());
-    // TODO BBS-SAL: Implement getTracks() method.
+    $object->setTracks($this->document->getTracks());
     // TODO BBS-SAL: Implement getURI() method.
     $object->setType($this->mapType());
     $object->setYear($this->document->getYear());

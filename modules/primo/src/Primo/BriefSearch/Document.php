@@ -299,4 +299,25 @@ class Document {
     return $node_values;
   }
 
+  /**
+   * Return a list of track names without the additional information.
+   *
+   * @return string[]
+   *   Track names.
+   */
+  public function getTracks() {
+    $nodes = $this->recordXpath($this->recordId, '//primo:search/primo:addtitle');
+
+    $result = array_map(function($track) {
+      // If addtitle contains "hljómdiskur" (CDs) or "mynddiskur" (DVD),
+      // ignore it.
+      if (preg_match('/hljómdiskur:|mynddiskur:/iu', $track)) {
+        return null;
+      }
+      return $track;
+    }, $this->nodeValues($nodes));
+
+    return array_filter($result);
+  }
+
 }
