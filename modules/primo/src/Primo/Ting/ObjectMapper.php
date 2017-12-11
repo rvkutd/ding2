@@ -61,7 +61,7 @@ class ObjectMapper {
     // Primo does not distinguish between short and default title lengths.
     $object->setShortTitle($this->document->getTitle());
     $object->setAbstract($this->document->getLocalDisplayField(7));
-    // TODO BBS-SAL: Implement getAge() method.
+    $object->setAge($this->document->getLocalDisplayField(8));
     // TODO BBS-SAL: Implement getAudience() method.
     $object->setContributors($this->document->getContributors());
     $object->setCreatorsFormatDefault($this->mapCreators(TingObjectInterface::NAME_FORMAT_DEFAULT));
