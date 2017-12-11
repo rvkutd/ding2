@@ -5,6 +5,68 @@
  * Main install file for Primo.
  */
 
+define('PRIMO_FACET_MATERIAL_TYPE', 'rtype');
+
+/**
+ * Implements hook_requirements().
+ */
+function primo_requirements($phase) {
+  if ($phase !== 'runtime') {
+    return [];
+  }
+
+  $t = get_t();
+
+  // Make sure we have our material types mapped.
+  $material_type_req = [ 'title' => 'Primo material types' ];
+
+  // Do a dummy search with the intent of returning as many results as possible.
+  // We are not really interested in the results but in the facets they cover.
+  $result = primo_client()->search([ 'query' => 'any,contains,a' ], 1, 1);
+  $facet = $result->getFacet(PRIMO_FACET_MATERIAL_TYPE);
+  if (!empty($facet)) {
+    $material_types = $facet->getValues();
+    $material_type_map = variable_get('primo_material_type_map', []);
+    $mapped_material_type_ids = array_intersect_key($material_types, $material_type_map);
+    $material_type_req += [
+      'value' => $t(
+        '%num_material_types mapped material types',
+        ['%num_material_types' => count($mapped_material_type_ids)]
+      )
+    ];
+
+    $unmapped_material_type_ids = array_diff_key($material_types, $material_type_map);
+    if (empty($unmapped_material_type_ids)) {
+      $material_type_req += [
+        'severity' => REQUIREMENT_OK
+      ];
+    }
+    else {
+      $material_type_req += [
+        'description' => $t('Material type codes %material_types do not have patron-friendly versions. Please <a href="@primo_map_url">map them</a>.',
+          [
+            '%material_types' => implode(', ', array_keys($unmapped_material_type_ids)),
+            '@primo_map_url' => url('admin/config/primo/mapping')
+          ]
+        ),
+        'severity' => REQUIREMENT_WARNING
+      ];
+    }
+  }
+  else {
+    $material_type_req += [
+      'description' => $t('Unable to extract material type facet %facet from search result.',
+        ['%facet' => PRIMO_FACET_MATERIAL_TYPE]
+      ),
+      'severity' => REQUIREMENT_ERROR
+    ];
+  }
+
+  return [
+    'primo_material_types' => $material_type_req,
+  ];
+}
+
 /**
  * Implements hook_schema().
  */

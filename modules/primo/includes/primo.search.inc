@@ -12,8 +12,6 @@ use Primo\Ting\Result;
 use Ting\Search\SearchProviderException;
 use Ting\Search\TingSearchRequest;
 
-define('PRIMO_FACET_MATERIAL_TYPE', 'rtype');
-
 // TODO Remove this once Primo search provider is fully implemented.
 // Ding does not support mixing multiple partial implementations of a provider
 // so we fall back to OpenSearch while we implement Primo. Thus we need to
@@ -26,19 +24,11 @@ module_load_include('inc', 'opensearch',
  * Get a list of material types from Primo.
  */
 function primo_search_material_types() {
-  $result = primo_client()->search('any,contains,a', 1, 1);
-  $facet = $result->getFacet(PRIMO_FACET_MATERIAL_TYPE);
-  if (!empty($facet)) {
-    return array_keys($facet->getValues());
-  } else {
-    watchdog(
-      'primo',
-      'Unable to extract material type facet %facet from result',
-      ['%facet' => PRIMO_FACET_MATERIAL_TYPE],
-      WATCHDOG_WARNING
-    );
-    return [];
-  }
+  // We cannot retrieve patron-friendly list of material types directy from
+  // Primo. Instead we rely on an managed map from Primo material type ids to
+  // material type names. Returning the values means returning the names as
+  // expected by this hook implementation.
+  return array_values(variable_get('primo_material_type_map', []));
 }
 
 /**
