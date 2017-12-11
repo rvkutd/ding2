@@ -96,6 +96,7 @@ function primo_install() {
  */
 function primo_install_set_defaults() {
   primo_install_set_facet_defaults();
+  primo_install_set_material_type_defaults();
 }
 
 /**
@@ -145,6 +146,48 @@ function primo_install_set_facet_defaults() {
 }
 
 /**
+ * Setup default material type names.
+ */
+function primo_install_set_material_type_defaults() {
+  $material_type_map = [
+    'archeological_finds' => 'Archeological finds',
+    'articles' => 'Article',
+    'audiobooks' => 'Audiobook',
+    'book_chapters' => 'Book Chapter',
+    'books' => 'Book',
+    'cassette' => 'Cassette',
+    'coin' => 'Coin',
+    'compactdisk' => 'Audio disc',
+    'computerfiles' => 'Computer file',
+    'dissertations' => 'Dissertation',
+    'document' => 'Document',
+    'drawing' => 'Drawing',
+    'ebook' => 'Ebook',
+    'ethnology' => ' Ethnology - answer',
+    'house' => 'House',
+    'images' => 'Image',
+    'journals' => 'Journal',
+    'lprecord' => 'Audio record',
+    'manuscripts' => 'Manuscript',
+    'maps' => 'Map',
+    'mixedmaterial' => 'Mixed material',
+    'music' => 'Music',
+    'music_score' => 'Notated music',
+    'music_song' => 'Music - song',
+    'object' => 'Object',
+    'other' => 'Other',
+    'painting' => 'Painting',
+    'place_name' => 'Place name',
+    'ruin' => 'Ruin',
+    'tools' => 'Tools',
+    'visualmaterial' => 'Visual material',
+    'websites' => 'Website',
+  ];
+
+  variable_set('primo_material_type_map', $material_type_map);
+}
+
+/**
  * Add cache table to cache objects we generate from searches.
  */
 function primo_update_7001() {
@@ -158,5 +201,12 @@ function primo_update_7001() {
  * Set defaults for Primo.
  */
 function primo_update_7002() {
+  primo_install_set_defaults();
+}
+
+/**
+ * Update defaults for Primo.
+ */
+function primo_update_7003() {
   primo_install_set_defaults();
 }
