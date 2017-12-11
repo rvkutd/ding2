@@ -280,4 +280,23 @@ class Document {
     return $this->nodeValue($nodes);
   }
 
+  /**
+   * Get a local search field (lsr) by number.
+   *
+   * @param $number
+   *   The search field number to get.
+   *
+   * @return string
+   *   The local search field value.
+   */
+  public function getLocalSearchField($number) {
+    $nodes = $this->recordXpath($this->recordId, '//primo:search/primo:lsr'
+    . $number);
+    $node_values = array_map(function($node) {
+      return $node;
+    }, $this->nodeValues($nodes));
+
+    return implode(', ', $node_values);
+  }
+
 }
