@@ -115,6 +115,34 @@ class ValueMapper {
   }
 
   /**
+   * Maps primo material type codes to their mapped counterpart.
+   *
+   * @param string $code
+   *   The Primo code.
+   *
+   * @return string
+   *   The mapped code or the input code if it could not be mapped.
+   */
+  public static function mapMaterialTypeFromCode($code) {
+    $map = variable_get('primo_material_type_map', []);
+    return (!empty($map[$code])) ? $map[$code] : $code;
+  }
+
+  /**
+   * Maps material types to their mapped Primo code.
+   *
+   * @param string $material_type
+   *   The material type.
+   *
+   * @return string
+   *   The translated code or the input code if it could not be mapped.
+   */
+  public static function mapMaterialTypeToCode($material_type) {
+    $map = array_flip(variable_get('primo_material_type_map', []));
+    return (!empty($map[$material_type])) ? $map[$material_type] : $code;
+  }
+
+  /**
    * Reverse translation.
    *
    * "Translates" translated strings back to their source string.

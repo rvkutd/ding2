@@ -56,6 +56,10 @@ class PrimoStatementRenderer {
       'facet_genre' => function ($genre) {
         return ValueMapper::mapGenreToCode($genre);
       },
+      // Map material types back to codes.
+      'facet_rtype' => function($material_type) {
+        return ValueMapper::mapMaterialTypeToCode($material_type);
+      }
     ];
   }
 
