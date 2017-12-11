@@ -64,7 +64,7 @@ function primo_menu() {
     'page arguments' => array('primo_settings_form'),
     'access arguments' => array('administer primo settings'),
     'file' => 'primo.admin.inc',
-    'weight' => -1
+    'weight' => -1,
   );
 
   $items['admin/config/primo/mapping'] = array(

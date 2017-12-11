@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Administration interface for the Primo module.
+ */
+
+/**
  * Setting form for Primo configuration.
  *
  * @return []
@@ -200,7 +205,7 @@ function _primo_textarea_value_map(array $element, $input = FALSE, $form_state =
  * This is basicly the reverse of _primo_textarea_value_map() and useful for
  * displaying a map strings in a textarea.
  *
- * @param mixed $array
+ * @param mixed $map
  *   Input value. Should be a map of strings.
  *
  * @return string
@@ -222,15 +227,15 @@ function _primo_textarea_map_value($map) {
  *
  * Use with #element_validate.
  *
- * @param $element
+ * @param array $element
  *   The form element. It is important that this is passed by reference so we
  *   can update the element value if validation fails.
- * @param $form_state
+ * @param array $form_state
  *   The form state.
- * @param $form
+ * @param array $form
  *   The form.
  */
-function _primo_textarea_map_validate(&$element, &$form_state, $form) {
+function _primo_textarea_map_validate(array &$element, array &$form_state, array $form) {
   foreach ($element['#value'] as $key => $value) {
     if (empty($value) || empty($key)) {
       form_error($element, t('Unable to extract mapping from element. Please ensure format is correct.'));
