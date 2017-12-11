@@ -166,6 +166,9 @@ class Result implements TingSearchResultInterface {
         elseif ($facet->getId() === 'genre' && !empty($mapped = ValueMapper::mapGenreFromCode($name))) {
           $name = $mapped;
         }
+        elseif ($facet->getId() === 'rtype' && !empty($mapped = ValueMapper::mapMaterialTypeFromCode($name))) {
+          $name = $mapped;
+        }
 
         return new TingSearchFacetTerm($name, $frequency);
       }, array_keys($values), $values);

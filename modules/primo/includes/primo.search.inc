@@ -24,7 +24,11 @@ module_load_include('inc', 'opensearch',
  * Get a list of material types from Primo.
  */
 function primo_search_material_types() {
-  return opensearch_search_material_types();
+  // We cannot retrieve patron-friendly list of material types directy from
+  // Primo. Instead we rely on an managed map from Primo material type ids to
+  // material type names. Returning the values means returning the names as
+  // expected by this hook implementation.
+  return array_values(variable_get('primo_material_type_map', []));
 }
 
 /**

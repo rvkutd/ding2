@@ -80,7 +80,7 @@ class ObjectMapper {
     $object->setSubjects($this->mapSubjects());
     // TODO BBS-SAL: Implement getTracks() method.
     // TODO BBS-SAL: Implement getURI() method.
-    $object->setType($this->document->getType());
+    $object->setType($this->mapType());
     $object->setYear($this->document->getYear());
     $object->setClassifications(
       implode(', ', $this->document->getLocalSearchField(12))
@@ -212,5 +212,17 @@ class ObjectMapper {
     // Primo returns subjects as a single string but Ding2 expects an array of
     // subject name strings. Explode by Primos delimiter.
     return explode(' ; ', $subjects);
+  }
+
+  /**
+   * Returns the type for the material.
+   *
+   * The returned value should preferably in a patron-friendly version.
+   *
+   * @return string
+   *  The material type.
+   */
+  public function mapType() {
+    return ValueMapper::mapMaterialTypeFromCode($this->document->getType());
   }
 }
