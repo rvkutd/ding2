@@ -82,7 +82,9 @@ class ObjectMapper {
     // TODO BBS-SAL: Implement getURI() method.
     $object->setType($this->document->getType());
     $object->setYear($this->document->getYear());
-    $object->setClassifications($this->document->getLocalSearchField(12));
+    $object->setClassifications(
+      implode(', ', $this->document->getLocalSearchField(12))
+    );
 
     // Below are parts of the TingObjectInterface which the Primo modules
     // currently do not support.
