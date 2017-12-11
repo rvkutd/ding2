@@ -85,6 +85,7 @@ class ObjectMapper {
     $object->setClassifications(
       implode(', ', $this->document->getLocalSearchField(12))
     );
+    $object->setSpoken($this->document->getLocalDisplayField(06));
 
     // Below are parts of the TingObjectInterface which the Primo modules
     // currently do not support.
@@ -103,7 +104,6 @@ class ObjectMapper {
     $object->setRights(FALSE);
     $object->setSeriesTitles(FALSE);
     $object->setSpatial(FALSE);
-    $object->setSpoken(FALSE);
     $object->setSubTitles([]);
     // Primo does not distinguish between difference versions of the same
     // object.
