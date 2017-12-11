@@ -6,6 +6,7 @@
  */
 
 define('PRIMO_FACET_MATERIAL_TYPE', 'rtype');
+define('PRIMO_FACET_GENRE', 'genre');
 
 /**
  * Implements hook_requirements().
@@ -17,12 +18,13 @@ function primo_requirements($phase) {
 
   $t = get_t();
 
-  // Make sure we have our material types mapped.
-  $material_type_req = [ 'title' => 'Primo material types' ];
-
   // Do a dummy search with the intent of returning as many results as possible.
   // We are not really interested in the results but in the facets they cover.
   $result = primo_client()->search([ 'query' => 'any,contains,a' ], 1, 1);
+
+  // Make sure we have our material types mapped.
+  $material_type_req = [ 'title' => 'Primo material types' ];
+
   $facet = $result->getFacet(PRIMO_FACET_MATERIAL_TYPE);
   if (!empty($facet)) {
     $material_types = $facet->getValues();
@@ -62,8 +64,51 @@ function primo_requirements($phase) {
     ];
   }
 
+  // Make sure we have our genres mapped.
+  $genre_req = [ 'title' => 'Primo genres' ];
+
+  $facet = $result->getFacet(PRIMO_FACET_GENRE);
+  if (!empty($facet)) {
+    $genres = $facet->getValues();
+    $genre_map = variable_get('primo_genre_map', []);
+    $mapped_genres_codes = array_intersect_key($genres, $genre_map);
+    $genre_req += [
+      'value' => $t(
+        '%num_material_types mapped genres',
+        ['%num_material_types' => count($mapped_genres_codes)]
+      )
+    ];
+
+    $unmapped_genre_codes = array_diff_key($genres, $genre_map);
+    if (empty($unmapped_genre_codes)) {
+      $genre_req += [
+        'severity' => REQUIREMENT_OK
+      ];
+    }
+    else {
+      $genre_req += [
+        'description' => $t('Genre codes %genre_codes do not have patron-friendly versions. Please <a href="@primo_map_url">map them</a>.',
+          [
+            '%genre_codes' => implode(', ', array_keys($unmapped_genre_codes)),
+            '@primo_map_url' => url('admin/config/primo/mapping')
+          ]
+        ),
+        'severity' => REQUIREMENT_WARNING
+      ];
+    }
+  }
+  else {
+    $genre_req += [
+      'description' => $t('Unable to extract genre facet %facet from search result.',
+        ['%facet' => PRIMO_FACET_GENRE]
+      ),
+      'severity' => REQUIREMENT_ERROR
+    ];
+  }
+
   return [
     'primo_material_types' => $material_type_req,
+    'primo_genres' => $genre_req,
   ];
 }
 
@@ -97,6 +142,7 @@ function primo_install() {
 function primo_install_set_defaults() {
   primo_install_set_facet_defaults();
   primo_install_set_material_type_defaults();
+  primo_install_set_genre_defaults();
 }
 
 /**
@@ -185,6 +231,23 @@ function primo_install_set_material_type_defaults() {
   ];
 
   variable_set('primo_material_type_map', $material_type_map);
+}
+
+
+/**
+ * Setup default genre names.
+ */
+function primo_install_set_genre_defaults() {
+  $material_type_map = [
+    'drama' => 'Drama',
+    'juvenile_material' => 'Juvenile material',
+    'fiction' => 'Fiction',
+    'short_stories' => 'Short stories',
+    'biography' => 'Biography',
+    'poetry' => 'Poetry',
+  ];
+
+  variable_set('primo_genre_map', $material_type_map);
 }
 
 /**

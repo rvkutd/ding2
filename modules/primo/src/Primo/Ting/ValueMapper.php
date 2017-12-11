@@ -99,10 +99,11 @@ class ValueMapper {
    *   The Primo code.
    *
    * @return string
-   *   The translated code or the input code if it could not be mapped.
+   *   The mapped code or the input code if it could not be mapped.
    */
   public static function mapGenreFromCode($code) {
-    return t($code, [], ['context' => static::T_CONTEXT_GENRE]);
+    $map = variable_get('primo_genre_map', []);
+    return (!empty($map[$code])) ? $map[$code] : $code;
   }
 
   /**
@@ -111,7 +112,8 @@ class ValueMapper {
    * @return false|int|string
    */
   public static function mapGenreToCode($genre) {
-    return static::reverseTranslate($genre, static::T_CONTEXT_GENRE);
+    $map = array_flip(variable_get('primo_genre_map', []));
+    return (!empty($map[$genre])) ? $map[$genre] : $genre;
   }
 
   /**

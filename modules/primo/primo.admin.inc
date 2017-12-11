@@ -97,6 +97,16 @@ function primo_code_mapping_form() {
     '#required' => TRUE,
   ];
 
+  $form['primo_genre_map'] = [
+    '#type' => 'textarea',
+    '#title' => t('Genres'),
+    '#default_value' => _primo_textarea_map_value(variable_get('primo_genre_map', [])),
+    '#value_callback' => '_primo_textarea_value_map',
+    '#element_validate' => ['_primo_textarea_map_validate'],
+    '#description' => t('Configure a mapping from Primo genre codes to descriptions that are understandable by a patron. Enter one mapping per line in the format "[primo code]|[patron text]" (without " and []).'),
+    '#required' => TRUE,
+  ];
+
   return system_settings_form($form);
 }
 
