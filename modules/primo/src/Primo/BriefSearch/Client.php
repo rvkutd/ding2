@@ -90,7 +90,7 @@ class Client {
    *   Thrown if an error occurs during retrieval.
    */
   public function documents($recordIds) {
-    $result = $this->search([['query' => 'rid,contains,' . implode($recordIds, ' OR ')]], 1, count($recordIds));
+    $result = $this->search(['query' => 'rid,contains,' . implode($recordIds, ' OR ')], 1, count($recordIds));
     return $result->getDocuments();
   }
 
