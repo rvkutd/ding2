@@ -28,7 +28,10 @@ function primo_search_material_types() {
   // Primo. Instead we rely on an managed map from Primo material type ids to
   // material type names. Returning the values means returning the names as
   // expected by this hook implementation.
-  return array_values(variable_get('primo_material_type_map', []));
+  $material_types = array_values(variable_get('primo_material_type_map', []));
+  // Calling code requires material types to be in lower case.
+  // @see ding_availability_field_formatter_view()
+  return array_map('drupal_strtolower', $material_types);
 }
 
 /**
@@ -40,7 +43,10 @@ function primo_search_material_types() {
 function primo_search_sources() {
   // We are not able to extract sources from Primo programmatically so instead
   // we maintain a list of them in the administration interface.
-  return variable_get('primo_source_systems', []);
+  $sources = variable_get('primo_source_systems', []);
+  // Calling code requires sources to be in lower case.
+  // @see ding_availability_field_formatter_view()
+  return array_map('drupal_strtolower', $sources);
 }
 
 /**
