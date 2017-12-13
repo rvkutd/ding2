@@ -17,6 +17,7 @@ set('npm', '/home/webmaster/bin/npm');
 set('drupal_site', 'default');
 set('shared_dirs', [
   'sites/{{drupal_site}}/files',
+  'sites/all',
 ]);
 set('shared_files', [
   'sites/{{drupal_site}}/settings.php',
