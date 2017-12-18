@@ -37,6 +37,12 @@ class AlephRequestResponse {
   protected $note;
 
   /**
+   * @var string $xml
+   * The raw XML from Aleph.
+   */
+  protected $xml;
+
+  /**
    * @return string
    */
   public function getReplyCode() {
@@ -85,6 +91,14 @@ class AlephRequestResponse {
     return $this->getReplyCode() === '0000';
   }
 
+  public function getXML() {
+    return $this;
+  }
+
+  public function setXML($xml) {
+    $this->xml = $xml;
+  }
+
   /**
    * Create a request response from provided SimpleXMLElement.
    *
@@ -94,6 +108,7 @@ class AlephRequestResponse {
   public static function createRequestResponseFromXML(\SimpleXMLElement $xml) {
     $response = new self();
 
+    $response->setXML($xml);
     $response->setReplyCode((string) $xml->xpath('reply-code')[0]);
     $response->setReplyText((string) $xml->xpath('reply-text')[0]);
     $response->setNote((string) $xml->xpath('note')[0]);

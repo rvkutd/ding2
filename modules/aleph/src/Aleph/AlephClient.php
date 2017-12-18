@@ -10,6 +10,8 @@ namespace Drupal\aleph\Aleph;
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephPatron;
 use Drupal\aleph\Aleph\Entity\AlephRequest;
+use Drupal\aleph\Aleph\Entity\AlephRequestResponse;
+use Exception;
 use GuzzleHttp\Client;
 
 /**
@@ -180,7 +182,9 @@ class AlephClient {
    * @param string $new_pin
    *    The new pin code.
    *
-   * @throws \RuntimeException
+   * @return bool
+   *
+   * @throws \Drupal\aleph\Aleph\AlephPatronInvalidPin
    */
   public function changePin(AlephPatron $patron, $new_pin) {
     $options = array();
@@ -192,11 +196,17 @@ class AlephClient {
 
     $options['body'] = 'post_xml=' . $xml->asXML();
 
-    $this->requestRest(
+    $response = AlephRequestResponse::createRequestResponseFromXML($this->requestRest(
       'POST',
       'patron/' . $patron->getId() . '/patronInformation/password',
       $options
-    );
+    ));
+
+    if ($response->success()) {
+      return TRUE;
+    }
+
+    throw new AlephPatronInvalidPin();
   }
 
   /**
@@ -346,3 +356,9 @@ class AlephClient {
   }
 
 }
+
+/**
+ * Define exceptions for different error conditions inside the Aleph client.
+ */
+
+class AlephPatronInvalidPin extends Exception { }

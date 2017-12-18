@@ -56,27 +56,24 @@ function aleph_user_authenticate($uid, $pass) {
  *
  * @return array
  *    Updated credential.
+ *
+ * @throws \DingProviderAuthException
  */
 function aleph_user_update_pincode($user, $new_pincode) {
-  $creds = ding_user_get_creds($user);
+  $creds = ding_user_get_creds();
   $result = array();
 
+  // Setup client and patron handler.
+  $client = aleph_client();
+  $patron_handler = new AlephPatronHandler($client);
+  $patron_handler->authenticate($creds['name'], $creds['pass']);
+
   // Change the users pin code.
-  if (isset($new_pincode)) {
-    // Setup client and patron handler.
-    $client = aleph_client();
-    $patron_handler = new AlephPatronHandler($client);
-
-    // Authenticate user against Aleph.
-    $auth_result = $patron_handler->authenticate($creds['name'], $creds['pass']);
-    if ($auth_result->isAuthenticated()) {
-      $patron_handler->setPin($new_pincode);
-      // Set new password.
-      $creds['pass'] = $new_pincode;
-
-      // Update creds.
-      $result['creds'] = $creds;
-    }
+  if ($patron_handler->setPin($new_pincode)) {
+    $creds['pass'] = $new_pincode;
+    $result['creds'] = $creds;
+    $patron_handler->authenticate($creds['name'], $new_pincode);
   }
+
   return $result;
 }

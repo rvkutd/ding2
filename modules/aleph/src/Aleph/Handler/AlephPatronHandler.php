@@ -3,6 +3,7 @@
 namespace Drupal\aleph\Aleph\Handler;
 
 use DateTime;
+use Drupal\aleph\Aleph\AlephPatronInvalidPin;
 use Drupal\aleph\Aleph\Entity\AlephDebt;
 use Drupal\aleph\Aleph\Entity\AlephLoan;
 use Drupal\aleph\Aleph\Entity\AlephMaterial;
@@ -60,6 +61,7 @@ class AlephPatronHandler extends AlephHandlerBase {
       $patron->setId($bor_id);
       $patron->setVerification($verification);
       $patron->setName((string) $response->xpath('z303/z303-name')[0]);
+      $this->setPatron($patron);
       $result->setPatron($patron);
     }
     return $result;
@@ -94,10 +96,17 @@ class AlephPatronHandler extends AlephHandlerBase {
    * @param string $pin
    *    The new pin code.
    *
-   * @throws \RuntimeException
+   * @return bool
+   *    True if setting new pincode succeeded.
    */
   public function setPin($pin) {
-    $this->client->changePin($this->getPatron(), $pin);
+    try {
+      return $this->client->changePin($this->getPatron(), $pin);
+    }
+    catch (AlephPatronInvalidPin $e) {
+      watchdog_exception('aleph', $e);
+      return FALSE;
+    }
   }
 
   /**
