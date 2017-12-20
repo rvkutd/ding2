@@ -193,6 +193,7 @@ function aleph_client() {
  *    The Aleph Patron object.
  *
  * @throws \DingProviderAuthException
+ *   Given operation cannot be completed until the user authenticates.
  */
 function aleph_get_patron_by_account() {
   $patron_handler = new AlephPatronHandler(aleph_client());

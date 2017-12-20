@@ -58,6 +58,7 @@ function aleph_user_authenticate($uid, $pass) {
  *    Updated credential.
  *
  * @throws \DingProviderAuthException
+ *   Given operation cannot be completed until the user authenticates.
  */
 function aleph_user_update_pincode($user, $new_pincode) {
   $creds = ding_user_get_creds();

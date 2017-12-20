@@ -14,6 +14,7 @@ use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
  *   Loan information.
  *
  * @throws \DingProviderAuthException
+ *   Given operation cannot be completed until the user authenticates.
  */
 function aleph_loan_list() {
   // Get creds is outside cache function as it may throw exception if the user
