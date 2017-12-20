@@ -151,7 +151,7 @@ class Client {
 
     // If we're configured to search in a scope, add it.
     if (!empty($this->locationScopes)) {
-      $queryParameters[] = ['loc' => 'local,scope:(' . $this->locationScopes . ')'];
+      $queryParameters['loc'][] = 'local,scope:(' . $this->locationScopes . ')';
     }
     try {
       $response = $this->httpClient->get('PrimoWebServices/xservice/search/brief', [
