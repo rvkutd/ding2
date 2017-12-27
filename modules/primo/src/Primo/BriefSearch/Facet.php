@@ -50,7 +50,7 @@ class Facet {
    *
    * @return int[]
    *   A map from facet values to the frequency of each value within the search
-   *   as represented by the docment.
+   *   as represented by the document.
    */
   public function getValues() {
     $values = [];

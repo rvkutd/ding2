@@ -59,6 +59,9 @@ class PrimoStatementRenderer {
       // Map material types back to codes.
       'facet_rtype' => function($material_type) {
         return ValueMapper::mapMaterialTypeToCode($material_type);
+      },
+      'facet_creationdate' => function($creation_date) {
+        return ValueMapper::mapCreationDate($creation_date);
       }
     ];
   }
