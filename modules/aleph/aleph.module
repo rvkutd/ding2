@@ -189,14 +189,34 @@ function aleph_client() {
 /**
  * Return an instance of the AlephPatron by account.
  *
- * @param object $account
- *    A Drupal account object.
- *
  * @return \Drupal\aleph\Aleph\Entity\AlephPatron
  *    The Aleph Patron object.
+ *
+ * @throws \DingProviderAuthException
+ *   Given operation cannot be completed until the user authenticates.
  */
-function aleph_get_patron_by_account($account = NULL) {
+function aleph_get_patron_by_account() {
   $patron_handler = new AlephPatronHandler(aleph_client());
-  $credentials = ding_user_get_creds($account);
+  $credentials = ding_user_get_creds();
   return $patron_handler->authenticate($credentials['name'], $credentials['pass'])->getPatron();
+}
+
+/**
+ * Add pincode validation to the patron's profile.
+ */
+function aleph_form_profile2_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'aleph_pin_form_validate';
+}
+
+/**
+ * Pincode validation.
+ */
+function aleph_pin_form_validate($form, &$form_state) {
+  $pincode = $form_state['values']['pincode'];
+
+  if (!empty($pincode) && !ctype_alnum($pincode)) {
+    form_set_error(
+      'pass', t('Pincode must not contain special characters.')
+    );
+  }
 }
