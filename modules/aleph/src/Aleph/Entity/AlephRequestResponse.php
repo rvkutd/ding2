@@ -37,12 +37,6 @@ class AlephRequestResponse {
   protected $note;
 
   /**
-   * @var string $xml
-   * The raw XML from Aleph.
-   */
-  protected $xml;
-
-  /**
    * @return string
    */
   public function getReplyCode() {
