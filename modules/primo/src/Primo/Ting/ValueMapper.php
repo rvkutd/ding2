@@ -195,4 +195,18 @@ class ValueMapper {
     }
   }
 
+  /**
+   * Given a single year, 2016, for example, Primo needs it to be formatted
+   * as [2016+TO+2016].
+   *
+   * @param $creation_date
+   *  The year, 2016, for example.
+   *
+   * @return string
+   *  The correctly formatted string, [2016+TO+2016] for example.
+   */
+  public static function mapCreationDate($creation_date) {
+    return "[$creation_date+TO+$creation_date]";
+  }
+
 }
