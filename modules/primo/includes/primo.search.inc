@@ -176,9 +176,9 @@ function primo_search_search(TingSearchRequest $ting_query) {
     $queries = array_merge_recursive($queries, $renderer->renderStatements($field_filters));
   }
 
-  // We use a free text search instead of the raw query.
+  // Handle raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
-    $queries['query'][] = 'any,contains,' . htmlspecialchars($raw_query);
+    $queries['query'][] = htmlspecialchars($raw_query);
   }
 
   $page = $ting_query->getPage();
@@ -286,7 +286,21 @@ function primo_search_map_common_condition_fields() {
  *   The prepared query object.
  */
 function primo_search_prepare_reference_query($query_string) {
-  return opensearch_search_prepare_reference_query($query_string);
+  $query = ting_start_query();
+
+  // Search for rid if the query starts with the institution code.
+  $source_id = variable_get('primo_sourceid');
+  if (strpos($query_string, $source_id) !== FALSE) {
+    // The wildcard "*" is not mentioned in the Primo documentation, however
+    // it is necessary in order to get all ID's.
+    $query->setRawQuery('rid,contains,' . $query_string . '*');
+  }
+  // Do a fuzzy search.
+  else {
+    $query->setRawQuery('swtitle,begins_with,' . $query_string);
+  }
+
+  return $query;
 }
 
 /**
