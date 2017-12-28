@@ -291,6 +291,8 @@ function primo_search_prepare_reference_query($query_string) {
   // Search for rid if the query starts with the institution code.
   $source_id = variable_get('primo_sourceid');
   if (strpos($query_string, $source_id) !== FALSE) {
+    // The wildcard "*" is not mentioned in the Primo documentation, however
+    // it is necessary in order to get all ID's.
     $query->setRawQuery('rid,contains,' . $query_string . '*');
   }
   // Do a fuzzy search.
