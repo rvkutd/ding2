@@ -38,6 +38,12 @@ class AlephClient {
   protected $mainLibrary;
 
   /**
+   * Filter institution. ICE53 for example.
+   * @var string
+   */
+  protected $filterInstitution;
+
+  /**
    * The GuzzleHttp Client.
    *
    * @var \GuzzleHttp\Client
@@ -49,18 +55,20 @@ class AlephClient {
    *
    * @param string $base_url
    *   The base url for the Aleph end-point.
-   * @throws \Exception
-   *
    * @param $base_url_rest
    *    The base url for the Aleph REST end-point.
    *
    * @param $main_library
    *    The main library. For example ICE01.
+   *
+   * @param $filter_institution
+   *    The institution filter to set. ICE53 for example.
    */
-  public function __construct($base_url, $base_url_rest, $main_library) {
+  public function __construct($base_url, $base_url_rest, $main_library, $filter_institution) {
     $this->baseUrl = $base_url;
     $this->baseUrlRest = $base_url_rest;
     $this->mainLibrary = $main_library;
+    $this->filterInstitution = $filter_institution;
     $this->client = new Client();
   }
 
@@ -239,7 +247,7 @@ class AlephClient {
   public function getItems(AlephMaterial $material) {
     return $this->requestRest(
       'GET',
-      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full'
+      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full&institution=' . $this->filterInstitution
     );
   }
 

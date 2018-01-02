@@ -73,6 +73,7 @@ function aleph_availability_holdings(array $provider_ids) {
       if (array_key_exists($item->getSubLibraryCode(), $sub_libraries) &&
           $item->getSubLibraryCode() !== NULL) {
         $sub_libraries[$item->getSubLibraryCode()]['total_count']++;
+        $sub_libraries[$item->getSubLibraryCode()]['available_count']++;
         $sub_libraries[$item->getSubLibraryCode()]['available'] = $item->isAvailable();
         $sub_libraries[$item->getSubLibraryCode()]['reservable'] = $item->isReservable();
       }
@@ -113,7 +114,7 @@ function aleph_availability_holdings(array $provider_ids) {
       );
     }
 
-    $results[$provider_id] = $data;
+    $results[$item->getId()] = $data;
   }
 
   return $results;
