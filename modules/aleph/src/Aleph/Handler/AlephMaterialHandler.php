@@ -38,9 +38,10 @@ class AlephMaterialHandler extends AlephHandlerBase {
     $aleph_items = $this->client->getItems($material)->xpath('items/item');
     foreach ($aleph_items as $aleph_item) {
       $material = new AlephMaterial();
-      $items[] = $material::materialFromItem($aleph_item);
+      $items[(string) $aleph_item->xpath('z30-sub-library-code')[0]] =
+      $material::materialFromItem($aleph_item);
     }
-    return $items;
+    return array_filter($items, 'aleph_filter_items', ARRAY_FILTER_USE_KEY);
   }
 
   /**
