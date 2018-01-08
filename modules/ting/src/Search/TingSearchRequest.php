@@ -129,6 +129,16 @@ class TingSearchRequest {
   protected $populateCollections = FALSE;
 
   /**
+   * Specifies how objects should be grouped into collections within the search
+   * result.
+   *
+   * @see \Ting\Search\CollectionType
+   *
+   * @var string
+   */
+  protected $collectionType = NULL;
+
+  /**
    * Gets whether the search result should contain fully populated collections.
    *
    * @return bool
@@ -531,6 +541,36 @@ class TingSearchRequest {
    */
   public function addFieldFilter($name, $value) {
     $this->addFieldFilters([new TingSearchFieldFilter($name, $value)]);
+    return $this;
+  }
+
+  /**
+   * Get how objects should be grouped into collections within the search
+   * result.
+   *
+   * @see \Ting\Search\CollectionType
+   *
+   * @return string
+   *   The collection type.
+   */
+  public function getCollectionType() {
+    return $this->collectionType;
+  }
+
+  /**
+   * Specify how objects should be grouped into collections within the search
+   * result.
+   *
+   * @see \Ting\Search\CollectionType
+   *
+   * @param string $type
+   *   The collection type.
+   *
+   * @return \Ting\Search\TingSearchRequest
+   *   The current query object.
+   */
+  public function setCollectionType($type) {
+    $this->collectionType = $type;
     return $this;
   }
 

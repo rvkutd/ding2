@@ -8,6 +8,7 @@ use OpenSearch\OpenSearchStatementGroupRender;
 use OpenSearch\OpenSearchTingObject;
 use OpenSearch\OpenSearchTingObjectCollection;
 use OpenSearch\OpenSearchTingSearchResult;
+use Ting\Search\CollectionType;
 use Ting\Search\DingProviderStrategy;
 use Ting\Search\SearchProviderException;
 use Ting\Search\TingSearchCommonFields;
@@ -216,6 +217,11 @@ function opensearch_search_search(TingSearchRequest $ting_query) {
 
   // Whether to return all materials from matched collections.
   $options['allObjects'] = $ting_query->getPopulateCollections();
+
+  // Specify the collection type. We do not check the work type - it is default.
+  if ($ting_query->getCollectionType() === CollectionType::MANIFESTATION) {
+    $options['collectionType'] = 'manifestation';
+  }
 
   // Ensure we have ting client.
   module_load_include('inc', 'opensearch', 'opensearch.client');

@@ -3,7 +3,7 @@
 /**
  * Duplicate code from ting_covers module. Ting covers module doesn't provide a api we can use.
  *
- * @param array $covers_ids
+ * @param NewMaterialsCoverObject[] $covers_ids
  *  Ids of the materials to fetch covers for.
  * @param array
  *   True if there is a cover image.
