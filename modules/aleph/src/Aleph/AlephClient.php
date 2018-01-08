@@ -38,12 +38,6 @@ class AlephClient {
   protected $mainLibrary;
 
   /**
-   * Filter institution. ICE53 for example.
-   * @var string
-   */
-  protected $filterInstitution;
-
-  /**
    * The GuzzleHttp Client.
    *
    * @var \GuzzleHttp\Client
@@ -68,7 +62,6 @@ class AlephClient {
     $this->baseUrl = $base_url;
     $this->baseUrlRest = $base_url_rest;
     $this->mainLibrary = $main_library;
-    $this->filterInstitution = $filter_institution;
     $this->client = new Client();
   }
 
@@ -247,7 +240,7 @@ class AlephClient {
   public function getItems(AlephMaterial $material) {
     return $this->requestRest(
       'GET',
-      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full&institution=' . $this->filterInstitution
+      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full'
     );
   }
 

@@ -33,6 +33,19 @@ function aleph_get_branches() {
 }
 
 /**
+ * Checks if a branch exists in aleph_get_branches().
+ *
+ * @param $branch
+ *   The branch code to check for.
+ *
+ * @return bool
+ *   True if the branch exists.
+ */
+function aleph_filter_items($branch) {
+  return array_key_exists($branch, aleph_get_branches());
+}
+
+/**
  * Returns list of allowed interest periods.
  *
  * @return array
@@ -125,14 +138,6 @@ function aleph_settings_form() {
     '#description' => t('The main library. ICE01 for example.'),
     '#required' => TRUE,
     '#default_value' => variable_get('aleph_main_library', ''),
-  );
-
-  $form['aleph']['aleph_filter_institution'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Aleph Filter Institution'),
-    '#description' => t('The filter institution. ICE53 for example.'),
-    '#required' => TRUE,
-    '#default_value' => variable_get('aleph_filter_institution', ''),
   );
 
   $form['aleph']['aleph_enable_reservation_deletion'] = array(
