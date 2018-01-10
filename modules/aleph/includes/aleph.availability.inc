@@ -78,8 +78,9 @@ function aleph_availability_holdings(array $provider_ids) {
         $sub_libraries[$item->getSubLibraryCode()]['reservable'] = $item->isReservable();
       }
       else {
+        $placements = implode(' > ', array_filter($item->getPlacements()));
         $sub_libraries[$item->getSubLibraryCode()] = array(
-          'placement' => array($item->getSubLibrary(), $item->getCollection()),
+          'placement' => array($item->getSubLibrary(), $placements),
           // Reference count not available in Aleph.
           'reference_count' => 0,
           'available' => $item->isAvailable(),
