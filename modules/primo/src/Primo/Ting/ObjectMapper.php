@@ -176,10 +176,7 @@ class ObjectMapper {
    *   The series description, or FALSE if it could not be determined.
    */
   public function mapSeriesDescription() {
-    // Series data contain both title of series and number for current document.
-    // We only want the series title so split and return first element.
-    $seriesData = explode(' ; ', $this->document->getSeriesData());
-    return array_shift($seriesData);
+    return $this->document->getSeriesData();
   }
 
   /**
