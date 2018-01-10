@@ -33,19 +33,6 @@ function aleph_get_branches() {
 }
 
 /**
- * Checks if a branch exists in aleph_get_branches().
- *
- * @param $branch
- *   The branch code to check for.
- *
- * @return bool
- *   True if the branch exists.
- */
-function aleph_filter_items($branch) {
-  return array_key_exists($branch, aleph_get_branches());
-}
-
-/**
  * Returns list of allowed interest periods.
  *
  * @return array
