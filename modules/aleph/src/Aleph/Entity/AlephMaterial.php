@@ -21,6 +21,7 @@ class AlephMaterial {
   protected $isInternet;
   protected $loanDate;
   protected $loans;
+  protected $placements = [];
   protected $reservable = FALSE;
   protected $subLibrary;
   protected $subLibraryCode;
@@ -201,20 +202,20 @@ class AlephMaterial {
   }
 
   /**
-   * Set where the material is located at the library.
+   * Set the material collection.
    *
    * @param string $collection
-   *    The physical placement of the material.
+   *    The collection the material belongs to.
    */
   public function setCollection($collection) {
     $this->collection = $collection;
   }
 
   /**
-   * Returns where the material is at the library.
+   * Returns the material collection.
    *
    * @return string
-   *    The physical placement of the material.
+   *    The collection the material belongs to.
    */
   public function getCollection() {
     return $this->collection;
@@ -262,6 +263,29 @@ class AlephMaterial {
   }
 
   /**
+   * Set the physical location(s) of the material.
+   *
+   * @param array $placements
+   *    Array of locations.
+   */
+  public function setPlacements($placements) {
+    $this->placements = $placements;
+  }
+
+  /**
+   * Return the physical location(s) of the material in the order:
+   * z30-call-no (shelving location of the item), z30-call-no2 (additional
+   * shelving location of the item).
+   *
+   * @return array
+   *    For example ['Row Har B', ''].
+   *    The second one, z30-call-no2 is empty most of the time.
+   */
+  public function getPlacements() {
+    return $this->placements;
+  }
+
+  /**
    * Returns the patron's loans from SimpleXMLElement.
    *
    * @param \SimpleXMLElement $xml
@@ -299,6 +323,10 @@ class AlephMaterial {
     $material->setSubLibrary((string) $item->xpath('z30/z30-sub-library')[0]);
     $material->setCollection((string) $item->xpath('z30/z30-collection')[0]);
     $material->setSubLibraryCode((string) $item->xpath('z30-sub-library-code')[0]);
+    $material->setPlacements([
+      (string) $item->xpath('z30/z30-call-no')[0],
+      (string) $item->xpath('z30/z30-call-no2')[0]
+    ]);
     if ((string) $item->xpath('status')[0] === 'On Shelf') {
       $material->setAvailable(TRUE);
       $material->reservable = TRUE;
