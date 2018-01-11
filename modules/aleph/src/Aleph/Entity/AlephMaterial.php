@@ -273,10 +273,13 @@ class AlephMaterial {
   }
 
   /**
-   * Return the physical location(s) of the material.
+   * Return the physical location(s) of the material in the order:
+   * z30-call-no (shelving location of the item), z30-call-no2 (additional
+   * shelving location of the item).
    *
    * @return array
-   *    For example ['Row Har B', 'x'].
+   *    For example ['Row Har B', ''].
+   *    The second one, z30-call-no2 is empty most of the time.
    */
   public function getPlacements() {
     return $this->placements;
