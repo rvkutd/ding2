@@ -75,7 +75,7 @@ class ObjectMapper {
     $object->setOnlineUrl($this->document->getOnlineUrl());
     $object->setOnline(!empty($this->document->getOnlineUrl()));
     $object->setPublisher($this->document->getPublisher());
-    $object->setSeriesDescription($this->mapSeriesDescription());
+    $object->setSeriesDescription($this->document->getSeriesData());
     $object->setSource($this->mapSource());
     $object->setSubjects($this->mapSubjects());
     $object->setTracks($this->document->getTracks());
@@ -167,16 +167,6 @@ class ObjectMapper {
       $lang = ValueMapper::mapLanguageFromIso639($lang);
     }
     return (!empty($lang)) ? $lang : FALSE;
-  }
-
-  /**
-   * Description of the series which the material is a part of.
-   *
-   * @return string|FALSE
-   *   The series description, or FALSE if it could not be determined.
-   */
-  public function mapSeriesDescription() {
-    return $this->document->getSeriesData();
   }
 
   /**
