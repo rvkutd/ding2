@@ -395,3 +395,49 @@ function _primo_common_field_mapping() {
     TingSearchCommonFields::SUBJECT => 'sub',
   ];
 }
+
+/**
+ * Add custom description to ting_search_carousel query field.
+ */
+function primo_form_ting_search_carousel_admin_form_alter(&$form, &$form_state) {
+  $form['#validate'][] = 'primo_validate_carousel_queries';
+
+  $description = '<p><ul>' . t(
+    '<li><b>' . 'Raw query' . ':</b> ' . "@raw_query" . '</li>' .
+    '<li><b>' . 'Comma separated IDs' . ':</b> ' . "@id_query" . '</li>' .
+    '<li><b>' . 'Title' . ':</b> ' . "@title_query" . '</li>',
+    [
+      '@raw_query' => 'title,contains,harry+potter',
+      '@id_query' => '[ICE01_PRIMO_TEST001199069,ICE01_PRIMO_TEST001177712]',
+      '@title_query' => '[Harry Potter]'
+    ]
+  ) . '</ul></p>';
+
+  foreach ($form['ting_search_carousel']['ting_searches'] as &$search) {
+    $search["query[]"]['#description'] .= $description;
+  }
+}
+
+/**
+ * Custom validation for the ting_search_carousel.
+ * Do not allow a mixture of ID and text search.
+ */
+function primo_validate_carousel_queries($form, &$form_state) {
+  $institution_code = variable_get('primo_institution_code');
+
+  foreach ($form_state['input']['query'] as $key => $query) {
+    $query_texts = explode(',', trim($query, '[]'));
+    $ids = 0;
+    $texts = 0;
+    foreach ($query_texts as $query_text) {
+      preg_match("/$institution_code/", $query_text) === 1 ? $ids++ : $texts++;
+    }
+    if ($ids > 0 && $texts > 0) {
+      form_set_error('query[]', t(
+        "You can't mix IDs and text searches. Valid examples: 
+        '[ICE01_PRIMO_TEST001199069,ICE01_PRIMO_TEST001177712]' or '[harry potter']"
+        )
+      );
+    }
+  }
+}
