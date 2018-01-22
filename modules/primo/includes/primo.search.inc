@@ -180,7 +180,23 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // Handle raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
-    $queries['query'][] = htmlspecialchars($raw_query);
+    // The query starts with "[", so we detect if we are handling raw
+    // material ID's or a free text search.
+    if (strpos($raw_query, '[') !== FALSE) {
+      $raw_queries = explode(',', trim($raw_query, '[]'));
+      $separate_queries = [];
+      foreach ($raw_queries as $key => $raw_query) {
+        $institution_code = variable_get('primo_institution_code');
+        $starts_with_institution_code = preg_match("/^$institution_code/", $raw_query);
+        $rid_query = $key === 0 ? "rid,contains,$raw_query" : $raw_query;
+        $separate_queries[] = $starts_with_institution_code ? $rid_query : 'swtitle,begins_with,' . htmlspecialchars($raw_query);
+      }
+      $queries['query'][] = implode(' OR ', $separate_queries);
+    }
+    // If not, do a raw query.
+    else {
+      $queries['query'][] = htmlspecialchars($raw_query);
+    }
   }
 
   $page = $ting_query->getPage();
