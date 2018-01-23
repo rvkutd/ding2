@@ -182,20 +182,17 @@ function primo_search_search(TingSearchRequest $ting_query) {
   if (!empty($raw_query = $ting_query->getRawQuery())) {
     // The query starts with "[", so we query for comma separated ID's.
     if (strpos($raw_query, '[') !== FALSE) {
-      $raw_ids = explode(',', trim($raw_query, '[]'));
-      $ids = [];
-      foreach ($raw_ids as $raw_id) {
-        $ids[] = $raw_id;
-      }
+      $ids = explode(',', trim($raw_query, '[]'));
+      $ids = array_map('trim', $ids);
       $queries['query'][] = 'rid,contains,' . implode(' OR ', $ids);
     }
     // The query starts with '"', so we search for the title.
-    else if (strpos($raw_query, '"') !== FALSE) {
-      $queries['query'][] = htmlspecialchars('swtitle,begins_with,' . trim($raw_query, '"'));
+    elseif (strpos($raw_query, '"') !== FALSE) {
+      $queries['query'][] = 'swtitle,begins_with,' . trim($raw_query, '"');
     }
     // If not, do a raw query.
     else {
-      $queries['query'][] = htmlspecialchars($raw_query);
+      $queries['query'][] = $raw_query;
     }
   }
 
