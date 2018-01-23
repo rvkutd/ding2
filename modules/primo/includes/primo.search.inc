@@ -178,6 +178,12 @@ function primo_search_search(TingSearchRequest $ting_query) {
     $queries = array_merge_recursive($queries, $renderer->renderStatements($field_filters));
   }
 
+  // Handle material filters.
+  if (!empty($material_filters = $ting_query->getMaterialFilter())) {
+    // Material filters is a list of material ids.
+    $queries['query'][] = 'rid,contains,' . implode(' OR ', $material_filters);
+  }
+
   // Handle raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
     // The query starts with "[", so we query for comma separated ID's.
@@ -281,17 +287,6 @@ function primo_search_supported_relations() {
  */
 function primo_search_render_inline_relation(TingRelation $relation) {
   return opensearch_search_render_inline_relation($relation);
-}
-
-/**
- * Mapping between common fields and their provider-specific name.
- *
- * @return array
- *   Mapping between TingSearchCommonFields::* fields and their provider-
- *   specific counterpart.
- */
-function primo_search_map_common_condition_fields() {
-  return opensearch_search_map_common_condition_fields();
 }
 
 /**
