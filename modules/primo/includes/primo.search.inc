@@ -180,18 +180,18 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // Handle raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
-    // The query starts with "[", so we detect if we are handling raw
-    // material ID's or a free text search.
+    // The query starts with "[", so we query for comma separated ID's.
     if (strpos($raw_query, '[') !== FALSE) {
-      $raw_queries = explode(',', trim($raw_query, '[]'));
-      $separate_queries = [];
-      foreach ($raw_queries as $key => $raw_query) {
-        $institution_code = variable_get('primo_institution_code');
-        $starts_with_institution_code = preg_match("/^$institution_code/", $raw_query);
-        $rid_query = $key === 0 ? "rid,contains,$raw_query" : $raw_query;
-        $separate_queries[] = $starts_with_institution_code ? $rid_query : 'swtitle,begins_with,' . htmlspecialchars($raw_query);
+      $raw_ids = explode(',', trim($raw_query, '[]'));
+      $ids = [];
+      foreach ($raw_ids as $raw_id) {
+        $ids[] = $raw_id;
       }
-      $queries['query'][] = implode(' OR ', $separate_queries);
+      $queries['query'][] = 'rid,contains,' . implode(' OR ', $ids);
+    }
+    // The query starts with '"', so we search for the title.
+    else if (strpos($raw_query, '"') !== FALSE) {
+      $queries['query'][] = htmlspecialchars('swtitle,begins_with,' . trim($raw_query, '"'));
     }
     // If not, do a raw query.
     else {
