@@ -403,8 +403,8 @@ function primo_form_ting_search_carousel_admin_form_alter(&$form, &$form_state) 
   $form['#validate'][] = 'primo_validate_carousel_queries';
 
   $description = '<p><ul>
-    <li><b>' . t('Raw query') . ':</b> title,contains,harry+potter</li>' .
-    '<li><b>' . t('Comma separated IDs') .':</b> [ICE01_PRIMO_TEST001199069,ICE01_PRIMO_TEST001177712]</li>' .
+    <li><b>' . t('Raw query') . ':</b> title,contains,harry+potter</li>
+    <li><b>' . t('Comma separated IDs') . ':</b> [ICE01_PRIMO_TEST001199069,ICE01_PRIMO_TEST001177712]</li>' .
     '<li><b>' . t('Title') . ':</b> "Harry Potter"</li>
     </ul></p>';
 
@@ -415,6 +415,7 @@ function primo_form_ting_search_carousel_admin_form_alter(&$form, &$form_state) 
 
 /**
  * Custom validation for the ting_search_carousel.
+ *
  * Do not allow a mixture of ID and text search.
  */
 function primo_validate_carousel_queries($form, &$form_state) {

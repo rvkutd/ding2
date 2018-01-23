@@ -400,9 +400,6 @@ function primo_search_autocomplete($query) {
  *
  * @param string $search_string
  *   The search string.
- *
- * @return string
- *   The quoted search string.
  */
 function primo_search_search_quote($search_string) {
   // We don't do escaping right now.
