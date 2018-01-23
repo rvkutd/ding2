@@ -394,3 +394,16 @@ function primo_search_autocomplete($query) {
 
   return $suggestions;
 }
+
+/**
+ * Quotes a search string to make it compatible with the provider.
+ *
+ * @param string $search_string
+ *   The search string.
+ *
+ * @return string
+ *   The quoted search string.
+ */
+function primo_search_search_quote($search_string) {
+  // We don't do escaping right now.
+}
