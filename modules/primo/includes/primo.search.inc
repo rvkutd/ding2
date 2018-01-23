@@ -10,7 +10,9 @@ use Primo\Ting\Collection;
 use Primo\Ting\PrimoStatementRenderer;
 use Primo\Ting\Result;
 use Ting\Search\SearchProviderException;
+use Ting\Search\TingSearchCommonFields;
 use Ting\Search\TingSearchRequest;
+use Ting\Search\TingSearchSort;
 
 // TODO Remove this once Primo search provider is fully implemented.
 // Ding does not support mixing multiple partial implementations of a provider
@@ -184,9 +186,19 @@ function primo_search_search(TingSearchRequest $ting_query) {
   $page = $ting_query->getPage();
   $count = $ting_query->getCount();
 
+  // Empty sort string means default relevance sort is used.
+  $sort_string = NULL;
+  $sorts = $ting_query->getSorts());
+  if (!empty($sorts)) {
+    // Primo only supports a single sort order. The field name includes the
+    // sort direction so extract and use the first one. Ignore the rest.
+    $sort = array_shift($sorts);
+    $sort_string = $sort->getField();
+  }
+
   // Execute the search, return the result.
   try {
-    $primo_result = $client->search($queries, $page, $count);
+    $primo_result = $client->search($queries, $page, $count, $sort);
     $result = new Result($primo_result, $ting_query);
 
     // Pre-warm the cache so that subsequent loads of objects for the documents
@@ -311,7 +323,30 @@ function primo_search_prepare_reference_query($query_string) {
  *   instance. Keyed by a machine-name.
  */
 function primo_search_sort_options() {
-  return opensearch_search_sort_options();
+  // For Primo the direction is a part of the field name so we do not need to
+  // set it. Default direction NONE is fine.
+  return [
+    'title' => [
+      'label' => t('Title'),
+      'sort' => new TingSearchSort('stitle'),
+    ],
+    'creator' => [
+      'label' => t('Creator'),
+      'sort' => new TingSearchSort('screator'),
+    ],
+    'date_descending' => [
+      'label' => t('Date (Descending)'),
+      'sort' => new TingSearchSort('scdate'),
+    ],
+    'date_ascending' => [
+      'label' => t('Date (Ascending)'),
+      'sort' => new TingSearchSort('scdate2'),
+    ],
+    'popularity' => [
+      'label' => t('Popularity'),
+      'sort' => new TingSearchSort('popularity'),
+    ]
+  ];
 }
 
 /**
