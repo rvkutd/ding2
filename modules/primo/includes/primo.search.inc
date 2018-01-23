@@ -188,7 +188,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // Empty sort string means default relevance sort is used.
   $sort_string = NULL;
-  $sorts = $ting_query->getSorts());
+  $sorts = $ting_query->getSorts();
   if (!empty($sorts)) {
     // Primo only supports a single sort order. The field name includes the
     // sort direction so extract and use the first one. Ignore the rest.
@@ -198,7 +198,7 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // Execute the search, return the result.
   try {
-    $primo_result = $client->search($queries, $page, $count, $sort);
+    $primo_result = $client->search($queries, $page, $count, $sort_string);
     $result = new Result($primo_result, $ting_query);
 
     // Pre-warm the cache so that subsequent loads of objects for the documents
