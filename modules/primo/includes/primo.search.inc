@@ -180,7 +180,20 @@ function primo_search_search(TingSearchRequest $ting_query) {
 
   // Handle raw query.
   if (!empty($raw_query = $ting_query->getRawQuery())) {
-    $queries['query'][] = htmlspecialchars($raw_query);
+    // The query starts with "[", so we query for comma separated ID's.
+    if (strpos($raw_query, '[') !== FALSE) {
+      $ids = explode(',', trim($raw_query, '[]'));
+      $ids = array_map('trim', $ids);
+      $queries['query'][] = 'rid,contains,' . implode(' OR ', $ids);
+    }
+    // The query starts with '"', so we search for the title.
+    elseif (strpos($raw_query, '"') !== FALSE) {
+      $queries['query'][] = 'swtitle,begins_with,' . trim($raw_query, '"');
+    }
+    // If not, do a raw query.
+    else {
+      $queries['query'][] = $raw_query;
+    }
   }
 
   $page = $ting_query->getPage();
@@ -380,4 +393,14 @@ function primo_search_autocomplete($query) {
   }
 
   return $suggestions;
+}
+
+/**
+ * Quotes a search string to make it compatible with the provider.
+ *
+ * @param string $search_string
+ *   The search string.
+ */
+function primo_search_search_quote($search_string) {
+  // We don't do escaping right now.
 }
