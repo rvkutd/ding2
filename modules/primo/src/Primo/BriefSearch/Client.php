@@ -148,7 +148,9 @@ class Client {
     // Set user-specified "runtime" values.
     $queryParameters['indx'] = [$offset];
     $queryParameters['bulkSize'] = [$numResults];
-    $queryParameters['sortField'] = [$sort];
+    if (NULL !== $sort) {
+      $queryParameters['sortField'] = [$sort];
+    }
 
     // Add in "static" defaults.
     $queryParameters = array_merge_recursive($queryParameters, $this->defaultParameters);
