@@ -323,10 +323,16 @@ class AlephMaterial {
     $material->setSubLibrary((string) $item->xpath('z30/z30-sub-library')[0]);
     $material->setCollection((string) $item->xpath('z30/z30-collection')[0]);
     $material->setSubLibraryCode((string) $item->xpath('z30-sub-library-code')[0]);
-    $material->setPlacements([
-      (string) $item->xpath('z30/z30-call-no')[0],
-      (string) $item->xpath('z30/z30-call-no2')[0]
-    ]);
+
+    // Note placements of the material.
+    $placements = array_map(function ($path) use ($item) {
+      return empty($item->xpath($path)[0]) ? NULL : (string) $item->xpath($path)[0];
+    }, ['z30/z30-call-no', 'z30/z30-call-no2']);
+
+    if (!empty($placements)) {
+      $material->setPlacements($placements);
+    }
+
     if ((string) $item->xpath('status')[0] === 'On Shelf') {
       $material->setAvailable(TRUE);
       $material->reservable = TRUE;
