@@ -390,7 +390,7 @@ function _primo_common_field_mapping() {
     TingSearchCommonFields::AUTHOR => 'creator',
     // Top level categories.
     TingSearchCommonFields::CATEGORY => 'facet_tlevel',
-    TingSearchCommonFields::LANGUAGE => 'lang',
+    TingSearchCommonFields::LANGUAGE => 'facet_lang',
     TingSearchCommonFields::MATERIAL_TYPE => 'rtype',
     TingSearchCommonFields::SUBJECT => 'sub',
   ];
