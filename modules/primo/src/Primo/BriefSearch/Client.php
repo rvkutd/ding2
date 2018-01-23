@@ -134,6 +134,9 @@ class Client {
    *   The offset of the search results to return. Use 1 for the first result.
    * @param int $numResults
    *   The number of results to return.
+   * @param string $sort
+   *   Specifies the type of sort to perform. If this parameter is not specified
+   *   or left empty, the system uses the relevance sort.
    *
    * @return \Primo\BriefSearch\Result
    *   The search result.
@@ -141,10 +144,11 @@ class Client {
    * @throws \Primo\Exception\TransferException
    *   If an error occurs during the execution of the search.
    */
-  public function search(array $queryParameters, $offset, $numResults) {
+  public function search(array $queryParameters, $offset, $numResults, $sort = NULL) {
     // Set user-specified "runtime" values.
     $queryParameters['indx'] = [$offset];
     $queryParameters['bulkSize'] = [$numResults];
+    $queryParameters['sortField'] = [$sort];
 
     // Add in "static" defaults.
     $queryParameters = array_merge_recursive($queryParameters, $this->defaultParameters);
