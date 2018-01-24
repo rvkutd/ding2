@@ -74,20 +74,17 @@ class AlephClient {
    *    The operation to run in Aleph.
    * @param array $params
    *    The extra query parameters to send.
-   * @param string $branch
-   *    The branch to do the request against.
    *
    * @return \SimpleXMLElement
    *    A SimpleXMLElement object.
    *
    * @throws \RuntimeException
    */
-  public function request($method, $operation, array $params = array(), $branch = 'BBAAA') {
+  public function request($method, $operation, array $params = array()) {
     $options = array(
       'query' => array(
         'op' => $operation,
         'library' => 'ICE53',
-        'sub_library' => $branch,
       ) + $params,
       'allow_redirects' => FALSE,
     );
@@ -353,6 +350,26 @@ class AlephClient {
       'POST',
       'patron/' . $patron->getId() . '/circulationActions/loans',
       $options
+    );
+  }
+
+  /**
+   * @param \Drupal\aleph\Aleph\Entity\AlephPatron $patron
+   * @param \Drupal\aleph\Aleph\Entity\AlephRequest $request
+   *
+   * @return \SimpleXMLElement
+   * @throws \RuntimeException
+   */
+  public function deleteReservation(AlephPatron $patron, AlephRequest
+  $request) {
+    // ADM library code + the item record key.
+    // For example, USM50000238843000320.
+    $iid = $request->getInstitutionCode() . $request->getDocNumber() .
+      $request->getItemSequence() . $request->getSequence();
+
+    return $this->requestRest(
+      'DELETE',
+      'patron/' . $patron->getId() . "/circulationActions/requests/holds/$iid"
     );
   }
 

@@ -284,8 +284,36 @@ function aleph_reservation_update() {
   return NULL;
 }
 
-function aleph_reservation_delete() {
-  return NULL;
+/**
+ * Delete a reservation for a given account.
+ *
+ * @param object $account
+ *   Drupal user account object.
+ * @param string $id
+ *   ID of a reservation.
+ *
+ * @return bool
+ * @throws \DingProviderAuthException
+ * @throws \DingProviderUserException
+ */
+function aleph_reservation_delete($account, $id) {
+  $patron_handler = new AlephPatronHandler(aleph_client());
+  $patron_handler->setPatron(aleph_get_patron_by_account());
+  $reservations = $patron_handler->getReservations();
+
+  if (isset($reservations[(string) $id])) {
+    $cid = md5(serialize(array($reservations[$id]->getItem()->getId())));
+    cache_clear_all($cid, 'cache');
+  }
+
+  $response = $patron_handler->deleteReservation($patron_handler->getPatron(),
+    $reservations[$id]);
+
+  if ($response->getNote() === 'Action Succeeded') {
+    return $response->success();
+  }
+
+  throw new DingProviderReservationUserError(t($response->getNote()));
 }
 
 /**
