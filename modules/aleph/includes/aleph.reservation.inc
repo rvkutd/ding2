@@ -173,6 +173,13 @@ function aleph_reservation_list($account, $requested_type = NULL) {
     return $result;
   }
 
+  $ids = [];
+  foreach ($res as $reservation) {
+    $id = $reservation->getItem()->getId();
+    $ids[$id] = $id;
+  }
+  $ids = ding_provider_build_entity_id($ids);
+
   foreach ($res as $reservation) {
     $request = $reservation->getRequest();
     $material = $reservation->getItem();
@@ -180,7 +187,7 @@ function aleph_reservation_list($account, $requested_type = NULL) {
     $type = $request->getStatus() === 'S' ? DING_RESERVATION_READY : DING_RESERVATION_NOT_READY;
 
     $ding_reservation = array(
-      'ding_entity_id' => ding_provider_build_entity_id($material->getId()),
+      'ding_entity_id' => $ids[$material->getId()],
       'id' => $material->getId(),
       'order_id' => $request->getRequestNumber(),
       'pickup_branch_id' => $request->getPickupLocation(),
