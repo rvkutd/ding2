@@ -289,9 +289,10 @@ function aleph_reservation_update() {
  * @param string $id
  *   ID of a reservation.
  *
- * @return bool
  * @throws \DingProviderAuthException
  * @throws \DingProviderUserException
+ *
+ * @return bool
  */
 function aleph_reservation_delete($account, $id) {
   $patron_handler = new AlephPatronHandler(aleph_client());
@@ -310,7 +311,7 @@ function aleph_reservation_delete($account, $id) {
     return $response->success();
   }
 
-  throw new DingProviderReservationUserError(t($response->getNote()));
+  throw new DingProviderReservationUserError($response->getNote());
 }
 
 /**
