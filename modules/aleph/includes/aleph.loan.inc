@@ -23,6 +23,7 @@ function aleph_loan_list() {
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
   $loans = $patron_handler->getLoans();
+  $allowed_branches = array_keys(aleph_get_branches());
 
   $results = array();
 
@@ -34,17 +35,19 @@ function aleph_loan_list() {
   $ids = ding_provider_build_entity_id($ids);
 
   foreach ($loans as $loan) {
-    $material_id = $loan->getId();
-    $loan_data = array(
-      'ding_entity_id' => $ids[$material_id],
-      'display_name' => $loan->getTitle(),
-      'loan_date' => $loan->getLoanDate(),
-      'expiry' => $loan->getDueDate(),
-      'materials_number' => $material_id,
-      'renewable' => $loan->isRenewable(),
-    );
+    if (in_array($loan->getSubLibraryCode(), $allowed_branches, TRUE)) {
+      $material_id = $loan->getId();
+      $loan_data = array(
+        'ding_entity_id' => $ids[$material_id],
+        'display_name' => $loan->getTitle(),
+        'loan_date' => $loan->getLoanDate(),
+        'expiry' => $loan->getDueDate(),
+        'materials_number' => $material_id,
+        'renewable' => $loan->isRenewable(),
+      );
 
-    $results[$material_id] = new DingProviderLoan($material_id, $loan_data);
+      $results[$material_id] = new DingProviderLoan($material_id, $loan_data);
+    }
   }
 
   return $results;

@@ -184,6 +184,10 @@ function aleph_reservation_list($account, $requested_type = NULL) {
     $request = $reservation->getRequest();
     $material = $reservation->getItem();
 
+    if (!array_key_exists($material->getSubLibraryCode(), aleph_get_branches())) {
+      continue;
+    }
+
     $type = $request->getStatus() === 'S' ? DING_RESERVATION_READY : DING_RESERVATION_NOT_READY;
 
     $ding_reservation = array(

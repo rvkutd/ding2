@@ -77,17 +77,13 @@ class AlephPatronHandler extends AlephHandlerBase {
    * @throws \RuntimeException
    */
   public function getLoans() {
-    $result = array();
+    $results = array();
     $loans = $this->client->getLoans($this->getPatron())->xpath('loans/institution/loan');
     foreach ($loans as $loan) {
-      $material = new AlephMaterial();
-      $material->setTitle((string) $loan->xpath('z13/z13-title')[0]);
-      $material->setId((string) $loan->xpath('z30/z30-doc-number')[0]);
-      $material->setDueDate((string) $loan->xpath('z36/z36-due-date')[0]);
-      $material->setLoanDate((string) $loan->xpath('z36/z36-loan-date')[0]);
-      $result[] = $material;
+      $material = AlephMaterial::materialFromItem($loan);
+      $results[] = $material;
     }
-    return $result;
+    return $results;
   }
 
   /**
@@ -173,6 +169,7 @@ class AlephPatronHandler extends AlephHandlerBase {
 
         $material->setTitle((string) $hold_request->xpath('z13/z13-title')[0]);
         $material->setId((string) $hold_request->xpath('z13/z13-doc-number')[0]);
+        $material->setSubLibraryCode((string) $hold_request->xpath('z30-sub-library-code')[0]);
 
         $reservation->setItem($material);
         $reservation->setRequest($request);
