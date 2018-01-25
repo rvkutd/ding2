@@ -182,23 +182,20 @@ function aleph_reservation_list($account, $requested_type = NULL) {
     $ding_reservation = array(
       'ding_entity_id' => ding_provider_build_entity_id($material->getId()),
       'id' => $material->getId(),
+      'order_id' => $request->getRequestNumber(),
       'pickup_branch_id' => $request->getPickupLocation(),
       'created' => $request->getOpenDate(),
       'expiry' => $request->getEndRequestDate(),
       'display_name' => $material->getTitle(),
-      // Required by ding_reservation.
       'reservation_type' => $type,
+      'queue_number' => FALSE,
+      'ill_status' => FALSE,
     );
 
     if ($type === DING_RESERVATION_READY) {
       $ding_reservation['pickup_date'] = $request->getHoldDate();
-      $ding_reservation['pickup_order_id'] = $request->getDocNumber();
+      $ding_reservation['pickup_order_id'] = $request->getRequestNumber();
       $ding_reservation['order_arrived'] = TRUE;
-    }
-    elseif ($type === DING_RESERVATION_NOT_READY) {
-      if (!empty($request->getSequence())) {
-        $ding_reservation['queue_number'] = $request->getSequence();
-      }
     }
 
     $result[$type][$ding_reservation['id']] = new DingProviderReservation($ding_reservation['id'], $ding_reservation);
@@ -284,8 +281,37 @@ function aleph_reservation_update() {
   return NULL;
 }
 
-function aleph_reservation_delete() {
-  return NULL;
+/**
+ * Delete a reservation for a given account.
+ *
+ * @param object $account
+ *   Drupal user account object.
+ * @param string $id
+ *   ID of a reservation.
+ *
+ * @throws \DingProviderAuthException
+ * @throws \DingProviderUserException
+ *
+ * @return bool
+ */
+function aleph_reservation_delete($account, $id) {
+  $patron_handler = new AlephPatronHandler(aleph_client());
+  $patron_handler->setPatron(aleph_get_patron_by_account());
+  $reservations = $patron_handler->getReservations();
+
+  if (isset($reservations[(string) $id])) {
+    $cid = md5(serialize(array($reservations[$id]->getItem()->getId())));
+    cache_clear_all($cid, 'cache');
+  }
+
+  $response = $patron_handler->deleteReservation($patron_handler->getPatron(),
+    $reservations[$id]);
+
+  if ($response->getNote() === 'Action Succeeded') {
+    return $response->success();
+  }
+
+  throw new DingProviderReservationUserError($response->getNote());
 }
 
 /**
