@@ -26,10 +26,17 @@ function aleph_loan_list() {
 
   $results = array();
 
+  $ids = [];
+  foreach ($loans as $loan) {
+    $id = $loan->getId();
+    $ids[$id] = $id;
+  }
+  $ids = ding_provider_build_entity_id($ids);
+
   foreach ($loans as $loan) {
     $material_id = $loan->getId();
     $loan_data = array(
-      'ding_entity_id' => ding_provider_build_entity_id($material_id),
+      'ding_entity_id' => $ids[$material_id],
       'display_name' => $loan->getTitle(),
       'loan_date' => $loan->getLoanDate(),
       'expiry' => $loan->getDueDate(),
