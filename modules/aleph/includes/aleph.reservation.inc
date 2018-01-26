@@ -184,6 +184,8 @@ function aleph_reservation_list($account, $requested_type = NULL) {
     $request = $reservation->getRequest();
     $material = $reservation->getItem();
 
+    // Filter the list; only show materials for the branches in
+    // aleph_get_branches().
     if (!array_key_exists($material->getSubLibraryCode(), aleph_get_branches())) {
       continue;
     }

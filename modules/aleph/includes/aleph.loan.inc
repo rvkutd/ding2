@@ -35,6 +35,8 @@ function aleph_loan_list() {
   $ids = ding_provider_build_entity_id($ids);
 
   foreach ($loans as $loan) {
+    // Filter the list; only show materials for the branches in
+    // aleph_get_branches().
     if (in_array($loan->getSubLibraryCode(), $allowed_branches, TRUE)) {
       $material_id = $loan->getId();
       $loan_data = array(
