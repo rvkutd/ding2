@@ -84,6 +84,14 @@ class AlephRequest {
    */
   protected $endRequestDate;
 
+  /**
+   * The date until which the item is to be kept on the hold shelf, waiting to
+   * be picked up.
+   *
+   * @var \DateTime
+   */
+  protected $endHoldDate;
+
 
   /**
    * Date the item was requested.
@@ -279,6 +287,24 @@ class AlephRequest {
    */
   public function setEndRequestDate(\DateTimeInterface $end_request_date) {
     $this->endRequestDate = $end_request_date->format(ALEPH_DATE_FORMAT);
+  }
+
+  /**
+   * Get the end hold date.
+   *
+   * @return string
+   */
+  public function getEndHoldDate() {
+    return $this->endHoldDate;
+  }
+
+  /**
+   * Set the end hold date.
+   *
+   * @param string $end_hold_date
+   */
+  public function setEndHoldDate($end_hold_date) {
+    $this->endHoldDate = $end_hold_date;
   }
 
   /**

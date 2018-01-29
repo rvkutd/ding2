@@ -162,6 +162,7 @@ class AlephPatronHandler extends AlephHandlerBase {
           $end_request_date));
         $request->setDocNumber((string) $hold_request->xpath('z37/z37-doc-number')[0]);
         $request->setHoldDate((string) $hold_request->xpath('z37/z37-hold-date')[0]);
+        $request->setEndHoldDate((string) $hold_request->xpath('z37/z37-end-hold-date')[0]);
         $request->setRequestNumber((string) $hold_request->xpath('z37/z37-request-number')[0]);
         $request->setSequence((string) $hold_request->xpath('z37/z37-sequence')[0]);
         $request->setInstitutionCode((string) $hold_request->xpath('z37/translate-change-active-library')[0]);

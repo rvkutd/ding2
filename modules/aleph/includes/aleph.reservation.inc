@@ -206,7 +206,7 @@ function aleph_reservation_list($account, $requested_type = NULL) {
     );
 
     if ($type === DING_RESERVATION_READY) {
-      $ding_reservation['pickup_date'] = $request->getHoldDate();
+      $ding_reservation['pickup_date'] = $request->getEndHoldDate();
       $ding_reservation['pickup_order_id'] = $request->getRequestNumber();
       $ding_reservation['order_arrived'] = TRUE;
     }
