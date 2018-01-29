@@ -38,6 +38,18 @@ class AlephClient {
   protected $mainLibrary;
 
   /**
+   * The institution to filter on. ICE53 for example.
+   * @var string
+   */
+  protected $filterInstitution;
+
+  /**
+   * A comma separated list of branches to filter on.
+   * @var string
+   */
+  protected $branches;
+
+  /**
    * The GuzzleHttp Client.
    *
    * @var \GuzzleHttp\Client
@@ -51,17 +63,19 @@ class AlephClient {
    *   The base url for the Aleph end-point.
    * @param $base_url_rest
    *    The base url for the Aleph REST end-point.
-   *
    * @param $main_library
    *    The main library. For example ICE01.
-   *
    * @param $filter_institution
    *    The institution filter to set. ICE53 for example.
+   * @param $branches
+   *    Filter to certain branches.
    */
-  public function __construct($base_url, $base_url_rest, $main_library, $filter_institution) {
+  public function __construct($base_url, $base_url_rest, $main_library, $filter_institution, $branches) {
     $this->baseUrl = $base_url;
     $this->baseUrlRest = $base_url_rest;
     $this->mainLibrary = $main_library;
+    $this->filterInstitution = $filter_institution;
+    $this->branches = $branches;
     $this->client = new Client();
   }
 
@@ -84,7 +98,7 @@ class AlephClient {
     $options = array(
       'query' => array(
         'op' => $operation,
-        'library' => 'ICE53',
+        'library' => $this->filterInstitution,
       ) + $params,
       'allow_redirects' => FALSE,
     );
@@ -116,10 +130,12 @@ class AlephClient {
    *
    * @throws \RuntimeException
    */
-  public function requestRest($method, $url, array $options = array()) {
+  public function requestRest($method, $url, array $options = []) {
     $response = $this->client->request(
-      $method, $this->baseUrlRest . '/' . $url,
-      $options
+      $method, $this->baseUrlRest . "/$url", array_merge([
+        'view' => 'full',
+        'institution' => $this->filterInstitution
+      ], $options)
     );
     // Status from Aleph is OK.
     if ($response->getStatusCode() === 200) {
@@ -237,7 +253,8 @@ class AlephClient {
   public function getItems(AlephMaterial $material) {
     return $this->requestRest(
       'GET',
-      'record/' . $this->mainLibrary . $material->getId() . '/items?view=full'
+      'record/' . $this->mainLibrary . $material->getId() . '/items',
+      ['sublibs' => $this->branches]
     );
   }
 

@@ -322,9 +322,22 @@ class AlephMaterial {
     $material->setTitle((string) $item->xpath('z13/z13-title')[0]);
     $material->setSubLibrary((string) $item->xpath('z30/z30-sub-library')[0]);
     $material->setCollection((string) $item->xpath('z30/z30-collection')[0]);
-    $material->setSubLibraryCode((string) $item->xpath('z36-sub-library-code')[0]);
-    $material->setDueDate((string) $item->xpath('z36/z36-due-date')[0]);
-    $material->setLoanDate((string) $item->xpath('z36/z36-loan-date')[0]);
+
+    if ($item->xpath('z30-sub-library-code')) {
+      $material->setSubLibraryCode((string) $item->xpath('z30-sub-library-code')[0]);
+    }
+
+    if ($item->xpath('z36-sub-library-code')) {
+      $material->setSubLibraryCode((string) $item->xpath('z36-sub-library-code')[0]);
+    }
+
+    if ($item->xpath('z36/z36-due-date')) {
+      $material->setDueDate((string) $item->xpath('z36/z36-due-date')[0]);
+    }
+
+    if ($item->xpath('z36/z36-loan-date')) {
+      $material->setLoanDate((string) $item->xpath('z36/z36-loan-date')[0]);
+    }
 
     // Note placements of the material.
     $placements = array_map(function ($path) use ($item) {

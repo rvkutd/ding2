@@ -176,7 +176,8 @@ function aleph_client() {
         variable_get('aleph_base_url', ''),
         variable_get('aleph_base_url_rest', ''),
         variable_get('aleph_main_library', ''),
-        variable_get('aleph_filter_institution', '')
+        variable_get('aleph_filter_institution', ''),
+        implode(',', array_keys(aleph_get_branches()))
       );
     }
     catch (Exception $e) {

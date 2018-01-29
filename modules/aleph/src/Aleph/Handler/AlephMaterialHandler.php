@@ -34,15 +34,11 @@ class AlephMaterialHandler extends AlephHandlerBase {
    * @throws \RuntimeException
    */
   public function getHoldings(AlephMaterial $material) {
-    $aleph_items = $this->client->getItems($material)->xpath('items/item');
+    $aleph_items = $this->client->getItems($material)->xpath('sub_library/items/item');
 
-    $items = array_map(function($aleph_item) {
+    return array_map(function($aleph_item) {
       return AlephMaterial::materialFromItem($aleph_item);
     }, $aleph_items);
-
-    return array_filter($items, function(AlephMaterial $material) {
-      return array_key_exists($material->getSubLibraryCode(), aleph_get_branches());
-    });
   }
 
   /**
