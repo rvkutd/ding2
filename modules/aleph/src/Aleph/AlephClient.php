@@ -373,4 +373,17 @@ class AlephClient {
     );
   }
 
+  /**
+   * Get information about the institutions and branches from the patron ID.
+   *
+   * @param string $bor_id
+   *    The Aleph patron ID.
+   *
+   * @return \SimpleXMLElement
+   * @throws \RuntimeException
+   */
+  public function getBlocks($bor_id) {
+    return $this->requestRest('GET', 'patron/' . $bor_id . '/patronStatus/blocks');
+  }
+
 }

@@ -142,6 +142,13 @@ function aleph_settings_form() {
     '#description' => t('Logs requests to the Aleph webservice. Sensitive information such as CPR number and PIN code is stripped from the requests.'),
   );
 
+  $form['aleph']['aleph_allowed_login_branches'] = [
+    '#type' => 'textfield',
+    '#title' => t('Branches allowed to login'),
+    '#default_value' => variable_get('aleph_allowed_login_branches', ''),
+    '#description' => t('Comma separated list with the allowed branches.'),
+  ];
+
   // Add the option to select a default interest period for reservations, if not
   // selected it will default to 360 days (12 months). The users can override
   // this during reservation.
@@ -220,4 +227,13 @@ function aleph_pin_form_validate($form, &$form_state) {
       'pass', t('Pincode must not contain special characters.')
     );
   }
+}
+
+/**
+ * List of branches allowed for login.
+ *
+ * @return array The allowed branches for login.
+ */
+function aleph_get_allowed_login_branches() {
+  return explode(',', variable_get('aleph_allowed_login_branches'));
 }

@@ -55,7 +55,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    */
   public function authenticate($bor_id, $verification) {
     $response = $this->client->authenticate($bor_id, $verification);
-    $result = new AuthenticationResult($this->client, $bor_id, $verification);
+    $result = new AuthenticationResult($this->client, $bor_id, $verification,
+      aleph_get_allowed_login_branches(), $this->getActiveBranches($bor_id));
     if ($result->isAuthenticated()) {
       $patron = new AlephPatron();
       $patron->setId($bor_id);
@@ -242,6 +243,28 @@ class AlephPatronHandler extends AlephHandlerBase {
       $reservation->getRequest());
 
     return AlephRequestResponse::createRequestResponseFromXML($response);
+  }
+
+  /**
+   * Get the branches where the patron is active.
+   *
+   * @param string $bor_id
+   *    The Aleph patron ID.
+   *
+   * @return array $result
+   *    Array with branches the use is active in.
+   *
+   * @throws \RuntimeException
+   */
+  public function getActiveBranches($bor_id) {
+    $result = [];
+    $branches = $this->client->getBlocks($bor_id)->xpath('blocks_messages/institution/sublibrary/@code');
+
+    foreach ($branches as $branch) {
+      $result[] = (string) $branch;
+    }
+
+    return $result;
   }
 
   /**

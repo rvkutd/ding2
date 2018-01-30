@@ -18,6 +18,8 @@ class AuthenticationResult {
   protected $client;
   protected $patron;
   protected $verification;
+  protected $allowedBranches = [];
+  protected $activeBranches = [];
 
   /**
    * AuthenticationResult constructor.
@@ -28,18 +30,38 @@ class AuthenticationResult {
    *    The patron's ID.
    * @param string $verification
    *    The patron's pin.
+   * @param array $allowed_branches
+   *    The allowed branches for login.
+   * @param array $active_branches
+   *    The branches where the patron is active.
    */
-  public function __construct(AlephClient $client, $bor_id, $verification) {
+  public function __construct(
+    AlephClient $client,
+    $bor_id,
+    $verification,
+    array $allowed_branches,
+    array $active_branches
+  ) {
     $this->borId = $bor_id;
     $this->client = $client;
     $this->verification = $verification;
+    $this->allowedBranches = $allowed_branches;
+    $this->activeBranches = $active_branches;
   }
 
   /**
    * Check the patron is authenticated.
    */
   public function isAuthenticated() {
-    return !$this->getClientError() && !$this->isBlocked();
+    $allowed = FALSE;
+    if (!empty($this->allowedBranches)) {
+      foreach ($this->activeBranches as $activeBranch) {
+        if (in_array($activeBranch, $this->allowedBranches, TRUE)) {
+          $allowed = TRUE;
+        }
+      }
+    }
+    return ($allowed && !$this->getClientError() && !$this->isBlocked());
   }
 
   /**
