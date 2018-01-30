@@ -20,7 +20,7 @@ function aleph_user_authenticate($uid, $pass) {
   $patron_handler = new AlephPatronHandler($client);
 
   // Authenticate user against Aleph.
-  $auth_result = $patron_handler->authenticate($uid, $pass);
+  $auth_result = $patron_handler->authenticate($uid, $pass, aleph_get_allowed_login_branches());
 
   // Check if the user is authenticated.
   if ($auth_result->isAuthenticated()) {
