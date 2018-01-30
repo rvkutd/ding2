@@ -251,7 +251,7 @@ class AlephPatronHandler extends AlephHandlerBase {
    * @param string $bor_id
    *    The Aleph patron ID.
    *
-   * @return array $result
+   * @return string[] $result
    *    Array with branches the use is active in.
    *
    * @throws \RuntimeException

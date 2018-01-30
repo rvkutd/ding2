@@ -30,9 +30,9 @@ class AuthenticationResult {
    *    The patron's ID.
    * @param string $verification
    *    The patron's pin.
-   * @param array $allowed_branches
+   * @param string[] $allowed_branches
    *    The allowed branches for login.
-   * @param array $active_branches
+   * @param string[] $active_branches
    *    The branches where the patron is active.
    */
   public function __construct(

@@ -232,7 +232,7 @@ function aleph_pin_form_validate($form, &$form_state) {
 /**
  * List of branches allowed for login.
  *
- * @return array The allowed branches for login.
+ * @return string[] The allowed branches for login.
  */
 function aleph_get_allowed_login_branches() {
   return explode(',', variable_get('aleph_allowed_login_branches'));
