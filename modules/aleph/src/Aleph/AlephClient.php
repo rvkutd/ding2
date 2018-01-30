@@ -382,7 +382,7 @@ class AlephClient {
    * @return \SimpleXMLElement
    * @throws \RuntimeException
    */
-  public function getBlocks($bor_id) {
+  public function getPatronBlocks($bor_id) {
     return $this->requestRest('GET', 'patron/' . $bor_id . '/patronStatus/blocks');
   }
 

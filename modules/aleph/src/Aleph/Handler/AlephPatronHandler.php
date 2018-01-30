@@ -257,14 +257,8 @@ class AlephPatronHandler extends AlephHandlerBase {
    * @throws \RuntimeException
    */
   public function getActiveBranches($bor_id) {
-    $result = [];
-    $branches = $this->client->getBlocks($bor_id)->xpath('blocks_messages/institution/sublibrary/@code');
-
-    foreach ($branches as $branch) {
-      $result[] = (string) $branch;
-    }
-
-    return $result;
+    $branches = $this->client->getPatronBlocks($bor_id)->xpath('blocks_messages/institution/sublibrary/@code');
+    return array_map('strval', $branches);
   }
 
   /**
