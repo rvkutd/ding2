@@ -18,8 +18,8 @@ class AuthenticationResult {
   protected $client;
   protected $patron;
   protected $verification;
-  protected $allowedBranches = [];
-  protected $activeBranches = [];
+  protected $allowedBranches;
+  protected $activeBranches;
 
   /**
    * AuthenticationResult constructor.
@@ -45,7 +45,7 @@ class AuthenticationResult {
     $this->borId = $bor_id;
     $this->client = $client;
     $this->verification = $verification;
-    $this->allowedBranches = $allowed_branches;
+    $this->allowedBranches = array_filter($allowed_branches);
     $this->activeBranches = $active_branches;
   }
 
@@ -55,7 +55,7 @@ class AuthenticationResult {
   public function isAuthenticated() {
     $allowed = !empty(
       array_intersect($this->activeBranches, $this->allowedBranches)
-    );
+    ) || empty($this->allowedBranches);
     return ($allowed && !$this->getClientError() && !$this->isBlocked());
   }
 
