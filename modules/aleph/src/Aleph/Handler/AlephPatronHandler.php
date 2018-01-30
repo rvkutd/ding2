@@ -47,15 +47,22 @@ class AlephPatronHandler extends AlephHandlerBase {
    *    The user ID (z303-id).
    * @param string $verification
    *    The user pin-code/verification code.
+   * @param string[] $allowed_login_branches
+   *    Allowed login branches.
    *
    * @return \Drupal\aleph\Aleph\AuthenticationResult
    *    The authenticated Aleph patron.
    *
    * @throws \RuntimeException
    */
-  public function authenticate($bor_id, $verification) {
+  public function authenticate($bor_id, $verification, array $allowed_login_branches = []) {
     $response = $this->client->authenticate($bor_id, $verification);
-    $result = new AuthenticationResult($this->client, $bor_id, $verification);
+
+    $result = new AuthenticationResult(
+      $this->client, $bor_id, $verification, $allowed_login_branches,
+      $this->getActiveBranches($bor_id)
+    );
+
     if ($result->isAuthenticated()) {
       $patron = new AlephPatron();
       $patron->setId($bor_id);
@@ -64,6 +71,7 @@ class AlephPatronHandler extends AlephHandlerBase {
       $this->setPatron($patron);
       $result->setPatron($patron);
     }
+
     return $result;
   }
 
@@ -242,6 +250,22 @@ class AlephPatronHandler extends AlephHandlerBase {
       $reservation->getRequest());
 
     return AlephRequestResponse::createRequestResponseFromXML($response);
+  }
+
+  /**
+   * Get the branches where the patron is active.
+   *
+   * @param string $bor_id
+   *    The Aleph patron ID.
+   *
+   * @return string[] $result
+   *    Array with branches the use is active in.
+   *
+   * @throws \RuntimeException
+   */
+  public function getActiveBranches($bor_id) {
+    $branches = $this->client->getPatronBlocks($bor_id)->xpath('blocks_messages/institution/sublibrary/@code');
+    return array_map('strval', $branches);
   }
 
   /**

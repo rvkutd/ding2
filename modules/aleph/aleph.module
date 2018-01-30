@@ -127,6 +127,13 @@ function aleph_settings_form() {
     '#default_value' => variable_get('aleph_main_library', ''),
   );
 
+  $form['aleph']['aleph_allowed_login_branches'] = [
+    '#type' => 'textfield',
+    '#title' => t('Branches allowed to login'),
+    '#default_value' => variable_get('aleph_allowed_login_branches', ''),
+    '#description' => t('Comma separated list with the allowed branches.'),
+  ];
+
   $form['aleph']['aleph_enable_reservation_deletion'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable reservation deletion'),
@@ -199,7 +206,9 @@ function aleph_client() {
 function aleph_get_patron_by_account() {
   $patron_handler = new AlephPatronHandler(aleph_client());
   $credentials = ding_user_get_creds();
-  return $patron_handler->authenticate($credentials['name'], $credentials['pass'])->getPatron();
+  return $patron_handler->authenticate(
+    $credentials['name'], $credentials['pass'], aleph_get_allowed_login_branches()
+  )->getPatron();
 }
 
 /**
@@ -220,4 +229,14 @@ function aleph_pin_form_validate($form, &$form_state) {
       'pass', t('Pincode must not contain special characters.')
     );
   }
+}
+
+/**
+ * List of branches allowed for login.
+ *
+ * @return string[] The allowed branches for login.
+ */
+function aleph_get_allowed_login_branches() {
+  $branches = explode(',', variable_get('aleph_allowed_login_branches'));
+  return empty($branches) ? NULL : $branches;
 }
