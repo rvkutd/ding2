@@ -53,14 +53,9 @@ class AuthenticationResult {
    * Check the patron is authenticated.
    */
   public function isAuthenticated() {
-    $allowed = FALSE;
-    if (!empty($this->allowedBranches)) {
-      foreach ($this->activeBranches as $activeBranch) {
-        if (in_array($activeBranch, $this->allowedBranches, TRUE)) {
-          $allowed = TRUE;
-        }
-      }
-    }
+    $allowed = !empty(
+      array_intersect($this->activeBranches, $this->allowedBranches)
+    );
     return ($allowed && !$this->getClientError() && !$this->isBlocked());
   }
 
