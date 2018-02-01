@@ -245,3 +245,50 @@ function aleph_get_allowed_login_branches() {
   $branches = explode(',', variable_get('aleph_allowed_login_branches'));
   return empty($branches) ? NULL : $branches;
 }
+
+/**
+ * Return patron information for profile2.
+ *
+ * @return array The patron information from Aleph.
+ */
+function aleph_get_profile_info() {
+  try {
+    $patron = aleph_get_patron_by_account();
+    return [
+      'email' => $patron->getEmail(),
+      'expiry_date' => $patron->getExpiryDate(),
+      'phone_number' => $patron->getPhoneNumber(),
+    ];
+  } catch (DingProviderAuthException $e) {
+    return [];
+  }
+}
+
+/**
+ * Add Aleph information to the patrons profile on login.
+ *
+ * @param $edit
+ * @param $account
+ */
+function aleph_user_login(&$edit, $account) {
+  $profile_info = aleph_get_profile_info();
+  $profile = profile2_load_by_user($account, 'provider_aleph');
+
+  if (empty($profile)) {
+    $profile = profile2_create(array(
+      'type' => 'provider_aleph',
+      'user' => $account,
+    ));
+  }
+
+  if (!empty($profile_info)) {
+    $profile->field_aleph_email[LANGUAGE_NONE][0]['value'] =
+      $profile_info['email'];
+    $profile->field_aleph_phone_number[LANGUAGE_NONE][0]['value'] =
+      $profile_info['phone_number'];
+    $profile->field_aleph_expiry_date[LANGUAGE_NONE][0]['value'] =
+      $profile_info['expiry_date'];
+  }
+
+  profile2_save($profile);
+}
