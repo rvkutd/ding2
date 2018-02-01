@@ -216,11 +216,10 @@ function aleph_get_patron_by_account() {
  */
 function aleph_form_profile2_form_alter(&$form, &$form_state) {
   $form['#validate'][] = 'aleph_pin_form_validate';
-  $profile2 = $form['profile_provider_aleph'];
 
-  $profile2['field_aleph_email']['#disabled'] = TRUE;
-  $profile2['field_aleph_phone_number']['#disabled'] = TRUE;
-  $profile2['field_aleph_expiry_date']['#disabled'] = TRUE;
+  $form['profile_provider_aleph']['field_aleph_email']['#disabled'] = TRUE;
+  $form['profile_provider_aleph']['field_aleph_phone_number']['#disabled'] = TRUE;
+  $form['profile_provider_aleph']['field_aleph_expiry_date']['#disabled'] = TRUE;
 }
 
 /**
@@ -281,12 +280,11 @@ function aleph_user_login(&$edit, $account) {
   }
 
   if (!empty($profile_info)) {
-    $profile->field_aleph_email[LANGUAGE_NONE][0]['value']
-      = $profile_info['email'];
-    $profile->field_aleph_phone_number[LANGUAGE_NONE][0]['value']
-      = $profile_info['phone_number'];
-    $profile->field_aleph_expiry_date[LANGUAGE_NONE][0]['value']
-      = $profile_info['expiry_date'];
+    $wrapper = entity_metadata_wrapper('profile2', $profile);
+    $wrapper->field_aleph_email->set($profile_info['email']);
+    $wrapper->field_aleph_phone_number->set($profile_info['phone_number']);
+    $wrapper->field_aleph_expiry_date->set($profile_info['expiry_date']);
+    $wrapper->save();
   }
 
   profile2_save($profile);
