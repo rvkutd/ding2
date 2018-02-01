@@ -212,10 +212,15 @@ function aleph_get_patron_by_account() {
 }
 
 /**
- * Add pincode validation to the patron's profile.
+ * Add pincode validation to the patron's profile and disable a few fields.
  */
 function aleph_form_profile2_form_alter(&$form, &$form_state) {
   $form['#validate'][] = 'aleph_pin_form_validate';
+  $profile2 = $form['profile_provider_aleph'];
+
+  $profile2['field_aleph_email']['#disabled'] = TRUE;
+  $profile2['field_aleph_phone_number']['#disabled'] = TRUE;
+  $profile2['field_aleph_expiry_date']['#disabled'] = TRUE;
 }
 
 /**

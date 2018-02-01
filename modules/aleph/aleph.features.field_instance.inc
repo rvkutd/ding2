@@ -10,6 +10,74 @@
 function aleph_field_default_field_instances() {
   $field_instances = array();
 
+  // Exported field_instance: 'profile2-provider_aleph-field_aleph_email'
+  $field_instances['profile2-provider_aleph-field_aleph_email'] = array(
+    'bundle' => 'provider_aleph',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 2,
+      ),
+    ),
+    'entity_type' => 'profile2',
+    'field_name' => 'field_aleph_email',
+    'label' => 'Email',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 33,
+    ),
+  );
+
+  // Exported field_instance: 'profile2-provider_aleph-field_aleph_expiry_date'
+  $field_instances['profile2-provider_aleph-field_aleph_expiry_date'] = array(
+    'bundle' => 'provider_aleph',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 4,
+      ),
+    ),
+    'entity_type' => 'profile2',
+    'field_name' => 'field_aleph_expiry_date',
+    'label' => 'Expiry date',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 35,
+    ),
+  );
+
   // Exported field_instance: 'profile2-provider_aleph-field_aleph_interest_period'
   $field_instances['profile2-provider_aleph-field_aleph_interest_period'] = array(
     'bundle' => 'provider_aleph',
@@ -38,6 +106,40 @@ function aleph_field_default_field_instances() {
       'settings' => array(),
       'type' => 'options_select',
       'weight' => 32,
+    ),
+  );
+
+  // Exported field_instance: 'profile2-provider_aleph-field_aleph_phone_number'
+  $field_instances['profile2-provider_aleph-field_aleph_phone_number'] = array(
+    'bundle' => 'provider_aleph',
+    'default_value' => NULL,
+    'deleted' => 0,
+    'description' => '',
+    'display' => array(
+      'default' => array(
+        'label' => 'above',
+        'module' => 'text',
+        'settings' => array(),
+        'type' => 'text_default',
+        'weight' => 3,
+      ),
+    ),
+    'entity_type' => 'profile2',
+    'field_name' => 'field_aleph_phone_number',
+    'label' => 'Phone number',
+    'required' => 0,
+    'settings' => array(
+      'text_processing' => 0,
+      'user_register_form' => FALSE,
+    ),
+    'widget' => array(
+      'active' => 1,
+      'module' => 'text',
+      'settings' => array(
+        'size' => 60,
+      ),
+      'type' => 'text_textfield',
+      'weight' => 34,
     ),
   );
 
@@ -74,7 +176,10 @@ function aleph_field_default_field_instances() {
 
   // Translatables
   // Included for use with string extractors like potx.
+  t('Email');
+  t('Expiry date');
   t('Interest period');
+  t('Phone number');
   t('Preferred branch');
 
   return $field_instances;
