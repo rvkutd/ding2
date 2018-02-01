@@ -65,9 +65,11 @@ function aleph_loan_list() {
  *
  * @return array Result of renewals.
  *    Result of renewals.
+ *
+ * @throws \DingProviderAuthException
  */
 function aleph_loan_renew($account, array $loan_ids) {
-  $patron = aleph_get_patron_by_account($account);
+  $patron = aleph_get_patron_by_account();
   $patron_handler = new AlephPatronHandler(aleph_client());
   $patron_handler->setPatron($patron);
   $returned_loans = $patron_handler->renewLoans($loan_ids);
@@ -78,7 +80,7 @@ function aleph_loan_renew($account, array $loan_ids) {
       $result[$id] = DingProviderLoan::STATUS_RENEWED;
     }
     else {
-      $result[$id] = DingProviderLoan::STATUS_NOT_RENEWED;
+      $result[$id] = DingProviderLoan::STATUS_RENEWAL_NUM_EXCEEDED;
     }
   }
 
