@@ -4,6 +4,7 @@
  * Handles reservation with Aleph.
  */
 
+use Drupal\aleph\Aleph\Entity\AlephMaterial;
 use Drupal\aleph\Aleph\Entity\AlephRequest;
 use Drupal\aleph\Aleph\Entity\AlephReservation;
 use Drupal\aleph\Aleph\Handler\AlephPatronHandler;
@@ -52,7 +53,8 @@ function aleph_reservation_options($account, $default_value = '') {
   }
 
   $form = array();
-  $form += ding_reservation_default_options_branch('alma_preferred_branch', $default, $branches);
+  $form += ding_reservation_default_options_branch('aleph_preferred_branch',
+    $default, $branches);
   if (variable_get('ding_reservation_disable_interest_date') !== 1) {
     $form += ding_reservation_interest_period_selector('interest_period', $interest_period, $periods);
   }
@@ -240,10 +242,13 @@ function aleph_reservation_list($account, $requested_type = NULL) {
  *   Reservation exists.
  * @throws \DingProviderUserException
  *    General exception.
+ * @throws \DingProviderAuthException
  */
 function aleph_reservation_create($account, $id) {
-  $patron_handler = new AlephPatronHandler(aleph_client());
+  $client = aleph_client();
+  $patron_handler = new AlephPatronHandler($client);
   $patron_handler->setPatron(aleph_get_patron_by_account());
+  $patron = $patron_handler->getPatron();
 
   // Check if the users has this reservation and throw exception.
   $reservations = $patron_handler->getReservations();
@@ -264,16 +269,20 @@ function aleph_reservation_create($account, $id) {
   $defaults = aleph_reservation_default_options($account);
   $reservation = new AlephReservation();
   $request = new AlephRequest();
+  $material = new AlephMaterial();
+  $material->setId($id);
   $request->setRequestDate(new DateTime());
   $request->setEndRequestDate($end_request_date);
   $request->setPickupLocation($defaults['aleph_preferred_branch']);
+  $request->setDocNumber($id);
   $reservation->setRequest($request);
 
+  $holding_groups = $patron_handler->getHoldingGroups($patron, $material);
+
   // Try to make the reservation.
-  $patron = $patron_handler->getPatron();
   $response = NULL;
   try {
-    $response = $patron_handler->createReservation($patron, $reservation);
+    $response = $patron_handler->createReservation($patron, $reservation, $holding_groups);
   }
   catch (Exception $e) {
     watchdog_exception('aleph', $e);
