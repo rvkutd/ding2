@@ -18,6 +18,9 @@ class AlephPatron {
   protected $borId;
   protected $name;
   protected $verification;
+  protected $email;
+  protected $phoneNumber;
+  protected $expiryDate;
 
   /**
    * Return the patron's name.
@@ -77,6 +80,64 @@ class AlephPatron {
    */
   public function setVerification($verification) {
     $this->verification = $verification;
+  }
+
+  /**
+   * Set the patrons email.
+   *
+   * @param string $email
+   *    Patrons email address.
+   */
+  public function setEmail($email) {
+    $this->email = $email;
+  }
+
+  /**
+   * Get the patrons email.
+   *
+   * @return string
+   */
+  public function getEmail() {
+    return $this->email;
+  }
+
+  /**
+   * Get the patrons phone number.
+   *
+   * @return string
+   *    The patrons phone number.
+   */
+  public function getPhoneNumber() {
+    return $this->phoneNumber;
+  }
+
+  /**
+   * Set the patron phone number.
+   *
+   * @param string $phoneNumber
+   *    The patrons phone number.
+   */
+  public function setPhoneNumber($phoneNumber) {
+    $this->phoneNumber = $phoneNumber;
+  }
+
+  /**
+   * Get the user expiry date.
+   *
+   * @return string
+   */
+  public function getExpiryDate() {
+    return $this->expiryDate;
+  }
+
+  /**
+   * Set the expiry date.
+   *
+   * @param string $expiryDate
+   *    Patron expiry date in Aleph.
+   */
+  public function setExpiryDate($expiryDate) {
+    $this->expiryDate = $expiryDate;
   }
 
 }

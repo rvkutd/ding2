@@ -212,10 +212,14 @@ function aleph_get_patron_by_account() {
 }
 
 /**
- * Add pincode validation to the patron's profile.
+ * Add pincode validation to the patron's profile and disable a few fields.
  */
 function aleph_form_profile2_form_alter(&$form, &$form_state) {
   $form['#validate'][] = 'aleph_pin_form_validate';
+
+  $form['profile_provider_aleph']['field_aleph_email']['#disabled'] = TRUE;
+  $form['profile_provider_aleph']['field_aleph_phone_number']['#disabled'] = TRUE;
+  $form['profile_provider_aleph']['field_aleph_expiry_date']['#disabled'] = TRUE;
 }
 
 /**
@@ -239,4 +243,47 @@ function aleph_pin_form_validate($form, &$form_state) {
 function aleph_get_allowed_login_branches() {
   $branches = explode(',', variable_get('aleph_allowed_login_branches'));
   return empty($branches) ? NULL : $branches;
+}
+
+/**
+ * Return patron information for profile2.
+ *
+ * @return array
+ *   The patron information from Aleph.
+ */
+function aleph_get_profile_info() {
+  try {
+    $patron = aleph_get_patron_by_account();
+    return [
+      'email' => $patron->getEmail(),
+      'expiry_date' => $patron->getExpiryDate(),
+      'phone_number' => $patron->getPhoneNumber(),
+    ];
+  }
+  catch (DingProviderAuthException $e) {
+    return [];
+  }
+}
+
+/**
+ * Add Aleph information to the patrons profile on login.
+ */
+function aleph_user_login(&$edit, $account) {
+  $profile_info = aleph_get_profile_info();
+  $profile = profile2_load_by_user($account, 'provider_aleph');
+
+  if (empty($profile)) {
+    $profile = profile2_create([
+      'type' => 'provider_aleph',
+      'user' => $account,
+    ]);
+  }
+
+  if (!empty($profile_info)) {
+    $wrapper = entity_metadata_wrapper('profile2', $profile);
+    $wrapper->field_aleph_email->set($profile_info['email']);
+    $wrapper->field_aleph_phone_number->set($profile_info['phone_number']);
+    $wrapper->field_aleph_expiry_date->set($profile_info['expiry_date']);
+    $wrapper->save();
+  }
 }
