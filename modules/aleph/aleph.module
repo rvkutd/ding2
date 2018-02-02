@@ -273,10 +273,10 @@ function aleph_user_login(&$edit, $account) {
   $profile = profile2_load_by_user($account, 'provider_aleph');
 
   if (empty($profile)) {
-    $profile = profile2_create(array(
+    $profile = profile2_create([
       'type' => 'provider_aleph',
       'user' => $account,
-    ));
+    ]);
   }
 
   if (!empty($profile_info)) {
@@ -286,6 +286,4 @@ function aleph_user_login(&$edit, $account) {
     $wrapper->field_aleph_expiry_date->set($profile_info['expiry_date']);
     $wrapper->save();
   }
-
-  profile2_save($profile);
 }
